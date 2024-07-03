@@ -9,9 +9,8 @@
     </select>
     <button 
       @click="addWidget"
-      class="mt-4 w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-    >
-      Add Widget
+      class="mt-4 w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded flex items-center justify-center">
+      <Icon name="mdi:add" color="white" class="mr-1 text-2xl"/>Add Widget
     </button>
   </div>
 </template>

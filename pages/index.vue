@@ -9,8 +9,8 @@
     <main class="flex-grow p-4">
       <ComponentSelector @add-widget="handleAddWidget" class="mb-5"/>
       <DashboardArea :widgets="widgets" @delete-widget="handleDeleteWidget" />
-      <button @click="downloadPythonFile" class="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-        Download Python File
+      <button @click="downloadPythonFile" class="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded flex items-center justify-center">
+        <Icon name="mdi:download" color="white" class="mr-1 text-2xl"/> Download Python File
       </button>
     </main>
   </div>
