@@ -1,5 +1,5 @@
 <template>
-  <h1 class="text-3xl font-bold underline">
-    Hello world!
-  </h1>
+  <NuxtLayout :name="default">
+    <NuxtPage />
+  </NuxtLayout>
 </template>
