@@ -381,6 +381,13 @@
     protobufjs "^7.2.5"
     yargs "^17.7.2"
 
+"@iconify-json/carbon@^1.1.36":
+  version "1.1.36"
+  resolved "https://registry.npmjs.org/@iconify-json/carbon/-/carbon-1.1.36.tgz"
+  integrity sha512-NC3VcqLtwLZpi7+LeXj+99/byv+asrnCQxiDNCZV6hKr9WcNh6C25kJguJYfN+dV54kOkw78e+6PitQi2Bppnw==
+  dependencies:
+    "@iconify/types" "*"
+
 "@iconify-json/uil@^1.1.8":
   version "1.1.8"
   resolved "https://registry.npmjs.org/@iconify-json/uil/-/uil-1.1.8.tgz"
