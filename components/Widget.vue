@@ -4,6 +4,9 @@
     <button @click="emitDelete" class="absolute top-1 right-1">
       <Icon name="carbon:close-outline" class="text-red-700 text-xl"/>
     </button>
+    <button @click="emitConfig" class="absolute top-1 left-1">
+      <Icon name="ic:outline-settings" class="text-yellow-700 text-xl"/>
+    </button>
   </div>
 </template>
 
