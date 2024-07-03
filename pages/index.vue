@@ -1,8 +1,10 @@
 <template>
   <div class="min-h-screen bg-gray-100 flex flex-col">
-    <header class="bg-blue-500 text-white p-4 text-lg flex justify-between items-center">
-      <span>Dashboard Designer Tool</span>
-      <span class="text-2xl"><Icon name="mdi:chart-box-outline" color="black" /></span>
+    <header class="bg-blue-500 text-white p-4 text-lg flex items-center">
+      <div class="flex items-center">
+        <span class="text-3xl mr-1"><Icon name="mdi:chart-box-outline" color="white" /></span>
+        <span class="font-bold">Dashybuilder</span>
+      </div>
     </header>
     <main class="flex-grow p-4">
       <ComponentSelector @add-widget="handleAddWidget" class="mb-5"/>
@@ -12,14 +14,13 @@
 </template>
 
 <script setup>
-const widgets = ref([]);
-
-const componentsData = [
+const components = [
   { id: 1, name: 'Chart' },
   { id: 2, name: 'Table' },
   { id: 3, name: 'Text Block' }
 ];
-const componentsMap = new Map(componentsData.map(comp => [comp.id, comp.name]));
+
+const widgets = ref([]);
 
 function handleAddWidget(componentId) {
   if (!componentId) {
@@ -29,7 +30,7 @@ function handleAddWidget(componentId) {
     return;
   }
   
-  const componentName = componentsMap.get(parseInt(componentId)) || 'Unknown Component';
+  const componentName = components.find(c => c.id === componentId)?.name || 'Unknown Component';
   const newWidget = {
     id: widgets.value.length + 1,
     name: componentName,
