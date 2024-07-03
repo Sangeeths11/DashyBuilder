@@ -15,7 +15,8 @@ const props = defineProps({
   message: String
 });
 
-const visible = ref(true);
+const visible = ref(false);
+
 
 function hideMessage() {
   setTimeout(() => {
