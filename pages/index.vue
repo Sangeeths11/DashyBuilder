@@ -7,6 +7,7 @@
       </div>
     </header>
     <main class="flex-grow p-4">
+      <ErrorMessageBox :message="errorMessage"/>
       <ComponentSelector @add-widget="handleAddWidget" class="mb-5"/>
       <DashboardArea :widgets="widgets" @delete-widget="handleDeleteWidget" />
       <button @click="downloadPythonFile" class="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded flex items-center justify-center">
@@ -17,7 +18,6 @@
 </template>
 
 <script setup>
-
 const components = [
   { id: 1, name: 'Chart' },
   { id: 2, name: 'Table' },
@@ -25,10 +25,11 @@ const components = [
 ];
 
 const widgets = ref([]);
+const errorMessage = ref('');
 
 function handleAddWidget(componentId) {
   if (widgets.value.length >= 6) {
-    alert('You can only have 6 widgets in the dashboard');
+    errorMessage.value = 'You can only add up to 6 widgets.';
     return;
   }
   const component = components.find(c => c.id === componentId);
@@ -47,25 +48,7 @@ function handleDeleteWidget(id) {
   widgets.value = widgets.value.filter(w => w.id !== id);
 }
 
-async function exportLayout() {
-  console.log(widgets.value);
-  try {
-    const response = await fetch('http://localhost:5000/export', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(widgets.value)
-    });
-    const data = await response.json();
-    console.log(data);
-    alert('Dashboard exported successfully!');
-  } catch (error) {
-    console.error('Error exporting the dashboard:', error);
-    alert('Failed to export dashboard.');
-  }
-}
-const downloadPythonFile = async () => {
+async function downloadPythonFile() {
   try {
     const response = await fetch('http://localhost:5000/export', {
       method: 'POST',
@@ -85,10 +68,9 @@ const downloadPythonFile = async () => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    window.URL.revokeObjectURL(url);
   } catch (error) {
     console.error('Error downloading the python file:', error);
-    alert('Failed to download python file.');
+    errorMessage.value = error.message;
   }
-};
+}
 </script>
