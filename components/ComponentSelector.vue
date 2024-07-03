@@ -9,7 +9,7 @@
     </select>
     <button 
       @click="addWidget"
-      class="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition duration-200"
+      class="mt-4 w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
     >
       Add Widget
     </button>
