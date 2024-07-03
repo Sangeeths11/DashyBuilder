@@ -10,10 +10,12 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
+    "@nuxt/icon": "^1.0.0",
     "nuxt": "^3.12.3",
     "vue": "^3.4.31"
   },
   "devDependencies": {
+    "@iconify-json/uil": "^1.1.8",
     "autoprefixer": "^10.4.19",
     "postcss": "^8.4.39",
     "sass": "^1.77.6",
