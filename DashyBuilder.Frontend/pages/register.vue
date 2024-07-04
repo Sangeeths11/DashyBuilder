@@ -1,6 +1,8 @@
 <script setup lang="ts">
 
 definePageMeta({
+  title: 'DashyBuilder - Register',
+  middleware: ['auth-index'],
 })
 
 const { signUp, errorMessage } = useAuth();

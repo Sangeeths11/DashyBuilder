@@ -1,4 +1,10 @@
 <script setup lang="ts">
+
+definePageMeta({
+  title: 'DashyBuilder - Login',
+  middleware: ['auth-index'],
+})
+
 const supabase = useSupabaseClient()
 const router = useRouter()
 const { signIn, errorMessage } = useAuth()

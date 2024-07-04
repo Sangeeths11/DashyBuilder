@@ -10,7 +10,8 @@
 <script setup>
 definePageMeta({
   title: 'DashyBuilder - Home',
-  layout: 'main'
+  layout: 'main',
+  middleware: ['auth-index'],
 })
 const components = [
   { id: 1, name: 'Chart' },
