@@ -1,78 +1,29 @@
 # DashyBuilder
+
 A customizable dashboard tool that enables users to design and manage dynamic dashboards. Built with Vue3, Nuxt, and Supabase, it offers intuitive layout options and exports to Plotly Python code.
 
-# Nuxt 3 Minimal Starter
+## Docker
 
-Look at the [Nuxt 3 documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+The `docker-compose.yml` file describes the Docker environment with the appropriate containers. For this to function properly, the corresponding environment variables need to be set. This involves copying the `.env.example` file and renaming it to `.env`. Subsequently, the relevant values must be entered into the `.env` file.
 
-## Setup
+To start the environment, the following command is entered in the terminal. This only works if the `docker-compose.yml` file is in the same folder.
 
-Make sure to install the dependencies:
+### Start
 
-```bash
-# npm
-npm install
-
-# pnpm
-pnpm install
-
-# yarn
-yarn install
-
-# bun
-bun install
+```zsh
+docker compose up -d
 ```
 
-## Development Server
+### Stop
 
-Start the development server on `http://localhost:3000`:
-
-```bash
-# npm
-npm run dev
-
-# pnpm
-pnpm run dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
+```zsh
+docker compose down
 ```
 
-## Production
+## Frontend
 
-Build the application for production:
+The frontend is implemented using Nuxt 3 and Vue 3. To start the frontend without Docker, you must open the readme in the `DashyBuilder.Frontend` folder. It describes how to start the frontend.
 
-```bash
-# npm
-npm run build
+## Backend
 
-# pnpm
-pnpm run build
-
-# yarn
-yarn build
-
-# bun
-bun run build
-```
-
-Locally preview production build:
-
-```bash
-# npm
-npm run preview
-
-# pnpm
-pnpm run preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
-```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+The backend is implemented with FastAPI. To start the backend without Docker, open the `app.py` file in the `DashyBuilder.Backend` folder. This file can be started with a Python interpreter.
