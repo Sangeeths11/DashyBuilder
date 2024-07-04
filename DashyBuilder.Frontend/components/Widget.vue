@@ -4,9 +4,10 @@
     <button @click="emitDelete" class="absolute top-1 right-1">
       <Icon name="carbon:close-outline" class="text-red-700 text-xl"/>
     </button>
-    <button @click="emitConfig" class="absolute top-1 left-1">
+    <button @click="openConfigModal" class="absolute top-1 left-1">
       <Icon name="ic:outline-settings" class="text-yellow-700 text-xl"/>
     </button>
+    <ConfigModal v-if="isConfigModalOpen" @close="isConfigModalOpen = false" :widget="widget" />
   </div>
 </template>
 
@@ -16,8 +17,13 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['delete-widget']);
+const isConfigModalOpen = ref(false);
 
 function emitDelete() {
   emit('delete-widget', props.widget.id);
+}
+
+function openConfigModal() {
+  isConfigModalOpen.value = true;
 }
 </script>

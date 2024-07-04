@@ -30,9 +30,7 @@
   </div>
 </template>
 
-
 <script setup>
-
 const emit = defineEmits(['add-widget']);
 const components = ref([
   { id: 1, name: 'Chart' },
@@ -44,9 +42,13 @@ const gridSize = ref('3x3');
 
 function addWidget() {
   if (selectedComponent.value) {
-    emit('add-widget', selectedComponent.value, gridSize.value);
+    emit('add-widget', {
+      id: components.value.length + 1,
+      name: components.value.find(c => c.id === selectedComponent.value).name,
+      gridSize: gridSize.value
+    });
     selectedComponent.value = '';
+    gridSize.value = '3x3';
   }
 }
 </script>
-
