@@ -1,12 +1,16 @@
 from flask import Flask, request, make_response
 from flask_cors import CORS
 import json
+from components.plotly_chart import PlotlyChart
+from components.plotly_text_block import PlotlyTextBlock
+from components.plotly_table import PlotlyTable
+
 app = Flask(__name__)
 CORS(app, expose_headers=['Content-Disposition'])
 
 @app.route('/')
 def hello_geek():
-    return '<h1>Hello from Flask & Docker</h2>'
+    return '<h1>Hello from Flask & Docker</h1>'
 
 def generate_plotly_code(widgets):
     code_lines = [
@@ -72,17 +76,17 @@ def generate_plotly_code(widgets):
         "    ], align='center'),"
     ]
 
+    components = []
     for widget in widgets:
         if widget['name'] == 'Chart':
-            width = widget.get('width', 6)
-            code_lines.append(f"    dbc.Col(drawFigure(), width={width}),")
+            components.append(PlotlyChart(width=widget.get('width', 6)))
         elif widget['name'] == 'Text Block':
-            width = widget.get('width', 6)
-            content = widget.get('content', 'Default Text')
-            code_lines.append(f"    dbc.Col(drawText('{content}'), width={width}),")
+            components.append(PlotlyTextBlock(content=widget.get('content', 'Default Text'), width=widget.get('width', 6)))
         elif widget['name'] == 'Table':
-            width = widget.get('width', 6)
-            code_lines.append(f"    dbc.Col(drawTable(), width={width}),")
+            components.append(PlotlyTable(width=widget.get('width', 6)))
+
+    for component in components:
+        code_lines += component.generate_code()
 
     code_lines += [
         "])",
