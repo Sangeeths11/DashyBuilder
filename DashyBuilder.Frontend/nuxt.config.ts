@@ -9,7 +9,9 @@ export default defineNuxtConfig({
       autoprefixer: {},
     },
   },
-
+  supabase: {
+    redirect: false
+  },
   compatibilityDate: "2024-07-02",
-  modules: ["@nuxt/icon"]
+  modules: ["@nuxt/icon","@nuxtjs/supabase"]
 })
