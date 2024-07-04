@@ -1,0 +1,5 @@
+Flask
+flask-cors
+dash
+dash-bootstrap-components
+plotly
