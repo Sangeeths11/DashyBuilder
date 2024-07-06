@@ -1,4 +1,5 @@
 <template>
+    <h1 class="text-3xl font-bold mb-6">{{ project.projectName }}</h1>
     <ErrorMessageBox :message="errorMessage"/>
     <ComponentSelector @add-widget="handleAddWidget" class="mb-5"/>
     <DashboardArea :widgets="widgets" @delete-widget="handleDeleteWidget" />
@@ -16,7 +17,7 @@
 
   const route = useRoute()
   const projectId = route.params.id
-  const project = ref({ id: projectId, name: `Projekt ${projectId}` })
+  const { project, fetchProjectById } = useProjectStore();
 
   console.log('Project ID:', projectId)
 
@@ -66,5 +67,9 @@
       errorMessage.value = error.message;
     }
   }
+  onMounted(async () => {
+    await fetchProjectById(projectId);
+    console.log('Project:', project.projectName)
+  });
   </script>
   

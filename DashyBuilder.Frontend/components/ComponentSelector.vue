@@ -32,6 +32,7 @@
 
 <script setup>
 const emit = defineEmits(['add-widget']);
+
 const components = ref([
   { id: 1, name: 'Chart' },
   { id: 2, name: 'Table' },
