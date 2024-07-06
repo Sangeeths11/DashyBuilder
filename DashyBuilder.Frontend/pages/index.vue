@@ -1,62 +1,97 @@
 <template>
-  <ErrorMessageBox :message="errorMessage"/>
-  <ComponentSelector @add-widget="handleAddWidget" class="mb-5"/>
-  <DashboardArea :widgets="widgets" @delete-widget="handleDeleteWidget" />
-  <button @click="downloadPythonFile" class="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded flex items-center justify-center">
-    <Icon name="mdi:download" color="white" class="mr-1 text-2xl"/> Download Python File
-  </button>
+    <div class="flex flex-col items-center justify-center min-h-screen">
+        <div class="bg-white p-6 rounded shadow-lg w-full max-w-lg">
+            <h1 class="text-2xl font-bold mb-4">Projekte verwalten</h1>
+            <input
+                type="text"
+                placeholder="Projekt suchen..."
+                v-model="search"
+                class="mb-4 p-2 w-full border rounded"
+            />
+            <div class="grid gap-4 md:grid-cols-2">
+                <div v-for="project in filteredProjects" :key="project.id" class="bg-gray-100 rounded-lg p-4 shadow">
+                    <h2 class="text-lg font-semibold">{{ project.name }}</h2>
+                    <p class="text-sm text-gray-600">Grid-System: {{ project.grid }}</p>
+                    <div class="flex justify-between items-center mt-2">
+                        <NuxtLink :to="`/overview/${project.id}`" class="text-blue-500 hover:text-blue-700">
+                            <Icon name="mdi:eye" class="text-lg" />
+                        </NuxtLink>
+                        <button @click="deleteProject(project.id)" class="text-red-500 hover:text-red-700">
+                            <Icon name="mdi:trash-can" class="text-lg" />
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="flex justify-center mt-4">
+                <button @click="openCreateProjectModal = true" class="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    Neues Projekt erstellen
+                </button>
+            </div>
+        </div>
+        
+        <div v-if="openCreateProjectModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 z-50 flex justify-center items-center">
+            <div class="bg-white p-5 rounded-lg shadow-lg">
+                <h3 class="text-lg font-semibold mb-4">Neues Projekt erstellen</h3>
+                <input type="text" v-model="newProjectName" placeholder="Projektname" class="mb-4 p-2 w-full border rounded">
+                <select v-model="newProjectGrid" class="mb-4 p-2 w-full border rounded">
+                    <option disabled value="">Wähle ein Grid-System</option>
+                    <option>3x3</option>
+                    <option>4x4</option>
+                </select>
+                <div class="flex justify-end space-x-4">
+                    <button @click="openCreateProjectModal = false" class="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300">Abbrechen</button>
+                    <button @click="createProject" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700">Erstellen</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </template>
 
+
+  
 <script setup>
-definePageMeta({
-  title: 'DashyBuilder - Home',
-  layout: 'main',
-  middleware: ['auth-index'],
-})
-const components = [
-  { id: 1, name: 'Chart' },
-  { id: 2, name: 'Table' },
-  { id: 3, name: 'Text Block' }
-];
+    definePageMeta({
+        title: 'DashyBuilder - Projekte',
+        middleware: ['auth-index'],
+    })
 
-const widgets = ref([]);
-const errorMessage = ref('');
+    const search = ref('')
+    const projects = ref([
+        { id: 1, name: 'Projekt 1', grid: '3x3' },
+        { id: 2, name: 'Projekt 2', grid: '4x4' }
+    ])
+    const newProjectName = ref('')
+    const newProjectGrid = ref('')
+    const openCreateProjectModal = ref(false)
+    const router = useRouter()
 
-function handleAddWidget(widget) {
-  if (widgets.value.length >= 6) {
-    errorMessage.value = 'You can only add up to 6 widgets.';
-    return;
-  }
-  widgets.value.push(widget)
-}
+    const filteredProjects = computed(() => {
+        return projects.value.filter(project => project.name.toLowerCase().includes(search.value.toLowerCase()))
+    })
 
-function handleDeleteWidget(id) {
-  widgets.value = widgets.value.filter(w => w.id !== id);
-}
+    function createProject() {
+        if (!newProjectName.value || !newProjectGrid.value) {
+            alert("Bitte alle Felder ausfüllen")
+            return
+        }
+        const newProjectId = Date.now()
+        projects.value.push({
+            id: newProjectId,
+            name: newProjectName.value,
+            grid: newProjectGrid.value
+        })
+        newProjectName.value = ''
+        newProjectGrid.value = ''
+        openCreateProjectModal.value = false
+        router.push(`/overview/${newProjectId}`)
+    }
 
-async function downloadPythonFile() {
-  try {
-    const response = await fetch('http://localhost:5000/export', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(widgets.value)
-    });
-
-    if (!response.ok) throw new Error('Network response was not ok.');
-
-    const blob = await response.blob();
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', 'dashboard.py');
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  } catch (error) {
-    console.error('Error downloading the python file:', error);
-    errorMessage.value = error.message;
-  }
-}
+    function deleteProject(projectId) {
+        projects.value = projects.value.filter(project => project.id !== projectId)
+    }
 </script>
+
+  
+<style scoped>
+</style>
+  

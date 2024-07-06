@@ -17,8 +17,8 @@ const handleLogin = async () => {
 </script>
 
 <template>
-  <div class="flex flex-col items-center justify-center min-h-screen bg-gray-100 px-4 py-0"> <!-- Reduziertes Padding Y -->
-    <div class="bg-white p-6 rounded shadow-md w-full max-w-md mx-auto"> <!-- Entfernt margin-bottom -->
+  <div class="flex flex-col items-center justify-center min-h-screen bg-gray-100 px-4 py-0">
+    <div class="bg-white p-6 rounded shadow-md w-full max-w-md mx-auto">
       <AuthCompErrorMessageBox :message="errorMessage" />
       <h1 class="text-2xl md:text-3xl font-bold mb-4 text-center">Login</h1>
       <div class="flex items-center justify-center mb-6">
@@ -43,7 +43,7 @@ const handleLogin = async () => {
           :modelValue="password" 
           @update:modelValue="value => password = value"
         />
-        <div class="mb-4 w-full"> <!-- Überprüfen ob dieser Margin notwendig ist -->
+        <div class="mb-4 w-full">
           <AuthCompLoginSubmitButton />
         </div>
         <div class="flex flex-col items-center md:flex-row w-full justify-center mb-4"> <!-- Entfernte unnötige Margins -->
