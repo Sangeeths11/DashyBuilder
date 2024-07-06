@@ -13,5 +13,5 @@ export default defineNuxtConfig({
     redirect: false
   },
   compatibilityDate: "2024-07-02",
-  modules: ["@nuxt/icon","@nuxtjs/supabase"]
+  modules: ["@nuxt/icon","@nuxtjs/supabase","@pinia/nuxt"]
 })
