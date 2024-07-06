@@ -14,6 +14,7 @@
     middleware: ['auth-index'],
   })
 
+  const route = useRoute()
   const projectId = route.params.id
   const project = ref({ id: projectId, name: `Projekt ${projectId}` })
 
