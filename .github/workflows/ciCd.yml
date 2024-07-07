@@ -1,0 +1,27 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+
+    - name: Build the Frontend Docker image
+      run: docker build ./DashyBuilder.Frontend --tag frontend:latest
+
+    - name: Build the Backend Docker image
+      run: docker build ./DashyBuilder.Backend --tag backend:latest
+
+    - name: Run Docker Compose
+      run: docker-compose up -d
