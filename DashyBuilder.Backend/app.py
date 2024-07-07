@@ -74,7 +74,7 @@ def generate_plotly_code(widgets):
         "    dbc.Row([",
         "        dbc.Col(drawText('Dashboard Title'), width=12),",
         "    ], align='center'),"
-    ]
+    ]]
 
     components = []
     for widget in widgets:
