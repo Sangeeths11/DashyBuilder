@@ -93,11 +93,11 @@ def generate_plotly_code(widgets):
         "",
         "if __name__ == '__main__':",
         "    app.run_server(debug=True)"
-    ]]
+    ]
     
     return "\n".join(code_lines)
 
-@app.route('/export', methods=['POST'])xs
+@app.route('/export', methods=['POST'])
 def export_dashboard():
     widgets = request.get_json()
     python_code = generate_plotly_code(widgets)
@@ -108,4 +108,4 @@ def export_dashboard():
     return response
 
 if __name__ == "__main__":
-    app.run(debug=Trueas)
+    app.run(debug=True)
