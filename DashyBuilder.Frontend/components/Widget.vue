@@ -1,13 +1,15 @@
 <template>
-  <div class="p-4 bg-blue-200 rounded-lg shadow flex flex-col items-center justify-center text-lg font-semibold relative">
+  <div class="p-4 bg-blue-200 rounded-lg shadow hover:shadow-md transition-shadow duration-300 flex flex-col items-center justify-center text-lg font-semibold relative">
     <span>{{ widget.name }}</span>
     <p class="text-sm">{{ widget.type }}</p>
-    <button @click="emitDelete" class="absolute top-1 right-1">
-      <Icon name="carbon:close-outline" class="text-red-700 text-xl"/>
-    </button>
-    <button @click="openConfigModal" class="absolute top-1 left-1">
-      <Icon name="ic:outline-settings" class="text-yellow-700 text-xl"/>
-    </button>
+    <div class="absolute top-2 right-2 flex space-x-2">
+      <button @click="openConfigModal">
+        <Icon name="ic:outline-settings" class="text-yellow-700 text-xl hover:text-yellow-500"/>
+      </button>
+      <button @click="emitDelete">
+        <Icon name="carbon:close-outline" class="text-red-700 text-xl hover:text-red-500"/>
+      </button>
+    </div>
     <ConfigModal v-if="isConfigModalOpen" @close="isConfigModalOpen = false" :widget="widget" />
   </div>
 </template>
@@ -28,3 +30,6 @@ function openConfigModal() {
   isConfigModalOpen.value = true;
 }
 </script>
+
+<style scoped>
+</style>
