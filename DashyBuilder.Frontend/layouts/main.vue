@@ -2,12 +2,12 @@
   <div>
     <header class="bg-blue-500 text-white p-4 text-lg flex justify-between items-center">
       <div class="flex items-center space-x-4">
-        <span class="text-3xl mr-1"><Icon name="mdi:chart-box-outline" color="white" /></span>
-        <span class="font-bold">Dashybuilder</span>
+        <span class="text-3xl mr-1 cursor-pointer" @click="redirectToIndex"><Icon name="mdi:chart-box-outline" color="white" /></span>
+        <span class="font-bold cursor-pointer" @click="redirectToIndex">Dashybuilder</span>
       </div>
       <div class="flex items-center space-x-2">
         <span class="text-white">{{ user?.email ?? 'No email provided' }}</span>
-        <img src="assets/dashybuilder.png" alt="Profil" class="h-10 w-10 rounded-full" @click="toggleLogoutPopup">
+        <img src="assets/dashybuilder.png" alt="Profil" class="h-10 w-10 rounded-full cursor-pointer" @click="toggleLogoutPopup">
       </div>
       <div v-if="showLogoutPopup" class="fixed inset-0 bg-gray-600 bg-opacity-50 z-50 flex justify-center items-center">
         <div class="bg-white p-5 rounded-lg shadow-lg">
@@ -41,6 +41,10 @@ async function logout() {
 
 function toggleLogoutPopup() {
   showLogoutPopup.value = !showLogoutPopup.value
+}
+
+function redirectToIndex() {
+  router.push('/')
 }
 </script>
 
