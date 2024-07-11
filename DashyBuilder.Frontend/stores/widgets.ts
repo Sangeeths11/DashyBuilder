@@ -4,6 +4,7 @@ export const useWidgetStore = defineStore('widgetStore', () => {
   const errorMessages = ref([]);
 
   const fetchWidgetsByProjectId = async (projectId) => {
+    widgets.value = [];
     const { data, error } = await client
       .from('widgets')
       .select('*')

@@ -3,7 +3,7 @@
     <h1 class="text-3xl font-bold mb-6">{{ name }}</h1>
     <ErrorMessageBox :message="errorMessage"/>
     <ComponentSelector @add-widget="handleAddWidget" class="mb-5"/>
-    <DashboardArea :widgets="widgets" @delete-widget="handleDeleteWidget" />
+    <DashboardArea :widgets="widgetStore.widgets" @delete-widget="handleDeleteWidget" />
     <button @click="downloadPythonFile" class="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded flex items-center justify-center">
       <Icon name="mdi:download" color="white" class="mr-1 text-2xl"/> Download Python File
     </button>
@@ -22,19 +22,19 @@ const projectId = ref(route.params.id);
 const name = ref('');
 const projectStore = useProjectStore();
 const widgetStore = useWidgetStore();
-const { widgets } = widgetStore;
 const errorMessage = ref('');
 
-watch(
-  () => route.params.id,
-  async (newId) => {
+watch(projectId, async (newId, oldId) => {
+  if (newId !== oldId) {
     projectId.value = newId;
-    await projectStore.fetchProjectNameById(newId);
-    name.value = projectStore.projectName || 'Projekt nicht gefunden';
-    await widgetStore.fetchWidgetsByProjectId(newId);
-  },
-  { immediate: true }
-);
+    const projectName = await projectStore.fetchProjectNameById(newId);
+    if (projectName) {
+      name.value = projectName;
+    } else {
+      name.value = 'Projekt nicht gefunden';
+    }
+  }
+}, { immediate: true });
 
 const handleAddWidget = async (widget) => {
   if (widgets.length >= 6) {
@@ -72,4 +72,8 @@ async function downloadPythonFile() {
     errorMessage.value = error.message;
   }
 }
+
+onMounted(async () => {
+  await widgetStore.fetchWidgetsByProjectId(projectId.value);
+});
 </script>

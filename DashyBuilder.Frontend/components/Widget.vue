@@ -1,6 +1,7 @@
 <template>
-  <div class="p-4 bg-blue-200 rounded-lg shadow flex items-center justify-center text-lg font-semibold relative">
+  <div class="p-4 bg-blue-200 rounded-lg shadow flex flex-col items-center justify-center text-lg font-semibold relative">
     <span>{{ widget.name }}</span>
+    <p class="text-sm">{{ widget.type }}</p>
     <button @click="emitDelete" class="absolute top-1 right-1">
       <Icon name="carbon:close-outline" class="text-red-700 text-xl"/>
     </button>
