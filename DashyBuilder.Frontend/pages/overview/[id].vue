@@ -37,7 +37,7 @@ watch(projectId, async (newId, oldId) => {
 }, { immediate: true });
 
 const handleAddWidget = async (widget) => {
-  if (widgets.length >= 6) {
+  if (widgetStore.widgets.length >= 6) {
     errorMessage.value = 'You can only add up to 6 widgets.';
     return;
   }

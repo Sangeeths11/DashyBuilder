@@ -16,7 +16,7 @@ export const useWidgetStore = defineStore('widgetStore', () => {
       widgets.value = [];
       console.log('Fetched widgets:', widgets.value);
     } else {
-      widgets.value = data;
+      widgets.value = data || [];
       console.log('Fetched widgets:', widgets.value);
     }
   };
@@ -25,14 +25,17 @@ export const useWidgetStore = defineStore('widgetStore', () => {
     const { data, error } = await client
       .from('widgets')
       .insert([
-        { type, name, project_id: projectId }
-      ]);
-
+        { type,
+          name,
+          project_id: projectId
+        }
+      ])
+      .select();
     if (error) {
       errorMessages.value.push('Error creating widget: ' + error.message);
       console.error('Error creating widget:', error);
     } else {
-      widgets.value.push(data[0]);
+      fetchWidgetsByProjectId(projectId);
     }
   };
 
