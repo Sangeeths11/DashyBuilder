@@ -3,7 +3,6 @@ export const useProjectStore = defineStore('projectStore', () => {
   const user = useSupabaseUser();
 
   const projects = ref([]);
-  const project = ref({});
 
   const errorMessages = ref([]);
 
@@ -27,6 +26,18 @@ export const useProjectStore = defineStore('projectStore', () => {
     }
   };
 
+  async function fetchProjectNameById(id) {
+    const { data, error } = await client.from('projects').select('projectName').eq('id', id).single();
+    if (error) 
+    {
+      console.error('Error fetching project name:', error);
+      return null;
+    }
+    else {
+      return data.projectName;
+    }
+  }
+
   async function fetchProjectGridSize(id) {
     const { data, error } = await client.from('projects').select('gridSize').eq('id', id).single();
     if (error) {
@@ -37,11 +48,6 @@ export const useProjectStore = defineStore('projectStore', () => {
     }
   }
 
-  async function fetchProjectById(id) {
-    const { data, error } = await client.from('projects').select('*').eq('id', id).single();
-    if (error) console.error('Error fetching project:', error);
-    else project.value = data;
-  }
   const createProject = async (projectName, gridSize) => {
     if (!user.value) {
       errorMessages.value.push('User must be logged in to create a project.');
@@ -85,8 +91,7 @@ export const useProjectStore = defineStore('projectStore', () => {
 
   return {
     projects,
-    project,
-    fetchProjectById,
+    fetchProjectNameById,
     fetchProjectGridSize,
     fetchProjects,
     errorMessages,
