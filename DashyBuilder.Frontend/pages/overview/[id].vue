@@ -11,7 +11,6 @@
 </template>
 
 <script setup>
-
 definePageMeta({
   title: 'DashyBuilder - Home',
   layout: 'main',
@@ -20,42 +19,33 @@ definePageMeta({
 
 const route = useRoute();
 const projectId = ref(route.params.id);
-
 const name = ref('');
-
 const projectStore = useProjectStore();
 const widgetStore = useWidgetStore();
-
-const { fetchProjectNameById } = projectStore;
-const { widgets, fetchWidgetsByProjectId, createWidget, deleteWidget, updateWidget } = widgetStore;
-
+const { widgets } = widgetStore;
 const errorMessage = ref('');
 
 watch(
   () => route.params.id,
   async (newId) => {
     projectId.value = newId;
-    const projectName = await fetchProjectNameById(newId);
-    if (projectName) {
-      name.value = projectName;
-    } else {
-      name.value = 'Projekt nicht gefunden';
-    }
-    await fetchWidgetsByProjectId(newId);
+    await projectStore.fetchProjectNameById(newId);
+    name.value = projectStore.projectName || 'Projekt nicht gefunden';
+    await widgetStore.fetchWidgetsByProjectId(newId);
   },
   { immediate: true }
 );
 
-const handleAddWidget = (widget) => {
-  if (widgets.value.length >= 6) {
+const handleAddWidget = async (widget) => {
+  if (widgets.length >= 6) {
     errorMessage.value = 'You can only add up to 6 widgets.';
     return;
   }
-  createWidget(widget.type, widget.name, widget.gridPosition, projectId.value);
+  await widgetStore.createWidget(widget.type, widget.name, projectId.value);
 };
 
-const handleDeleteWidget = (id) => {
-  deleteWidget(id);
+const handleDeleteWidget = async (id) => {
+  await widgetStore.deleteWidget(id);
 };
 
 async function downloadPythonFile() {
@@ -75,7 +65,6 @@ async function downloadPythonFile() {
     const link = document.createElement('a');
     link.href = url;
     link.setAttribute('download', 'dashboard.py');
-    document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   } catch (error) {
@@ -84,6 +73,3 @@ async function downloadPythonFile() {
   }
 }
 </script>
-
-<style scoped>
-</style>
