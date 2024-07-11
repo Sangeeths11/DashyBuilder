@@ -1,32 +1,47 @@
 <template>
   <div class="col-span-1 bg-white shadow-lg rounded-lg p-4">
     <h2 class="font-bold text-lg mb-4">Components</h2>
-    <div class="flex items-center mb-4">
-      <select v-model="selectedComponent" class="w-1/2 p-2 border rounded mr-4">
-        <option disabled value="">Please select one</option>
-        <option v-for="component in components" :key="component.id" :value="component.id">
-          {{ component.name }}
-        </option>
-      </select>
-      <div class="pl-5">
-        <label class="block text-gray-700 text-sm font-bold mb-2">Grid Size</label>
-        <div class="flex items-center">
-          <label class="inline-flex items-center mr-4">
-            <input type="radio" class="form-radio text-blue-600" name="gridSize" value="3x3" v-model="gridSize" :disabled="isGridSizeDisabled">
-            <span class="ml-2">3x3 <Icon name="mdi:grid" class="ml-1 w-7 h-7 text-blue-600"/></span>
-          </label>
-          <label class="inline-flex items-center">
-            <input type="radio" class="form-radio text-blue-600" name="gridSize" value="4x4" v-model="gridSize" :disabled="isGridSizeDisabled">
-            <span class="ml-2">4x4 <Icon name="material-symbols-light:background-grid-small-outline-sharp" class="ml-1 w-10 h-10 text-blue-600"/></span>
-          </label>
+    <div class="flex flex-col space-y-4">
+      <div class="flex items-center space-x-4">
+        <div class="flex flex-col w-1/3">
+          <label for="component-name" class="block text-gray-700 text-sm font-bold mb-2">Component Name</label>
+          <input
+            id="component-name"
+            v-model="componentName"
+            type="text"
+            placeholder="Component Name"
+            class="p-2 border rounded"
+          />
+        </div>
+        <div class="flex flex-col w-1/3">
+          <label for="component-type" class="block text-gray-700 text-sm font-bold mb-2">Component Type</label>
+          <select id="component-type" v-model="selectedComponent" class="p-2 border rounded">
+            <option disabled value="">Please select one</option>
+            <option v-for="component in components" :key="component.id" :value="component.id">
+              {{ component.name }}
+            </option>
+          </select>
+        </div>
+        <div class="flex flex-col">
+          <label class="block text-gray-700 text-sm font-bold mb-2">Grid Size</label>
+          <div class="flex items-center space-x-2">
+            <label class="inline-flex items-center">
+              <input type="radio" class="form-radio text-blue-600" name="gridSize" value="3x3" v-model="gridSize" :disabled="isGridSizeDisabled">
+              <span class="ml-2">3x3 <Icon name="mdi:grid" class="ml-1 w-7 h-7 text-blue-600"/></span>
+            </label>
+            <label class="inline-flex items-center">
+              <input type="radio" class="form-radio text-blue-600" name="gridSize" value="4x4" v-model="gridSize" :disabled="isGridSizeDisabled">
+              <span class="ml-2">4x4 <Icon name="material-symbols-light:background-grid-small-outline-sharp" class="ml-1 w-10 h-10 text-blue-600"/></span>
+            </label>
+          </div>
         </div>
       </div>
+      <button 
+        @click="addWidget"
+        class="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded flex items-center justify-center">
+        <Icon name="mdi:add" color="white" class="mr-1 text-3xl"/>Add Widget
+      </button>
     </div>
-    <button 
-      @click="addWidget"
-      class="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded flex items-center justify-center">
-      <Icon name="mdi:add" color="white" class="mr-1 text-3xl"/>Add Widget
-    </button>
   </div>
 </template>
 
@@ -38,6 +53,8 @@ const components = ref([
   { id: 2, name: 'Table' },
   { id: 3, name: 'Text Block' }
 ]);
+
+const componentName = ref('');
 const selectedComponent = ref('');
 const gridSize = ref('3x3');
 const isGridSizeDisabled = ref(false);
@@ -54,13 +71,20 @@ onMounted(async () => {
 });
 
 function addWidget() {
-  if (selectedComponent.value) {
+  if (selectedComponent.value && componentName.value) {
     emit('add-widget', {
-      id: components.value.length + 1,
-      name: components.value.find(c => c.id === selectedComponent.value).name,
+      id: Date.now(),
+      type: components.value.find(c => c.id === selectedComponent.value).name,
+      name: componentName.value,
       gridSize: gridSize.value
     });
     selectedComponent.value = '';
+    componentName.value = '';
+  } else {
+    alert("Bitte wählen Sie eine Komponente und geben Sie einen Namen ein");
   }
 }
 </script>
+
+<style scoped>
+</style>
