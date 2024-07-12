@@ -44,7 +44,7 @@ function toggleLogoutPopup() {
 }
 
 function redirectToIndex() {
-  router.push('/')
+  router.push('/projects')
 }
 </script>
 

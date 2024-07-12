@@ -66,7 +66,7 @@ function saveConfig() {
   border: 1px solid #ccc;
   position: relative;
   cursor: pointer;
-  aspect-ratio: 1; /* Keeps cells square */
+  aspect-ratio: 1;
 }
 
 .cell.selected {
