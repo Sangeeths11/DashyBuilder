@@ -46,7 +46,7 @@ const handleLogin = async () => {
         <div class="mb-4 w-full">
           <AuthCompLoginSubmitButton />
         </div>
-        <div class="flex flex-col items-center md:flex-row w-full justify-center mb-4"> <!-- Entfernte unnötige Margins -->
+        <div class="flex flex-col items-center md:flex-row w-full justify-center mb-4">
           <span class="text-gray-600 text-sm">
             Don't have an account?
           </span>

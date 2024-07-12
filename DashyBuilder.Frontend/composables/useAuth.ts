@@ -9,7 +9,7 @@ export function useAuth() {
       errorMessage.value = error.message;
     } else {
       errorMessage.value = '';
-      router.push('/');
+      router.push('/projects');
     }
   };
   

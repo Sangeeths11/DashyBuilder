@@ -1,19 +1,20 @@
 <template>
-  <div class="relative h-screen w-screen color" >
+  <div class="relative h-screen w-screen color">
     <canvas ref="canvas" class="w-full h-full"></canvas>
     <div class="absolute inset-0 flex flex-col items-center justify-center text-black">
       <div class="text-center">
         <h1 class="text-6xl font-bold">
-          Welcome to CulinaPlan
+          Welcome to DashyBuilder
         </h1>
         <p class="mt-4 text-xl max-w-lg mx-auto">
-          CulinaPlan is an innovative web application that aims to revolutionize the everyday cooking experience...
+          DashyBuilder is a cutting-edge web application designed to empower you with easy and intuitive dashboard creation. Customize your data visualization effortlessly and export it directly to Plotly Dash with just a few clicks.
         </p>
         <HomePageStartExploringButton/>
       </div>
     </div>
   </div>
 </template>
+
 
 
 <script lang="ts">
@@ -102,7 +103,7 @@ export default defineComponent({
           }
 
           // Kreise
-          ctx.fillStyle = 'rgba(0, 230, 255, 0.5)';
+          ctx.fillStyle = 'rgba(24, 160, 255, 0.5)';
 
           nodes.forEach(node => {
             ctx.beginPath();
@@ -147,5 +148,13 @@ export default defineComponent({
 <style scoped>
   .color {
     background-color: white;
+  }
+
+  h1 {
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  p {
+    text-shadow: 1px 1px 6px rgba(0, 0, 0, 0.2);
   }
 </style>
