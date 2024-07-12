@@ -3,7 +3,9 @@
     <div class="bg-white p-6 rounded shadow-lg w-80 relative">
       <h3 class="text-lg font-bold mb-4">Configure Widget Position</h3>
       <div :style="gridStyle" class="grid-container">
-        <div v-for="cell in totalCells" :key="cell" :class="['cell', isSelected(cell) ? 'selected' : '']" @click="toggleCell(cell)">
+        <div v-for="cell in totalCells" :key="cell"
+            :class="['cell', isSelected(cell) ? 'selected' : '', isDisabled(cell) ? 'disabled' : '']"
+            @click="toggleCell(cell)">
           <span v-if="isSelected(cell)" class="cross">✕</span>
         </div>
       </div>
@@ -19,6 +21,14 @@
 const props = defineProps({
   widget: Object,
   gridSize: String,
+  projectId: Number
+});
+
+const { fetchReservedPositions } = useWidgetStore();
+const reservedPositions = ref([]);
+
+onMounted(async () => {
+  reservedPositions.value = await fetchReservedPositions(props.widget.project_id);
 });
 
 const emit = defineEmits(['close', 'save']);
@@ -53,11 +63,10 @@ const gridStyle = computed(() => ({
 }));
 
 function toggleCell(cell) {
-  const index = selectedCells.value.indexOf(cell);
-  if (index === -1) {
+  if (!isDisabled(cell) && !isSelected(cell)) {
     selectedCells.value.push(cell);
   } else {
-    selectedCells.value.splice(index, 1);
+    selectedCells.value = selectedCells.value.filter(c => c !== cell);
   }
 }
 
@@ -65,10 +74,12 @@ function isSelected(cell) {
   return selectedCells.value.includes(cell);
 }
 
+function isDisabled(cell) {
+  return reservedPositions.value.includes(cell);
+}
+
 function saveConfig() {
-  const gridPosition = selectedCells.value.join(',');
-  console.log('Configuration saved:', gridPosition);
-  emit('save', gridPosition);
+  emit('save', selectedCells.value.join(','));
   emit('close');
 }
 
@@ -77,13 +88,11 @@ function close() {
 }
 </script>
 
-
 <style scoped>
 .grid-container {
   width: 200px;
   height: 200px;
 }
-
 .cell {
   background-color: #f4f4f4;
   border: 1px solid #ccc;
@@ -91,11 +100,13 @@ function close() {
   cursor: pointer;
   aspect-ratio: 1;
 }
-
 .cell.selected {
   background-color: #bcd;
 }
-
+.cell.disabled {
+  background-color: #ddd;
+  cursor: not-allowed;
+}
 .cross {
   position: absolute;
   top: 50%;

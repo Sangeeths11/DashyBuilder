@@ -72,6 +72,36 @@ export const useWidgetStore = defineStore('widgetStore', () => {
     }
   };
 
+  const fetchReservedPositions = async (projectId) => {
+    try {
+      const { data, error } = await client
+        .from('widgets')
+        .select('gridPosition')
+        .eq('project_id', projectId);
+  
+      if (error) {
+        errorMessages.value.push('Error fetching reserved positions: ' + error.message);
+        console.error('Error fetching reserved positions:', error);
+        return [];
+      }
+  
+      const reservedPositions = new Set();
+  
+      data.forEach(widget => {
+        if (widget.gridPosition && widget.gridPosition.gridPosition) {
+          // Zugriff auf den String innerhalb des Objekts und Splitting
+          const positions = widget.gridPosition.gridPosition.split(',').map(Number);
+          positions.forEach(pos => reservedPositions.add(pos));
+        }
+      });
+  
+      return Array.from(reservedPositions);
+    } catch (error) {
+      console.error('Unexpected error fetching reserved positions:', error);
+      return [];
+    }
+  };  
+
   return {
     widgets,
     errorMessages,
@@ -79,5 +109,6 @@ export const useWidgetStore = defineStore('widgetStore', () => {
     createWidget,
     deleteWidget,
     updateWidget,
+    fetchReservedPositions,
   };
 });
