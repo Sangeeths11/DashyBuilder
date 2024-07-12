@@ -8,7 +8,7 @@ definePageMeta({
 
 <template>
   <div>
-    <StartingPageNetworkBackground/>
+    <HomePageNetworkBackground/>
   </div>
 </template>
 

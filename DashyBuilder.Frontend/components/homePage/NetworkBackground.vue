@@ -9,7 +9,7 @@
         <p class="mt-4 text-xl max-w-lg mx-auto">
           CulinaPlan is an innovative web application that aims to revolutionize the everyday cooking experience...
         </p>
-        <StartExploringButton/>
+        <HomePageStartExploringButton/>
       </div>
     </div>
   </div>
