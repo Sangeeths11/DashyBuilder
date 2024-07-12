@@ -1,6 +1,6 @@
 <template>
-  <div class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center">
-    <div class="bg-white p-6 rounded shadow-lg w-80">
+  <div class="fixed inset-0 bg-gray-500 bg-opacity-90 flex items-center justify-center z-50">
+    <div class="bg-white p-6 rounded shadow-lg w-80 relative">
       <h3 class="text-lg font-bold mb-4">Configure Widget Position</h3>
       <div :style="gridStyle" class="grid-container">
         <div v-for="cell in totalCells" :key="cell" :class="['cell', isSelected(cell) ? 'selected' : '']" @click="toggleCell(cell)">
