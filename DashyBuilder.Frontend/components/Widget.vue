@@ -10,16 +10,18 @@
         <Icon name="carbon:close-outline" class="text-danger hover:text-dark-danger"/>
       </button>
     </div>
-    <ConfigModal v-if="isConfigModalOpen" @close="isConfigModalOpen = false" :widget="widget" />
+    <ConfigModal v-if="isConfigModalOpen" :widget="widget" :isOpen="isConfigModalOpen" :gridSize="gridSize" @close="closeConfigModal" @save="saveGridPosition" />
   </div>
 </template>
 
 <script setup>
 const props = defineProps({
-  widget: Object
+  widget: Object,
+  gridSize: String,
 });
 
-const emit = defineEmits(['delete-widget']);
+const emit = defineEmits(['delete-widget', 'update-widget']);
+
 const isConfigModalOpen = ref(false);
 
 function emitDelete() {
@@ -28,6 +30,14 @@ function emitDelete() {
 
 function openConfigModal() {
   isConfigModalOpen.value = true;
+}
+
+function closeConfigModal() {
+  isConfigModalOpen.value = false;
+}
+
+function saveGridPosition(position) {
+  emit('update-widget', { id: props.widget.id, gridPosition: position });
 }
 </script>
 

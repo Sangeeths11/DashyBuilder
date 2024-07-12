@@ -38,6 +38,16 @@ export const useProjectStore = defineStore('projectStore', () => {
     }
   }
 
+  async function fetchProjectGridSizeById(id) {
+    const { data, error } = await client.from('projects').select('gridSize').eq('id', id).single();
+    if (error) {
+      console.error('Error fetching project grid size:', error);
+      return null;
+    } else {
+      return data.gridSize;
+    }
+  }
+
   async function fetchProjectGridSize(id) {
     const { data, error } = await client.from('projects').select('gridSize').eq('id', id).single();
     if (error) {
@@ -92,6 +102,7 @@ export const useProjectStore = defineStore('projectStore', () => {
   return {
     projects,
     fetchProjectNameById,
+    fetchProjectGridSizeById,
     fetchProjectGridSize,
     fetchProjects,
     errorMessages,

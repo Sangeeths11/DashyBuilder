@@ -6,7 +6,9 @@
         v-for="widget in widgets"
         :key="widget.id"
         :widget="widget"
+        :gridSize="gridSize"
         @delete-widget="emitDeleteWidget"
+        @update-widget="emitUpdateWidget"
       />
     </div>
   </div>
@@ -14,13 +16,18 @@
 
 <script setup>
 const props = defineProps({
-  widgets: Array
+  widgets: Array,
+  gridSize: String
 });
 
-const emit = defineEmits(['delete-widget']);
+const emit = defineEmits(['delete-widget', 'update-widget']);
 
 function emitDeleteWidget(id) {
   emit('delete-widget', id);
+}
+
+function emitUpdateWidget(data) {
+  emit('update-widget', data);
 }
 </script>
 
