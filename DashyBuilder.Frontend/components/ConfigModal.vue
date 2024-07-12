@@ -8,8 +8,8 @@
         </div>
       </div>
       <div class="mt-4">
-        <button @click="saveConfig" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Save</button>
-        <button @click="$emit('close')" class="ml-2 bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">Cancel</button>
+        <button @click="saveConfig" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded float-right">Save</button>
+        <button @click="$emit('close')" class=" bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded float-left">Cancel</button>
       </div>
     </div>
   </div>
@@ -78,7 +78,7 @@ function saveConfig() {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-size: large;
+  font-size: xx-large;
   color: red;
 }
 </style>
