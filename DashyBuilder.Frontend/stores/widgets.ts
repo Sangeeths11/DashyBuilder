@@ -67,6 +67,7 @@ export const useWidgetStore = defineStore('widgetStore', () => {
       const widget = widgets.value.find(w => w.id === widgetId);
       if (widget) {
         widget.grid_position = gridPosition;
+        fetchWidgetsByProjectId(widget.project_id);
       }
     }
   };

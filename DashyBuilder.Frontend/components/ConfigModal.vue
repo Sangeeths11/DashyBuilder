@@ -23,7 +23,22 @@ const props = defineProps({
 
 const emit = defineEmits(['close', 'save']);
 
-const selectedCells = ref(props.widget.gridPosition ? JSON.parse(props.widget.gridPosition) : []);
+// Da `gridPosition` bereits ein Objekt ist, greifen wir direkt auf den String zu
+let gridPositionData;
+
+try {
+  // Zugriff auf den String "1,2" und Umwandlung in ein Array von Zahlen
+  if (props.widget.gridPosition && typeof props.widget.gridPosition.gridPosition === 'string') {
+    gridPositionData = props.widget.gridPosition.gridPosition.split(',').map(Number).filter(num => !isNaN(num));
+  } else {
+    gridPositionData = [];
+  }
+} catch (e) {
+  console.error('Invalid gridPosition data:', props.widget.gridPosition);
+  gridPositionData = [];
+}
+
+const selectedCells = ref(gridPositionData);
 
 const rows = computed(() => props.gridSize.startsWith('3') ? 3 : 4);
 const totalCells = computed(() => rows.value * rows.value);
@@ -51,8 +66,9 @@ function isSelected(cell) {
 }
 
 function saveConfig() {
-  console.log('Configuration saved:', selectedCells.value);
-  emit('save', selectedCells.value.join(','));
+  const gridPosition = selectedCells.value.join(',');
+  console.log('Configuration saved:', gridPosition);
+  emit('save', gridPosition);
   emit('close');
 }
 
@@ -60,6 +76,7 @@ function close() {
   emit('close');
 }
 </script>
+
 
 <style scoped>
 .grid-container {
