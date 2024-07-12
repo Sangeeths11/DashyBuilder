@@ -52,7 +52,7 @@ const handleDeleteWidget = async (id) => {
 };
 
 const handleUpdateWidget = async ({ id, gridPosition }) => {
-  await updateWidget(id, { gridPosition });
+  await widgetStore.updateWidget(id, { gridPosition });
 };
 
 async function downloadPythonFile() {

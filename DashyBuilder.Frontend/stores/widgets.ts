@@ -27,7 +27,8 @@ export const useWidgetStore = defineStore('widgetStore', () => {
       .insert([
         { type,
           name,
-          project_id: projectId
+          project_id: projectId,
+          gridPosition: '[]',
         }
       ])
       .select();
@@ -53,11 +54,29 @@ export const useWidgetStore = defineStore('widgetStore', () => {
     }
   };
 
+  const updateWidget = async (widgetId, gridPosition) => {
+    const { error } = await client
+      .from('widgets')
+      .update({ gridPosition })
+      .eq('id', widgetId);
+
+    if (error) {
+      errorMessages.value.push('Error updating widget: ' + error.message);
+      console.error('Error updating widget:', error);
+    } else {
+      const widget = widgets.value.find(w => w.id === widgetId);
+      if (widget) {
+        widget.grid_position = gridPosition;
+      }
+    }
+  };
+
   return {
     widgets,
     errorMessages,
     fetchWidgetsByProjectId,
     createWidget,
     deleteWidget,
+    updateWidget,
   };
 });

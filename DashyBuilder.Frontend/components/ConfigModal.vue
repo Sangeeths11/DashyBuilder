@@ -9,7 +9,7 @@
       </div>
       <div class="mt-4">
         <button @click="saveConfig" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded float-right">Save</button>
-        <button @click="$emit('close')" class=" bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded float-left">Cancel</button>
+        <button @click="close" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded float-left">Cancel</button>
       </div>
     </div>
   </div>
@@ -21,7 +21,9 @@ const props = defineProps({
   gridSize: String,
 });
 
-const selectedCells = ref(props.widget.gridPosition ? props.widget.gridPosition.split(',').map(Number) : []);
+const emit = defineEmits(['close', 'save']);
+
+const selectedCells = ref(props.widget.gridPosition ? JSON.parse(props.widget.gridPosition) : []);
 
 const rows = computed(() => props.gridSize.startsWith('3') ? 3 : 4);
 const totalCells = computed(() => rows.value * rows.value);
@@ -50,8 +52,12 @@ function isSelected(cell) {
 
 function saveConfig() {
   console.log('Configuration saved:', selectedCells.value);
-  $emit('save', selectedCells.value.join(','));
-  $emit('close');
+  emit('save', selectedCells.value.join(','));
+  emit('close');
+}
+
+function close() {
+  emit('close');
 }
 </script>
 
