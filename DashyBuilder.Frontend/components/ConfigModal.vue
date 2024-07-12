@@ -29,15 +29,13 @@ const reservedPositions = ref([]);
 
 onMounted(async () => {
   reservedPositions.value = await fetchReservedPositions(props.widget.project_id);
+  reservedPositions.value = reservedPositions.value.filter(pos => pos !== props.widget.gridPosition);
 });
 
 const emit = defineEmits(['close', 'save']);
 
-// Da `gridPosition` bereits ein Objekt ist, greifen wir direkt auf den String zu
 let gridPositionData;
-
 try {
-  // Zugriff auf den String "1,2" und Umwandlung in ein Array von Zahlen
   if (props.widget.gridPosition && typeof props.widget.gridPosition.gridPosition === 'string') {
     gridPositionData = props.widget.gridPosition.gridPosition.split(',').map(Number).filter(num => !isNaN(num));
   } else {
@@ -63,10 +61,15 @@ const gridStyle = computed(() => ({
 }));
 
 function toggleCell(cell) {
-  if (!isDisabled(cell) && !isSelected(cell)) {
-    selectedCells.value.push(cell);
-  } else {
-    selectedCells.value = selectedCells.value.filter(c => c !== cell);
+  if (!isDisabled(cell) || isSelected(cell)) {
+    const index = selectedCells.value.indexOf(cell);
+    if (index === -1) {
+      selectedCells.value.push(cell);
+      reservedPositions.value.push(cell);
+    } else {
+      selectedCells.value.splice(index, 1);
+      reservedPositions.value = reservedPositions.value.filter(pos => pos !== cell);
+    }
   }
 }
 
@@ -75,7 +78,7 @@ function isSelected(cell) {
 }
 
 function isDisabled(cell) {
-  return reservedPositions.value.includes(cell);
+  return reservedPositions.value.includes(cell) && !isSelected(cell);
 }
 
 function saveConfig() {
@@ -87,6 +90,7 @@ function close() {
   emit('close');
 }
 </script>
+
 
 <style scoped>
 .grid-container {
