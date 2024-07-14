@@ -2,7 +2,6 @@
   <div class="p-4 bg-light-blue rounded-lg shadow hover:shadow-md transition-shadow duration-300 flex flex-col items-center justify-center text-lg font-semibold relative">
     <span class="widget-title">{{ widget.name }}</span>
     <p class="text-sm widget-type">{{ widget.type }}</p>
-    <p>{{ widget.project_id }}</p>
     <div class="absolute top-2 right-2 flex space-x-2">
       <button @click="openConfigModal">
         <Icon name="ic:outline-settings" class="text-primary hover:text-dark-primary"/>
