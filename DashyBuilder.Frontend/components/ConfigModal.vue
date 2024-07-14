@@ -73,6 +73,13 @@ function toggleCell(cell) {
   }
 }
 
+function validateGridPattern(selectedCells, gridSize) {
+  const rows = gridSize === '3x3' ? 3 : 4;
+  console.log('rows:', rows);
+  console.log('selectedCells:', selectedCells);
+}
+
+
 function isSelected(cell) {
   return selectedCells.value.includes(cell);
 }
@@ -82,8 +89,12 @@ function isDisabled(cell) {
 }
 
 function saveConfig() {
-  emit('save', selectedCells.value.join(','));
-  emit('close');
+  if (validateGridPattern(selectedCells.value, props.gridSize)) {
+    // emit('save', selectedCells.value.join(','));
+    emit('close');
+  } else {
+    alert('Invalid grid pattern. Please select a valid pattern.');
+  }
 }
 
 function close() {
