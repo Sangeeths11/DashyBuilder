@@ -2,65 +2,83 @@ from dash import Dash, dcc, html
 import dash_bootstrap_components as dbc
 import plotly.express as px
 
+# Daten laden
+df = px.data.iris()
+
+# Erstellt eine Graph-Card
 def drawFigure():
-    df = px.data.iris()
     return html.Div([
         dbc.Card(
             dbc.CardBody([
                 dcc.Graph(
-                    figure=px.bar(df, x='sepal_width', y='sepal_length', color='species')
-                        .update_layout(
-                            template='plotly_dark',
-                            plot_bgcolor='rgba(0, 0, 0, 0)',
-                            paper_bgcolor='rgba(0, 0, 0, 0)',
-                        ),
-                    config={'displayModeBar': False}
+                    figure=px.bar(
+                        df, x="sepal_width", y="sepal_length", color="species"
+                    ).update_layout(
+                        template='plotly_dark',
+                        plot_bgcolor='rgba(0, 0, 0, 0)',
+                        paper_bgcolor='rgba(0, 0, 0, 0)',
+                    ),
+                    config={
+                        'displayModeBar': False
+                    }
                 )
-            ])
+            ]),
+            style={"height": "100%"}  # Stelle sicher, dass alle Karten gleich hoch sind
         ),
     ])
 
-def drawText(content='Text'):
+# Erstellt eine Text-Card
+def drawText(text="Text"):
     return html.Div([
         dbc.Card(
             dbc.CardBody([
                 html.Div([
-                    html.H2(content),
+                    html.H4(text),
                 ], style={'textAlign': 'center'})
-            ])
+            ]),
+            style={"height": "100%"}  # Gleiches Höheneinstellung wie bei den Graphen
         ),
     ])
 
-def drawTable():
-    return html.Div([
-        dbc.Card(
-            dbc.CardBody([
-                html.Table([
-                    html.Thead([
-                        html.Tr([
-                            html.Th('Column 1'),
-                            html.Th('Column 2'),
-                        ])
-                    ]),
-                    html.Tbody([
-                        html.Tr([
-                            html.Td('Value 1'),
-                            html.Td('Value 2'),
-                        ])
-                    ])
-                ])
-            ])
-        ),
-    ])
+# App initialisieren mit externen Stylesheets
+app = Dash(__name__, external_stylesheets=[dbc.themes.SLATE])
 
-app = Dash(external_stylesheets=[dbc.themes.SLATE])
+# Layout definieren
 app.layout = html.Div([
-    dbc.Row([
-        dbc.Col(drawText('Dashboard Title'), width=12),
-    ], align='center'),
-dbc.Col(drawFigure(), width=6),
-dbc.Col(drawTable(), width=6),
+    dbc.Container([
+        dbc.Row([
+            dbc.Col(drawText("Block 1"), width=4),
+            dbc.Col(drawText("Block 2"), width=4),
+            dbc.Col([
+                dbc.Row([drawText("Block 3A")], style={"height": "25%"}),
+                dbc.Row([drawText("Block 3B")], style={"height": "25%"}),
+                dbc.Row([drawText("Block 3C")], style={"height": "25%"}),
+                dbc.Row([drawText("Block 3D")], style={"height": "25%"})
+            ], width=4)
+        ]),
+        dbc.Row([
+            dbc.Col(drawFigure(), width=4),
+            dbc.Col(drawFigure(), width=4),
+            dbc.Col([
+                dbc.Row([drawText("Block 6A")], style={"height": "25%"}),
+                dbc.Row([drawText("Block 6B")], style={"height": "25%"}),
+                dbc.Row([drawText("Block 6C")], style={"height": "25%"}),
+                dbc.Row([drawText("Block 6D")], style={"height": "25%"})
+            ], width=4)
+        ]),
+        dbc.Row([
+            dbc.Col(drawText("Block 7"), width=4),
+            dbc.Col(drawText("Block 8"), width=4),
+            dbc.Col([
+                dbc.Row([drawText("Block 9A")], style={"height": "25%"}),
+                dbc.Row([drawText("Block 9B")], style={"height": "25%"}),
+                dbc.Row([drawText("Block 9C")], style={"height": "25%"}),
+                dbc.Row([drawText("Block 9D")], style={"height": "25%"})
+            ], width=4)
+        ])
+    ], fluid=True)
 ])
 
+# Server starten
 if __name__ == '__main__':
     app.run_server(debug=True)
