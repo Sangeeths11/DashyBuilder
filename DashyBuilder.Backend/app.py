@@ -78,11 +78,11 @@ def generate_plotly_code(widgets):
 
     components = []
     for widget in widgets:
-        if widget['name'] == 'Chart':
+        if widget['type'] == 'Chart':
             components.append(PlotlyChart(width=widget.get('width', 6)))
-        elif widget['name'] == 'Text Block':
+        elif widget['type'] == 'Text Block':
             components.append(PlotlyTextBlock(content=widget.get('content', 'Default Text'), width=widget.get('width', 6)))
-        elif widget['name'] == 'Table':
+        elif widget['type'] == 'Table':
             components.append(PlotlyTable(width=widget.get('width', 6)))
 
     for component in components:

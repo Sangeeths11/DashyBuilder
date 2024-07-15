@@ -56,13 +56,15 @@ const handleUpdateWidget = async ({ id, gridPosition }) => {
 };
 
 async function downloadPythonFile() {
+  console.log('Download python file');
+  console.log(widgetStore.widgets);
   try {
     const response = await fetch('http://localhost:5000/export', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(widgets.value)
+      body: JSON.stringify(widgetStore.widgets)
     });
 
     if (!response.ok) throw new Error('Network response was not ok.');
