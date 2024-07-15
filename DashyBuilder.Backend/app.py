@@ -12,7 +12,10 @@ CORS(app, expose_headers=['Content-Disposition'])
 def hello_geek():
     return '<h1>Hello from Flask & Docker</h1>'
 
-def generate_plotly_code(widgets):
+def parse_grid_position(grid_position):
+    return list(map(int, grid_position.split(',')))
+
+def generate_plotly_code(widgets, grid_size):
     code_lines = [
         "from dash import Dash, dcc, html",
         "import dash_bootstrap_components as dbc",
@@ -78,15 +81,31 @@ def generate_plotly_code(widgets):
 
     components = []
     for widget in widgets:
+        grid_positions = parse_grid_position(widget['gridPosition']['gridPosition'])
+        rows = sorted(set((pos - 1) // int(grid_size[0]) for pos in grid_positions))
+        cols = sorted(set((pos - 1) % int(grid_size[0]) for pos in grid_positions))
+        
+        component_code = ""
         if widget['type'] == 'Chart':
-            components.append(PlotlyChart(width=widget.get('width', 6)))
+            component_code = "drawFigure()"
         elif widget['type'] == 'Text Block':
-            components.append(PlotlyTextBlock(content=widget.get('content', 'Default Text'), width=widget.get('width', 6)))
+            component_code = f"drawText('{widget.get('content', 'Default Text')}')"
         elif widget['type'] == 'Table':
-            components.append(PlotlyTable(width=widget.get('width', 6)))
+            component_code = "drawTable()"
+        
+        for row in rows:
+            components.append((row, cols, f"dbc.Col({component_code}, width={12 // int(grid_size[0])})"))
 
-    for component in components:
-        code_lines += component.generate_code()
+    components.sort()  # Sort by row
+    current_row = -1
+    for row, cols, component_code in components:
+        if row != current_row:
+            if current_row != -1:
+                code_lines.append("    ], align='center'),")
+            code_lines.append("    dbc.Row([")
+            current_row = row
+        code_lines.append(f"        {component_code},")
+    code_lines.append("    ], align='center'),")
 
     code_lines += [
         "])",
@@ -99,8 +118,10 @@ def generate_plotly_code(widgets):
 
 @app.route('/export', methods=['POST'])
 def export_dashboard():
-    widgets = request.get_json()
-    python_code = generate_plotly_code(widgets)
+    data = request.get_json()
+    widgets = data['widgets']
+    grid_size = data['grid_size']
+    python_code = generate_plotly_code(widgets, grid_size)
 
     response = make_response(python_code)
     response.headers['Content-Disposition'] = 'attachment; filename=dashboard.py'

@@ -64,7 +64,10 @@ async function downloadPythonFile() {
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(widgetStore.widgets)
+      body: JSON.stringify({
+        widgets: widgetStore.widgets,
+        grid_size: gridSize.value
+      })
     });
 
     if (!response.ok) throw new Error('Network response was not ok.');
@@ -81,6 +84,7 @@ async function downloadPythonFile() {
     errorMessage.value = error.message;
   }
 }
+
 
 
 onMounted(async () => {
