@@ -17,28 +17,18 @@ def drawFigure():
                         template='plotly_dark',
                         plot_bgcolor='rgba(0, 0, 0, 0)',
                         paper_bgcolor='rgba(0, 0, 0, 0)',
+                        height=250,  # Höhe des Diagramms anpassen
+                        margin=dict(l=20, r=20, t=20, b=20)  # Ränder des Diagramms anpassen
                     ),
                     config={
                         'displayModeBar': False
-                    }
+                    },
+                    style={'height': '100%', 'width': '100%'}  # Stil der Komponente anpassen
                 )
             ]),
             style={"height": "100%"}  # Stelle sicher, dass alle Karten gleich hoch sind
         ),
-    ])
-
-# Erstellt eine Text-Card
-def drawText(text="Text"):
-    return html.Div([
-        dbc.Card(
-            dbc.CardBody([
-                html.Div([
-                    html.H4(text),
-                ], style={'textAlign': 'center'})
-            ]),
-            style={"height": "100%"}  # Gleiches Höheneinstellung wie bei den Graphen
-        ),
-    ])
+    ], style={"height": "100%", "padding": "2px"})  # Reduziere Padding, um Platz zu sparen
 
 # App initialisieren mit externen Stylesheets
 app = Dash(__name__, external_stylesheets=[dbc.themes.SLATE])
@@ -47,24 +37,21 @@ app = Dash(__name__, external_stylesheets=[dbc.themes.SLATE])
 app.layout = html.Div([
     dbc.Container([
         dbc.Row([
-            dbc.Col(drawFigure(), width=4),
-            dbc.Col(dbc.Row([
-                dbc.Col(drawFigure(), width=6),
-                dbc.Col(drawFigure(), width=6),
-            ]), width=4),
-            
-        ]),
+            dbc.Col(drawFigure(), width=4, style={"padding": "0px"}),  # Padding entfernt
+            dbc.Col(drawFigure(), width=4, style={"padding": "0px"}),  # Padding entfernt
+            dbc.Col(drawFigure(), width=4, style={"padding": "0px"}),  # Padding entfernt
+        ], style={"height": "33vh", "margin": "0px"}),  # Höhe der Zeile und Margin angepasst
         dbc.Row([
-            dbc.Col(drawFigure(), width=4),
-            dbc.Col(drawFigure(), width=4),
-            dbc.Col(drawFigure(), width=4),
-        ]),
+            dbc.Col(drawFigure(), width=4, style={"padding": "0px"}),  # Padding entfernt
+            dbc.Col(drawFigure(), width=4, style={"padding": "0px"}),  # Padding entfernt
+            dbc.Col(drawFigure(), width=4, style={"padding": "0px"}),  # Padding entfernt
+        ], style={"height": "33vh", "margin": "0px"}),  # Höhe der Zeile und Margin angepasst
         dbc.Row([
-            dbc.Col(drawFigure(), width=4),
-            dbc.Col(drawFigure(), width=4),
-            dbc.Col(drawFigure(), width=4),
-        ])
-    ], fluid=True, style={"height": "100vh"})  # Stellt sicher, dass der Container die volle Bildschirmhöhe einnimmt
+            dbc.Col(drawFigure(), width=4, style={"padding": "0px"}),  # Padding entfernt
+            dbc.Col(drawFigure(), width=4, style={"padding": "0px"}),  # Padding entfernt
+            dbc.Col(drawFigure(), width=4, style={"padding": "0px"}),  # Padding entfernt
+        ], style={"height": "33vh", "margin": "0px"}),  # Höhe der Zeile und Margin angepasst
+    ], fluid=True, style={"height": "100vh", "padding": "0", "margin": "0", "width": "100vw", "overflow": "hidden"})  # Stellt sicher, dass der Container die volle Bildschirmbreite einnimmt und kein zusätzliches Padding hat
 ])
 
 # Server starten
