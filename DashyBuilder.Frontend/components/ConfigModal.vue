@@ -141,7 +141,7 @@ function isDisabled(cell) {
 
 function saveConfig() {
   if (validateGridPattern(selectedCells.value, props.gridSize)) {
-    // emit('save', selectedCells.value.join(','));
+    emit('save', selectedCells.value.join(','));
     emit('close');
   } else {
     alert('Invalid grid pattern. Please select a valid pattern.');
