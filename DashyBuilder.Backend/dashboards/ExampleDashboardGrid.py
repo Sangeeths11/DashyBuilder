@@ -1,9 +1,18 @@
 from dash import Dash, dcc, html
 import dash_bootstrap_components as dbc
 import plotly.express as px
+import pandas as pd
 
 # Daten laden
 df = px.data.iris()
+
+# Beispiel-Tabellendaten
+table_data = {
+    "Spalte 1": [1, 2, 3, 4],
+    "Spalte 2": ['A', 'B', 'C', 'D'],
+    "Spalte 3": [10.1, 20.2, 30.3, 40.4]
+}
+table_df = pd.DataFrame(table_data)
 
 # Erstellt eine Graph-Card
 def drawFigure():
@@ -30,6 +39,32 @@ def drawFigure():
         ),
     ], style={"height": "100%", "padding": "2px"})  # Reduziere Padding, um Platz zu sparen
 
+# Erstellt eine Text-Card
+def drawText(text="Text"):
+    return html.Div([
+        dbc.Card(
+            dbc.CardBody([
+                html.Div([
+                    html.H4(text),
+                ], style={'textAlign': 'center', 'color': 'white'})
+            ]),
+            style={"height": "100%"}  # Gleiches Höheneinstellung wie bei den Graphen
+        ),
+    ], style={"height": "100%", "padding": "2px"})  # Reduziere Padding, um Platz zu sparen
+
+# Erstellt eine Table-Card
+def drawTable():
+    return html.Div([
+        dbc.Card(
+            dbc.CardBody([
+                html.Div([
+                    dbc.Table.from_dataframe(table_df, striped=True, bordered=True, hover=True, dark=True)
+                ])
+            ]),
+            style={"height": "100%"}  # Gleiches Höheneinstellung wie bei den Graphen
+        ),
+    ], style={"height": "100%", "padding": "2px"})  # Reduziere Padding, um Platz zu sparen
+
 # App initialisieren mit externen Stylesheets
 app = Dash(__name__, external_stylesheets=[dbc.themes.SLATE])
 
@@ -37,19 +72,19 @@ app = Dash(__name__, external_stylesheets=[dbc.themes.SLATE])
 app.layout = html.Div([
     dbc.Container([
         dbc.Row([
-            dbc.Col(drawFigure(), width=4, style={"padding": "0px"}),  # Padding entfernt
-            dbc.Col(drawFigure(), width=4, style={"padding": "0px"}),  # Padding entfernt
-            dbc.Col(drawFigure(), width=4, style={"padding": "0px"}),  # Padding entfernt
+            dbc.Col(drawFigure(), width=4, style={"padding": "0px"}),
+            dbc.Col(drawText("Beispieltext"), width=4, style={"padding": "0px"}),
+            dbc.Col(drawFigure(), width=4, style={"padding": "0px"}),
         ], style={"height": "33vh", "margin": "0px"}),  # Höhe der Zeile und Margin angepasst
         dbc.Row([
-            dbc.Col(drawFigure(), width=4, style={"padding": "0px"}),  # Padding entfernt
-            dbc.Col(drawFigure(), width=4, style={"padding": "0px"}),  # Padding entfernt
-            dbc.Col(drawFigure(), width=4, style={"padding": "0px"}),  # Padding entfernt
+            dbc.Col(drawTable(), width=4, style={"padding": "0px"}),
+            dbc.Col(drawFigure(), width=4, style={"padding": "0px"}),
+            dbc.Col(drawText("Noch ein Beispieltext"), width=4, style={"padding": "0px"}),
         ], style={"height": "33vh", "margin": "0px"}),  # Höhe der Zeile und Margin angepasst
         dbc.Row([
-            dbc.Col(drawFigure(), width=4, style={"padding": "0px"}),  # Padding entfernt
-            dbc.Col(drawFigure(), width=4, style={"padding": "0px"}),  # Padding entfernt
-            dbc.Col(drawFigure(), width=4, style={"padding": "0px"}),  # Padding entfernt
+            dbc.Col(drawFigure(), width=4, style={"padding": "0px"}),
+            dbc.Col(drawTable(), width=4, style={"padding": "0px"}),
+            dbc.Col(drawFigure(), width=4, style={"padding": "0px"}),
         ], style={"height": "33vh", "margin": "0px"}),  # Höhe der Zeile und Margin angepasst
     ], fluid=True, style={"height": "100vh", "padding": "0", "margin": "0", "width": "100vw", "overflow": "hidden"})  # Stellt sicher, dass der Container die volle Bildschirmbreite einnimmt und kein zusätzliches Padding hat
 ])
