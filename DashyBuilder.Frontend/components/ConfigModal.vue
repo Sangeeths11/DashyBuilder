@@ -74,11 +74,62 @@ function toggleCell(cell) {
 }
 
 function validateGridPattern(selectedCells, gridSize) {
-  const rows = gridSize === '3x3' ? 3 : 4;
-  console.log('rows:', rows);
-  console.log('selectedCells:', selectedCells);
-}
+  const rows = gridSize.startsWith('3') ? 3 : 4;
+  const grid = new Array(rows).fill(null).map(() => new Array(rows).fill(false));
 
+  selectedCells.forEach(cell => {
+    const row = Math.floor((cell - 1) / rows);
+    const col = (cell - 1) % rows;
+    grid[row][col] = true;
+  });
+
+  function dfs(row, col, visited) {
+    if (row < 0 || row >= rows || col < 0 || col >= rows || !grid[row][col] || visited.has(`${row},${col}`)) {
+      return;
+    }
+    visited.add(`${row},${col}`);
+    dfs(row + 1, col, visited); 
+    dfs(row - 1, col, visited); 
+    dfs(row, col + 1, visited);
+    dfs(row, col - 1, visited); 
+  }
+
+  // Starte DFS von der ersten gefundenen ausgewählten Zelle
+  let found = false;
+  const visited = new Set();
+  for (let row = 0; row < rows; row++) {
+    for (let col = 0; col < rows; col++) {
+      if (grid[row][col]) {
+        dfs(row, col, visited);
+        found = true;
+        break;
+      }
+    }
+    if (found) break;
+  }
+
+  if (visited.size !== selectedCells.length) {
+    return false;
+  }
+
+  // Prüfe auf rechteckige oder quadratische Form
+  const selectedRows = selectedCells.map(cell => Math.floor((cell - 1) / rows));
+  const selectedCols = selectedCells.map(cell => (cell - 1) % rows);
+  const minRow = Math.min(...selectedRows);
+  const maxRow = Math.max(...selectedRows);
+  const minCol = Math.min(...selectedCols);
+  const maxCol = Math.max(...selectedCols);
+
+  for (let row = minRow; row <= maxRow; row++) {
+    for (let col = minCol; col <= maxCol; col++) {
+      if (!grid[row][col]) {
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
 
 function isSelected(cell) {
   return selectedCells.value.includes(cell);
