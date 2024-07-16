@@ -78,6 +78,7 @@ async function downloadPythonFile() {
     const link = document.createElement('a');
     link.href = url;
     link.setAttribute('download', 'dashboard.py');
+    document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   } catch (error) {
@@ -85,8 +86,6 @@ async function downloadPythonFile() {
     errorMessage.value = error.message;
   }
 }
-
-
 
 onMounted(async () => {
   await widgetStore.fetchWidgetsByProjectId(projectId.value);
