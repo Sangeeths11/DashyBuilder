@@ -21,7 +21,7 @@ const visible = ref(false);
 function hideMessage() {
   setTimeout(() => {
     visible.value = false;
-  }, 2000);
+  }, 3000);
 }
 
 watch(() => props.message, (newValue) => {
