@@ -1,9 +1,6 @@
 from flask import Flask, request, make_response
 from flask_cors import CORS
 import json
-from components.plotly_chart import PlotlyChart
-from components.plotly_text_block import PlotlyTextBlock
-from components.plotly_table import PlotlyTable
 
 app = Flask(__name__)
 CORS(app, expose_headers=['Content-Disposition'])
@@ -12,79 +9,90 @@ CORS(app, expose_headers=['Content-Disposition'])
 def hello_geek():
     return '<h1>Hello from Flask & Docker</h1>'
 
-def parse_grid_position(grid_position):
-    return list(map(int, grid_position.split(',')))
+def parse_grid_positions(grid_positions):
+    return [int(pos) - 1 for pos in grid_positions.split(',')]
 
 def generate_plotly_code(widgets, grid_size):
+    rows, cols = map(int, grid_size.split('x'))
     code_lines = [
         "from dash import Dash, dcc, html",
         "import dash_bootstrap_components as dbc",
         "import plotly.express as px",
+        "import pandas as pd",
         "",
+        "# Beispiel-Tabellendaten",
+        "table_data = {",
+        "    'Spalte 1': [1, 2, 3, 4],",
+        "    'Spalte 2': ['A', 'B', 'C', 'D'],",
+        "    'Spalte 3': [10.1, 20.2, 30.3, 40.4]",
+        "}",
+        "table_df = pd.DataFrame(table_data)",
+        "",
+        "# Daten laden",
+        "df = px.data.iris()",
+        "",
+        "# Erstellt eine Graph-Card",
         "def drawFigure():",
-        "    df = px.data.iris()",
         "    return html.Div([",
         "        dbc.Card(",
         "            dbc.CardBody([",
         "                dcc.Graph(",
-        "                    figure=px.bar(df, x='sepal_width', y='sepal_length', color='species')",
-        "                        .update_layout(",
-        "                            template='plotly_dark',",
-        "                            plot_bgcolor='rgba(0, 0, 0, 0)',",
-        "                            paper_bgcolor='rgba(0, 0, 0, 0)',",
-        "                        ),",
-        "                    config={'displayModeBar': False}",
+        "                    figure=px.bar(",
+        "                        df, x='sepal_width', y='sepal_length', color='species'",
+        "                    ).update_layout(",
+        "                        template='plotly_dark',",
+        "                        plot_bgcolor='rgba(0, 0, 0, 0)',",
+        "                        paper_bgcolor='rgba(0, 0, 0, 0)',",
+        "                        height=250,",
+        "                        margin=dict(l=20, r=20, t=20, b=20)",
+        "                    ),",
+        "                    config={",
+        "                        'displayModeBar': False",
+        "                    },",
+        "                    style={'height': '100%', 'width': '100%'}",
         "                )",
-        "            ])",
+        "            ]),",
+        "            style={'height': '100%'}",
         "        ),",
-        "    ])",
+        "    ], style={'height': '100%', 'padding': '2px'})",
         "",
-        "def drawText(content='Text'):",
+        "# Erstellt eine Text-Card",
+        "def drawText(text='Text'):",
         "    return html.Div([",
         "        dbc.Card(",
         "            dbc.CardBody([",
         "                html.Div([",
-        "                    html.H2(content),",
-        "                ], style={'textAlign': 'center'})",
-        "            ])",
+        "                    html.H4(text),",
+        "                ], style={'textAlign': 'center', 'color': 'white', 'height': '100%', 'display': 'flex', 'alignItems': 'center', 'justifyContent': 'center'})",
+        "            ]),",
+        "            style={'height': '100%'}",
         "        ),",
-        "    ])",
+        "    ], style={'height': '100%', 'padding': '2px'})",
         "",
+        "# Erstellt eine Table-Card",
         "def drawTable():",
         "    return html.Div([",
         "        dbc.Card(",
         "            dbc.CardBody([",
-        "                html.Table([",
-        "                    html.Thead([",
-        "                        html.Tr([",
-        "                            html.Th('Column 1'),",
-        "                            html.Th('Column 2'),",
-        "                        ])",
-        "                    ]),",
-        "                    html.Tbody([",
-        "                        html.Tr([",
-        "                            html.Td('Value 1'),",
-        "                            html.Td('Value 2'),",
-        "                        ])",
-        "                    ])",
+        "                html.Div([",
+        "                    dbc.Table.from_dataframe(table_df, striped=True, bordered=True, hover=True, dark=True)",
         "                ])",
-        "            ])",
+        "            ]),",
+        "            style={'height': '100%'}",
         "        ),",
-        "    ])",
+        "    ], style={'height': '100%', 'padding': '2px'})",
         "",
-        "app = Dash(external_stylesheets=[dbc.themes.SLATE])",
+        "# App initialisieren mit externen Stylesheets",
+        "app = Dash(__name__, external_stylesheets=[dbc.themes.SLATE])",
+        "",
+        "# Layout definieren",
         "app.layout = html.Div([",
-        "    dbc.Row([",
-        "        dbc.Col(drawText('Dashboard Title'), width=12),",
-        "    ], align='center'),"
+        "    dbc.Container(["
     ]
 
-    components = []
+    components = [''] * (rows * cols)
     for widget in widgets:
-        grid_positions = parse_grid_position(widget['gridPosition']['gridPosition'])
-        rows = sorted(set((pos - 1) // int(grid_size[0]) for pos in grid_positions))
-        cols = sorted(set((pos - 1) % int(grid_size[0]) for pos in grid_positions))
-        
+        grid_positions = parse_grid_positions(widget['gridPosition']['gridPosition'])
         component_code = ""
         if widget['type'] == 'Chart':
             component_code = "drawFigure()"
@@ -92,22 +100,21 @@ def generate_plotly_code(widgets, grid_size):
             component_code = f"drawText('{widget.get('content', 'Default Text')}')"
         elif widget['type'] == 'Table':
             component_code = "drawTable()"
-        
-        for row in rows:
-            components.append((row, cols, f"dbc.Col({component_code}, width={12 // int(grid_size[0])})"))
+        for grid_position in grid_positions:
+            components[grid_position] = f"dbc.Col({component_code}, width={12 // cols}, style={{'padding': '0px'}})"
 
-    components.sort()  # Sort by row
-    current_row = -1
-    for row, cols, component_code in components:
-        if row != current_row:
-            if current_row != -1:
-                code_lines.append("    ], align='center'),")
-            code_lines.append("    dbc.Row([")
-            current_row = row
-        code_lines.append(f"        {component_code},")
-    code_lines.append("    ], align='center'),")
+    for row in range(rows):
+        code_lines.append("        dbc.Row([")
+        for col in range(cols):
+            position = row * cols + col
+            if components[position]:
+                code_lines.append(f"            {components[position]},")
+            else:
+                code_lines.append(f"            dbc.Col(width={12 // cols}, style={{'padding': '0px'}}),")
+        code_lines.append("        ], style={'height': '33vh', 'margin': '0px'}),")
 
     code_lines += [
+        "    ], fluid=True, style={'height': '100vh', 'padding': '0', 'margin': '0', 'width': '100vw', 'overflow': 'hidden'})",
         "])",
         "",
         "if __name__ == '__main__':",
@@ -119,8 +126,12 @@ def generate_plotly_code(widgets, grid_size):
 @app.route('/export', methods=['POST'])
 def export_dashboard():
     data = request.get_json()
-    widgets = data['widgets']
-    grid_size = data['grid_size']
+    try:
+        widgets = data['widgets']
+        grid_size = data['grid_size']
+    except KeyError as e:
+        return f"Missing key in JSON data: {e}", 400
+    
     python_code = generate_plotly_code(widgets, grid_size)
 
     response = make_response(python_code)

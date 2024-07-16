@@ -58,6 +58,7 @@ const handleUpdateWidget = async ({ id, gridPosition }) => {
 async function downloadPythonFile() {
   console.log('Download python file');
   console.log(widgetStore.widgets);
+  console.log(gridSize.value);
   try {
     const response = await fetch('http://localhost:5000/export', {
       method: 'POST',
