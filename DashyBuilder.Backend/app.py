@@ -120,29 +120,30 @@ def generate_plotly_code(widgets, grid_size):
         for pos in grid_positions:
             filled_positions.add(pos)
 
-        # Add the component to the layout for the specified rows
-        for row in range(row_start, row_end + 1):
-            if row == row_start:
-                code_lines.append("        dbc.Row([")
-                for col in range(cols):
-                    position = row * cols + col
-                    if position in grid_positions:
-                        if col == col_start:
-                            width = col_span * (12 // cols)
-                            code_lines.append(f"            dbc.Col({component_code}, width={width}, style={{'padding': '0px'}}),")
-                        else:
-                            filled_positions.add(position)
-                    elif position not in filled_positions:
-                        code_lines.append(f"            dbc.Col(width={12 // cols}, style={{'padding': '0px'}}),")
-                code_lines.append(f"        ], style={{'height': '{100 // rows * row_span}vh', 'margin': '0px'}}),")
+        # Add empty rows before the row start
+        for row in range(row_start):
+            code_lines.append("        dbc.Row([")
+            for col in range(cols):
+                code_lines.append(f"            dbc.Col(width={12 // cols}, style={{'padding': '0px'}}),")
+            code_lines.append("        ], style={'height': '33vh', 'margin': '0px'}),")
 
-    # Fill remaining empty positions with empty columns
-    for row in range(rows):
+        # Add the component to the layout
         code_lines.append("        dbc.Row([")
         for col in range(cols):
-            position = row * cols + col
-            if position not in filled_positions:
+            position = row_start * cols + col
+            if col_start <= col <= col_end:
+                if col == col_start:
+                    width = col_span * (12 // cols)
+                    code_lines.append(f"            dbc.Col({component_code}, width={width}, style={{'padding': '0px'}}),")
+            else:
                 code_lines.append(f"            dbc.Col(width={12 // cols}, style={{'padding': '0px'}}),")
+        code_lines.append(f"        ], style={{'height': '{100 // rows * row_span}vh', 'margin': '0px'}}),")
+
+    # Add empty rows after the last filled row
+    for row in range(row_end + 1, rows):
+        code_lines.append("        dbc.Row([")
+        for col in range(cols):
+            code_lines.append(f"            dbc.Col(width={12 // cols}, style={{'padding': '0px'}}),")
         code_lines.append("        ], style={'height': '33vh', 'margin': '0px'}),")
 
     code_lines += [
