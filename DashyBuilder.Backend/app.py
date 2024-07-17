@@ -90,10 +90,13 @@ def generate_plotly_code(widgets, grid_size):
         "    dbc.Container(["
     ]
 
-    
+    # Track which grid positions have been filled to avoid overlapping
     filled_positions = set()
 
+    # Ensure we are iterating through widgets in the correct order
     widgets = sorted(widgets, key=lambda w: parse_grid_positions(w['gridPosition']['gridPosition'])[0])
+
+    current_row = 0
 
     for widget in widgets:
         grid_positions = parse_grid_positions(widget['gridPosition']['gridPosition'])
@@ -105,6 +108,7 @@ def generate_plotly_code(widgets, grid_size):
         elif widget['type'] == 'Table':
             component_code = "drawTable()"
         
+        # Determine the row and column spans
         min_pos = min(grid_positions)
         max_pos = max(grid_positions)
         row_start = min_pos // cols
@@ -113,16 +117,16 @@ def generate_plotly_code(widgets, grid_size):
         col_end = max_pos % cols
         row_span = row_end - row_start + 1
         col_span = col_end - col_start + 1
+
+        if row_start > current_row:
+            for row in range(current_row, row_start):
+                code_lines.append("        dbc.Row([")
+                for col in range(cols):
+                    code_lines.append(f"            dbc.Col(width={12 // cols}, style={{'padding': '0px'}}),")
+                code_lines.append("        ], style={'height': '33vh', 'margin': '0px'}),")
+            current_row = row_start
         
-        for pos in grid_positions:
-            filled_positions.add(pos)
-
-        for row in range(row_start):
-            code_lines.append("        dbc.Row([")
-            for col in range(cols):
-                code_lines.append(f"            dbc.Col(width={12 // cols}, style={{'padding': '0px'}}),")
-            code_lines.append("        ], style={'height': '33vh', 'margin': '0px'}),")
-
+        # Add the component to the layout
         code_lines.append("        dbc.Row([")
         for col in range(cols):
             position = row_start * cols + col
@@ -134,10 +138,15 @@ def generate_plotly_code(widgets, grid_size):
                 code_lines.append(f"            dbc.Col(width={12 // cols}, style={{'padding': '0px'}}),")
         code_lines.append(f"        ], style={{'height': '{100 // rows * row_span}vh', 'margin': '0px'}}),")
 
-    for row in range(row_end + 1, rows):
+        current_row += row_span
+
+    # Fill remaining empty positions with empty columns
+    for row in range(current_row, rows):
         code_lines.append("        dbc.Row([")
         for col in range(cols):
-            code_lines.append(f"            dbc.Col(width={12 // cols}, style={{'padding': '0px'}}),")
+            position = row * cols + col
+            if position not in filled_positions:
+                code_lines.append(f"            dbc.Col(width={12 // cols}, style={{'padding': '0px'}}),")
         code_lines.append("        ], style={'height': '33vh', 'margin': '0px'}),")
 
     code_lines += [
