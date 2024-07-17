@@ -90,7 +90,12 @@ def generate_plotly_code(widgets, grid_size):
         "    dbc.Container(["
     ]
 
-    components = [''] * (rows * cols)
+    # Track which grid positions have been filled to avoid overlapping
+    filled_positions = set()
+
+    # Ensure we are iterating through widgets in the correct order
+    widgets = sorted(widgets, key=lambda w: parse_grid_positions(w['gridPosition']['gridPosition'])[0])
+
     for widget in widgets:
         grid_positions = parse_grid_positions(widget['gridPosition']['gridPosition'])
         component_code = ""
@@ -100,16 +105,43 @@ def generate_plotly_code(widgets, grid_size):
             component_code = f"drawText('{widget.get('content', 'Default Text')}')"
         elif widget['type'] == 'Table':
             component_code = "drawTable()"
-        for grid_position in grid_positions:
-            components[grid_position] = f"dbc.Col({component_code}, width={12 // cols}, style={{'padding': '0px'}})"
+        
+        # Determine the row and column spans
+        min_pos = min(grid_positions)
+        max_pos = max(grid_positions)
+        row_start = min_pos // cols
+        row_end = max_pos // cols
+        col_start = min_pos % cols
+        col_end = max_pos % cols
+        row_span = row_end - row_start + 1
+        col_span = col_end - col_start + 1
+        
+        # Mark these positions as filled
+        for pos in grid_positions:
+            filled_positions.add(pos)
 
+        # Add the component to the layout for the specified rows
+        for row in range(row_start, row_end + 1):
+            if row == row_start:
+                code_lines.append("        dbc.Row([")
+                for col in range(cols):
+                    position = row * cols + col
+                    if position in grid_positions:
+                        if col == col_start:
+                            width = col_span * (12 // cols)
+                            code_lines.append(f"            dbc.Col({component_code}, width={width}, style={{'padding': '0px'}}),")
+                        else:
+                            filled_positions.add(position)
+                    elif position not in filled_positions:
+                        code_lines.append(f"            dbc.Col(width={12 // cols}, style={{'padding': '0px'}}),")
+                code_lines.append(f"        ], style={{'height': '{100 // rows * row_span}vh', 'margin': '0px'}}),")
+
+    # Fill remaining empty positions with empty columns
     for row in range(rows):
         code_lines.append("        dbc.Row([")
         for col in range(cols):
             position = row * cols + col
-            if components[position]:
-                code_lines.append(f"            {components[position]},")
-            else:
+            if position not in filled_positions:
                 code_lines.append(f"            dbc.Col(width={12 // cols}, style={{'padding': '0px'}}),")
         code_lines.append("        ], style={'height': '33vh', 'margin': '0px'}),")
 
@@ -121,7 +153,7 @@ def generate_plotly_code(widgets, grid_size):
         "    app.run_server(debug=True)"
     ]
     
-    return "\n".join(code_lines)
+    return '\n'.join(code_lines)
 
 @app.route('/export', methods=['POST'])
 def export_dashboard():
