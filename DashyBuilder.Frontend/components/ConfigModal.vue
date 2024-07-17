@@ -74,6 +74,8 @@ function toggleCell(cell) {
 }
 
 function validateGridPattern(selectedCells, gridSize) {
+  selectedCells = selectedCells.filter(cell => cell !== 0);
+  
   const rows = gridSize.startsWith('3') ? 3 : 4;
   const grid = new Array(rows).fill(null).map(() => new Array(rows).fill(false));
 
