@@ -9,18 +9,25 @@ CORS(app, expose_headers=['Content-Disposition'])
 def hello_geek():
     return '<h1>Hello from Flask & Docker</h1>'
 
-def parse_grid_positions(grid_positions):
-    return [int(pos) - 1 for pos in grid_positions.split(',')]
+def parse_grid_positions(grid_position_str):
+    """Extracts grid positions and calculates the column and row spans."""
+    positions = list(map(int, grid_position_str.split(',')))
+    rows = [(pos - 1) // 3 + 1 for pos in positions]  # Assuming a 3-column grid
+    cols = [(pos - 1) % 3 + 1 for pos in positions]
+    min_row, max_row = min(rows), max(rows)
+    min_col, max_col = min(cols), max(cols)
+    row_span = max_row - min_row + 1
+    col_span = max_col - min_col + 1
+    return min_row, min_col, row_span, col_span
 
-def generate_plotly_code(widgets, grid_size):
-    rows, cols = map(int, grid_size.split('x'))
+def generate_plotly_code(widgets):
     code_lines = [
         "from dash import Dash, dcc, html",
         "import dash_bootstrap_components as dbc",
         "import plotly.express as px",
         "import pandas as pd",
         "",
-        "# Beispiel-Tabellendaten",
+        "# Example table data",
         "table_data = {",
         "    'Spalte 1': [1, 2, 3, 4],",
         "    'Spalte 2': ['A', 'B', 'C', 'D'],",
@@ -28,10 +35,10 @@ def generate_plotly_code(widgets, grid_size):
         "}",
         "table_df = pd.DataFrame(table_data)",
         "",
-        "# Daten laden",
+        "# Load data",
         "df = px.data.iris()",
         "",
-        "# Erstellt eine Graph-Card",
+        "# Create a graph card",
         "def drawFigure():",
         "    return html.Div([",
         "        dbc.Card(",
@@ -46,30 +53,15 @@ def generate_plotly_code(widgets, grid_size):
         "                        height=250,",
         "                        margin=dict(l=20, r=20, t=20, b=20)",
         "                    ),",
-        "                    config={",
-        "                        'displayModeBar': False",
-        "                    },",
+        "                    config={'displayModeBar': False},",
         "                    style={'height': '100%', 'width': '100%'}",
         "                )",
         "            ]),",
         "            style={'height': '100%'}",
-        "        ),",
+        "        )",
         "    ], style={'height': '100%', 'padding': '2px'})",
         "",
-        "# Erstellt eine Text-Card",
-        "def drawText(text='Text'):",
-        "    return html.Div([",
-        "        dbc.Card(",
-        "            dbc.CardBody([",
-        "                html.Div([",
-        "                    html.H4(text),",
-        "                ], style={'textAlign': 'center', 'color': 'white', 'height': '100%', 'display': 'flex', 'alignItems': 'center', 'justifyContent': 'center'})",
-        "            ]),",
-        "            style={'height': '100%'}",
-        "        ),",
-        "    ], style={'height': '100%', 'padding': '2px'})",
-        "",
-        "# Erstellt eine Table-Card",
+        "# Create a table card",
         "def drawTable():",
         "    return html.Div([",
         "        dbc.Card(",
@@ -79,97 +71,45 @@ def generate_plotly_code(widgets, grid_size):
         "                ])",
         "            ]),",
         "            style={'height': '100%'}",
-        "        ),",
+        "        )",
         "    ], style={'height': '100%', 'padding': '2px'})",
         "",
-        "# App initialisieren mit externen Stylesheets",
+        "# Initialize app with external stylesheets",
         "app = Dash(__name__, external_stylesheets=[dbc.themes.SLATE])",
         "",
-        "# Layout definieren",
+        "# Define layout",
         "app.layout = html.Div([",
-        "    dbc.Container(["
+        "    dbc.Container([",
+        "        html.Div(style={",
+        "            'display': 'grid',",
+        "            'grid-template-columns': '1fr 1fr 1fr',",
+        "            'grid-template-rows': '1fr 1fr 1fr',",
+        "            'gap': '10px',",
+        "            'height': '99vh'",
+        "        }, children=["
     ]
-
-    # Track which grid positions have been filled to avoid overlapping
-    filled_positions = set()
-
-    # Ensure we are iterating through widgets in the correct order
-    widgets = sorted(widgets, key=lambda w: parse_grid_positions(w['gridPosition']['gridPosition'])[0])
-
-    current_row = 0
 
     for widget in widgets:
-        grid_positions = parse_grid_positions(widget['gridPosition']['gridPosition'])
-        component_code = ""
-        if widget['type'] == 'Chart':
-            component_code = "drawFigure()"
-        elif widget['type'] == 'Text Block':
-            component_code = f"drawText('{widget.get('content', 'Default Text')}')"
-        elif widget['type'] == 'Table':
-            component_code = "drawTable()"
-        
-        # Determine the row and column spans
-        min_pos = min(grid_positions)
-        max_pos = max(grid_positions)
-        row_start = min_pos // cols
-        row_end = max_pos // cols
-        col_start = min_pos % cols
-        col_end = max_pos % cols
-        row_span = row_end - row_start + 1
-        col_span = col_end - col_start + 1
-
-        if row_start > current_row:
-            for row in range(current_row, row_start):
-                code_lines.append("        dbc.Row([")
-                for col in range(cols):
-                    code_lines.append(f"            dbc.Col(width={12 // cols}, style={{'padding': '0px'}}),")
-                code_lines.append("        ], style={'height': '33vh', 'margin': '0px'}),")
-            current_row = row_start
-        
-        # Add the component to the layout
-        code_lines.append("        dbc.Row([")
-        for col in range(cols):
-            position = row_start * cols + col
-            if col_start <= col <= col_end:
-                if col == col_start:
-                    width = col_span * (12 // cols)
-                    code_lines.append(f"            dbc.Col({component_code}, width={width}, style={{'padding': '0px'}}),")
-            else:
-                code_lines.append(f"            dbc.Col(width={12 // cols}, style={{'padding': '0px'}}),")
-        code_lines.append(f"        ], style={{'height': '{100 // rows * row_span}vh', 'margin': '0px'}}),")
-
-        current_row += row_span
-
-    # Fill remaining empty positions with empty columns
-    for row in range(current_row, rows):
-        code_lines.append("        dbc.Row([")
-        for col in range(cols):
-            position = row * cols + col
-            if position not in filled_positions:
-                code_lines.append(f"            dbc.Col(width={12 // cols}, style={{'padding': '0px'}}),")
-        code_lines.append("        ], style={'height': '33vh', 'margin': '0px'}),")
-
-    code_lines += [
-        "    ], fluid=True, style={'height': '100vh', 'padding': '0', 'margin': '0', 'width': '100vw', 'overflow': 'hidden'})",
-        "])",
-        "",
-        "if __name__ == '__main__':",
-        "    app.run_server(debug=True)"
-    ]
+        min_row, min_col, row_span, col_span = parse_grid_positions(widget['gridPosition']['gridPosition'])
+        component = 'drawFigure()' if widget['type'] == 'Chart' else 'drawTable()'
+        code_lines.append(
+            f"            html.Div({component}, style={{'grid-column': '{min_col} / span {col_span}', 'grid-row': '{min_row} / span {row_span}', 'padding': '0px'}}),"
+        )
     
-    return '\n'.join(code_lines)
+    # Close the code
+    code_lines.append("        ])")
+    code_lines.append("    ], fluid=True, style={'height': '100vh', 'padding': '0', 'margin': '0', 'width': '100vw', 'overflow': 'hidden'})")
+    code_lines.append("])")
+    code_lines.append("if __name__ == '__main__':")
+    code_lines.append("    app.run_server(debug=True)")
+
+    return "\n".join(code_lines)
 
 @app.route('/export', methods=['POST'])
 def export_dashboard():
     data = request.get_json()
-    try:
-        widgets = data['widgets']
-        grid_size = data['grid_size']
-    except KeyError as e:
-        return f"Missing key in JSON data: {e}", 400
-    
-    python_code = generate_plotly_code(widgets, grid_size)
-
+    widgets = data.get('widgets', [])
+    python_code = generate_plotly_code(widgets)
     response = make_response(python_code)
     response.headers['Content-Disposition'] = 'attachment; filename=dashboard.py'
     response.headers['Content-Type'] = 'text/plain'
