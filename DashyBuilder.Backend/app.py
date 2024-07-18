@@ -9,18 +9,20 @@ CORS(app, expose_headers=['Content-Disposition'])
 def hello_geek():
     return '<h1>Hello from Flask & Docker</h1>'
 
-def parse_grid_positions(grid_position_str):
+def parse_grid_positions(grid_position_str, cols):
     """Extracts grid positions and calculates the column and row spans."""
     positions = list(map(int, grid_position_str.split(',')))
-    rows = [(pos - 1) // 3 + 1 for pos in positions]  # Assuming a 3-column grid
-    cols = [(pos - 1) % 3 + 1 for pos in positions]
+    rows = [(pos - 1) // cols + 1 for pos in positions]  # Dynamic column grid
+    cols = [(pos - 1) % cols + 1 for pos in positions]
     min_row, max_row = min(rows), max(rows)
     min_col, max_col = min(cols), max(cols)
     row_span = max_row - min_row + 1
     col_span = max_col - min_col + 1
     return min_row, min_col, row_span, col_span
 
-def generate_plotly_code(widgets):
+
+def generate_plotly_code(widgets, grid_size):
+    rows, cols = map(int, grid_size.split('x'))
     code_lines = [
         "from dash import Dash, dcc, html",
         "import dash_bootstrap_components as dbc",
@@ -56,8 +58,7 @@ def generate_plotly_code(widgets):
         "                    config={'displayModeBar': False},",
         "                    style={'height': '100%', 'width': '100%'}",
         "                )",
-        "            ]),",
-        "            style={'height': '100%'}",
+        "            ]),style={'height': '100%'}",
         "        )",
         "    ], style={'height': '100%', 'padding': '2px'})",
         "",
@@ -69,8 +70,7 @@ def generate_plotly_code(widgets):
         "                html.Div([",
         "                    dbc.Table.from_dataframe(table_df, striped=True, bordered=True, hover=True, dark=True)",
         "                ])",
-        "            ]),",
-        "            style={'height': '100%'}",
+        "            ]),style={'height': '100%'}",
         "        )",
         "    ], style={'height': '100%', 'padding': '2px'})",
         "",
@@ -82,15 +82,15 @@ def generate_plotly_code(widgets):
         "    dbc.Container([",
         "        html.Div(style={",
         "            'display': 'grid',",
-        "            'grid-template-columns': '1fr 1fr 1fr',",
-        "            'grid-template-rows': '1fr 1fr 1fr',",
+        f"            'grid-template-columns': 'repeat({cols}, 1fr)',",
+        f"            'grid-template-rows': 'repeat({rows}, 1fr)',",
         "            'gap': '10px',",
         "            'height': '99vh'",
         "        }, children=["
     ]
 
     for widget in widgets:
-        min_row, min_col, row_span, col_span = parse_grid_positions(widget['gridPosition']['gridPosition'])
+        min_row, min_col, row_span, col_span = parse_grid_positions(widget['gridPosition']['gridPosition'], cols)
         component = 'drawFigure()' if widget['type'] == 'Chart' else 'drawTable()'
         code_lines.append(
             f"            html.Div({component}, style={{'grid-column': '{min_col} / span {col_span}', 'grid-row': '{min_row} / span {row_span}', 'padding': '0px'}}),"
@@ -104,6 +104,21 @@ def generate_plotly_code(widgets):
     code_lines.append("    app.run_server(debug=True)")
 
     return "\n".join(code_lines)
+
+@app.route('/export', methods=['POST'])
+def export_dashboard():
+    data = request.get_json()
+    widgets = data.get('widgets', [])
+    grid_size = data.get('grid_size', '3x3')  # Default to 3x3 if not provided
+    python_code = generate_plotly_code(widgets, grid_size)
+    response = make_response(python_code)
+    response.headers['Content-Disposition'] = 'attachment; filename=dashboard.py'
+    response.headers['Content-Type'] = 'text/plain'
+    return response
+
+if __name__ == "__main__":
+    app.run(debug=True)
+
 
 @app.route('/export', methods=['POST'])
 def export_dashboard():
