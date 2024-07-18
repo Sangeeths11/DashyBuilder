@@ -12,14 +12,13 @@ def hello_geek():
 def parse_grid_positions(grid_position_str, cols):
     """Extracts grid positions and calculates the column and row spans."""
     positions = list(map(int, grid_position_str.split(',')))
-    rows = [(pos - 1) // cols + 1 for pos in positions]  # Dynamic column grid
+    rows = [(pos - 1) // cols + 1 for pos in positions]
     cols = [(pos - 1) % cols + 1 for pos in positions]
     min_row, max_row = min(rows), max(rows)
     min_col, max_col = min(cols), max(cols)
     row_span = max_row - min_row + 1
     col_span = max_col - min_col + 1
     return min_row, min_col, row_span, col_span
-
 
 def generate_plotly_code(widgets, grid_size):
     rows, cols = map(int, grid_size.split('x'))
@@ -74,6 +73,18 @@ def generate_plotly_code(widgets, grid_size):
         "        )",
         "    ], style={'height': '100%', 'padding': '2px'})",
         "",
+        "# Create a text card",
+        "def drawText(text='Text'):",
+        "    return html.Div([",
+        "        dbc.Card(",
+        "            dbc.CardBody([",
+        "                html.Div([",
+        "                    html.H4(text),",
+        "                ], style={'textAlign': 'center', 'color': 'white', 'height': '100%', 'display': 'flex', 'alignItems': 'center', 'justifyContent': 'center'})",
+        "            ]),style={'height': '100%'}",
+        "        )",
+        "    ], style={'height': '100%', 'padding': '2px'})",
+        "",
         "# Initialize app with external stylesheets",
         "app = Dash(__name__, external_stylesheets=[dbc.themes.SLATE])",
         "",
@@ -91,7 +102,12 @@ def generate_plotly_code(widgets, grid_size):
 
     for widget in widgets:
         min_row, min_col, row_span, col_span = parse_grid_positions(widget['gridPosition']['gridPosition'], cols)
-        component = 'drawFigure()' if widget['type'] == 'Chart' else 'drawTable()'
+        if widget['type'] == 'Chart':
+            component = 'drawFigure()'
+        elif widget['type'] == 'Table':
+            component = 'drawTable()'
+        elif widget['type'] == 'Text Block':
+            component = f"drawText(text='{widget.get('name', 'Text')}')"
         code_lines.append(
             f"            html.Div({component}, style={{'grid-column': '{min_col} / span {col_span}', 'grid-row': '{min_row} / span {row_span}', 'padding': '0px'}}),"
         )
@@ -111,20 +127,6 @@ def export_dashboard():
     widgets = data.get('widgets', [])
     grid_size = data.get('grid_size', '3x3')  # Default to 3x3 if not provided
     python_code = generate_plotly_code(widgets, grid_size)
-    response = make_response(python_code)
-    response.headers['Content-Disposition'] = 'attachment; filename=dashboard.py'
-    response.headers['Content-Type'] = 'text/plain'
-    return response
-
-if __name__ == "__main__":
-    app.run(debug=True)
-
-
-@app.route('/export', methods=['POST'])
-def export_dashboard():
-    data = request.get_json()
-    widgets = data.get('widgets', [])
-    python_code = generate_plotly_code(widgets)
     response = make_response(python_code)
     response.headers['Content-Disposition'] = 'attachment; filename=dashboard.py'
     response.headers['Content-Type'] = 'text/plain'
