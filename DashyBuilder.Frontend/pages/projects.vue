@@ -8,7 +8,7 @@
                 v-model="search"
                 class="mb-4 p-2 w-full border rounded"
             />
-            <div class="grid gap-4 md:grid-cols-2">
+            <div class="grid gap-4 md:grid-cols-3">
                 <div v-for="project in filteredProjects" :key="project.id" class="bg-gray-100 rounded-lg p-4 shadow">
                     <h2 class="text-lg font-semibold">{{ project.projectName }}</h2>
                     <p class="text-sm text-gray-600">Grid-System: {{ project.gridSize }}</p>
