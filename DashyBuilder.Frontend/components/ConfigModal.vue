@@ -50,9 +50,7 @@ const selectedCells = ref(gridPositionData);
 
 // siple change algorithm for correct grid pattern
 const rows = computed(() => {
-  if (props.gridSize.startsWith('3')) {
-    return 3;
-  } else if (props.gridSize.startsWith('4')) {
+  if (props.gridSize.startsWith('4')) {
     return 4;
   } else if (props.gridSize.startsWith('5')) {
     return 5;
@@ -93,7 +91,7 @@ function validateGridPattern(selectedCells, gridSize) {
   selectedCells = selectedCells.filter(cell => cell !== 0);
   
   // siple change algorithm for correct grid pattern
-  const rows = gridSize.startsWith('3') ? 3 : gridSize.startsWith('4') ? 4 : gridSize.startsWith('5') ? 5 : gridSize.startsWith('6') ? 6 : gridSize.startsWith('12') ? 12 : 4;
+  const rows = gridSize.startsWith('4') ? 4 : gridSize.startsWith('5') ? 5 : gridSize.startsWith('6') ? 6 : gridSize.startsWith('12') ? 12 : 4;
   const grid = new Array(rows).fill(null).map(() => new Array(rows).fill(false));
 
   selectedCells.forEach(cell => {

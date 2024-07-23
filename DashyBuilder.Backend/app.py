@@ -171,7 +171,7 @@ def generate_plotly_code(widgets, grid_size):
 def export_dashboard():
     data = request.get_json()
     widgets = data.get('widgets', [])
-    grid_size = data.get('grid_size', '3x3')  # Default to 3x3 if not provided
+    grid_size = data.get('grid_size', '4x4')  # Default value defined in the frontend
     python_code = generate_plotly_code(widgets, grid_size)
     response = make_response(python_code)
     response.headers['Content-Disposition'] = 'attachment; filename=dashboard.py'

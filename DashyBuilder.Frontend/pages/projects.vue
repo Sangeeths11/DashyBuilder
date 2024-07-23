@@ -35,7 +35,6 @@
                 <input type="text" v-model="newProjectName" placeholder="Projektname" class="mb-4 p-2 w-full border rounded">
                 <select v-model="newProjectGrid" class="mb-4 p-2 w-full border rounded">
                     <option disabled value="">Wähle ein Grid-System</option>
-                    <option>3x3</option>
                     <option>4x4</option>
                     <option>5x5</option>
                     <option>6x6</option>
