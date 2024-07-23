@@ -1,6 +1,7 @@
 <template>
   <div>
     <h1 class="text-3xl font-bold mb-6">{{ name }}</h1>
+    <SucessMessageBox :message="successMessage"/>
     <ErrorMessageBox :message="errorMessage"/>
     <ComponentSelector @add-widget="handleAddWidget" @errorMessage="errorMessageModal" class="mb-5"/>
     <DashboardArea :widgets="widgetStore.widgets" :gridSize="gridSize" @delete-widget="handleDeleteWidget"  @update-widget="handleUpdateWidget" />
@@ -23,6 +24,7 @@ const name = ref('');
 const projectStore = useProjectStore();
 const widgetStore = useWidgetStore();
 const errorMessage = ref('');
+const successMessage = ref('');
 const gridSize = ref('');
 
 watch(projectId, async (newId, oldId) => {
@@ -40,19 +42,36 @@ watch(projectId, async (newId, oldId) => {
 }, { immediate: true });
 
 const handleAddWidget = async (widget) => {
-  if (widgetStore.widgets.length >= 6) {
-    errorMessage.value = 'You can only add up to 6 widgets.';
+  const gridSizeArray = gridSize.value.split('x');
+  const gridSizeValue = parseInt(gridSizeArray[0]) * parseInt(gridSizeArray[1]);
+  console.log('Grid size:', gridSizeValue);
+  if (widgetStore.widgets.length >= gridSizeValue) {
+    errorMessage.value = `You can only add up to ${gridSizeValue} widgets.`;
+    setTimeout(() => {
+      errorMessage.value = '';
+    }, 3000);
     return;
   }
   await widgetStore.createWidget(widget.type, widget.name, projectId.value);
+  successMessage.value = 'Widget added successfully';
+  setTimeout(() => {
+    successMessage.value = '';
+  }, 3000);
 };
 
 const errorMessageModal = (message) => {
   errorMessage.value = message;
+  setTimeout(() => {
+    errorMessage.value = '';
+  }, 3000);
 };
 
 const handleDeleteWidget = async (id) => {
   await widgetStore.deleteWidget(id);
+  successMessage.value = 'Widget deleted successfully';
+  setTimeout(() => {
+    successMessage.value = '';
+  }, 3000);
 };
 
 const handleUpdateWidget = async ({ id, gridPosition }) => {
@@ -60,6 +79,15 @@ const handleUpdateWidget = async ({ id, gridPosition }) => {
 };
 
 async function downloadPythonFile() {
+  const invalidWidgets = widgetStore.widgets.filter(widget => !widget.gridPosition || !widget.gridPosition.gridPosition);
+  
+  if (invalidWidgets.length > 0) {
+    errorMessage.value = 'Please set the grid position for all widgets before downloading the python file.';
+    setTimeout(() => {
+      errorMessage.value = '';
+    }, 3000);
+    return;
+  }
   console.log('Download python file');
   console.log(widgetStore.widgets);
   console.log(gridSize.value);
@@ -85,9 +113,16 @@ async function downloadPythonFile() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    successMessage.value = 'Python file downloaded successfully';
+    setTimeout(() => {
+      successMessage.value = '';
+    }, 3000);
   } catch (error) {
     console.error('Error downloading the python file:', error);
     errorMessage.value = error.message;
+    setTimeout(() => {
+      errorMessage.value = '';
+    }, 3000);
   }
 }
 
