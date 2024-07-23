@@ -96,7 +96,6 @@ function validateGridPattern(selectedCells, gridSize) {
     dfs(row, col - 1, visited); 
   }
 
-  // Starte DFS von der ersten gefundenen ausgewählten Zelle
   let found = false;
   const visited = new Set();
   for (let row = 0; row < rows; row++) {

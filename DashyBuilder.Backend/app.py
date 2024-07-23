@@ -23,7 +23,7 @@ def parse_grid_positions(grid_position_str, cols):
 def generate_plotly_code(widgets, grid_size):
     rows, cols = map(int, grid_size.split('x'))
     code_lines = [
-        "from dash import Dash, dcc, html",
+        "from dash import Dash, dcc, html, Input, Output",
         "import dash_bootstrap_components as dbc",
         "import plotly.express as px",
         "import pandas as pd",
@@ -45,18 +45,12 @@ def generate_plotly_code(widgets, grid_size):
         "        dbc.Card(",
         "            dbc.CardBody([",
         "                dcc.Graph(",
-        "                    figure=px.bar(",
-        "                        df, x='sepal_width', y='sepal_length', color='species'",
-        "                    ).update_layout(",
-        "                        template='plotly_dark',",
-        "                        plot_bgcolor='rgba(0, 0, 0, 0)',",
-        "                        paper_bgcolor='rgba(0, 0, 0, 0)',",
-        "                        margin=dict(l=20, r=20, t=20, b=20)",
-        "                    ),",
+        "                    id='graph',",
         "                    config={'displayModeBar': False},",
         "                    style={'height': '100%', 'width': '100%'},",
-        "                responsive=True)",
-        "            ]),style={'height': '100%'}",
+        "                    responsive=True",
+        "                )",
+        "            ]), style={'height': '100%'}",
         "        )",
         "    ], style={'height': '100%', 'padding': '2px'})",
         "",
@@ -68,7 +62,7 @@ def generate_plotly_code(widgets, grid_size):
         "                html.Div([",
         "                    dbc.Table.from_dataframe(table_df, striped=True, bordered=True, hover=True, dark=True)",
         "                ])",
-        "            ]),style={'height': '100%'}",
+        "            ]), style={'height': '100%'}",
         "        )",
         "    ], style={'height': '100%', 'padding': '2px'})",
         "",
@@ -80,7 +74,29 @@ def generate_plotly_code(widgets, grid_size):
         "                html.Div([",
         "                    html.H4(text),",
         "                ], style={'textAlign': 'center', 'color': 'white', 'height': '100%', 'display': 'flex', 'alignItems': 'center', 'justifyContent': 'center'})",
-        "            ]),style={'height': '100%'}",
+        "            ]), style={'height': '100%'}",
+        "        )",
+        "    ], style={'height': '100%', 'padding': '2px'})",
+        "",
+        "# Create a filter box",
+        "def drawFilterBox():",
+        "    return html.Div([",
+        "        dbc.Card(",
+        "            dbc.CardBody([",
+        "                html.Div([",
+        "                    dcc.Dropdown(",
+        "                        id='filter-dropdown',",
+        "                        options=[",
+        "                            {'label': 'Setosa', 'value': 'setosa'},",
+        "                            {'label': 'Versicolor', 'value': 'versicolor'},",
+        "                            {'label': 'Virginica', 'value': 'virginica'}",
+        "                        ],",
+        "                        value=['setosa', 'versicolor', 'virginica'],",
+        "                        multi=True,",
+        "                        style={'color': '#000'}",
+        "                    )",
+        "                ], style={'textAlign': 'center', 'padding': '10px'})",
+        "            ]), style={'height': '100%'}",
         "        )",
         "    ], style={'height': '100%', 'padding': '2px'})",
         "",
@@ -105,6 +121,8 @@ def generate_plotly_code(widgets, grid_size):
             component = 'drawFigure()'
         elif widget['type'] == 'Table':
             component = 'drawTable()'
+        elif widget['type'] == 'Filter Box':
+            component = 'drawFilterBox()'
         elif widget['type'] == 'Text Block':
             component = f"drawText(text='{widget.get('name', 'Text')}')"
         code_lines.append(
@@ -115,6 +133,23 @@ def generate_plotly_code(widgets, grid_size):
     code_lines.append("        ])")
     code_lines.append("    ], fluid=True, style={'height': '100vh', 'padding': '0', 'margin': '0', 'width': '100vw', 'overflow': 'hidden'})")
     code_lines.append("])")
+    code_lines.append("")
+    code_lines.append("@app.callback(")
+    code_lines.append("    Output('graph', 'figure'),")
+    code_lines.append("    [Input('filter-dropdown', 'value')]")
+    code_lines.append(")")
+    code_lines.append("def update_graph(selected_values):")
+    code_lines.append("    filtered_df = df[df['species'].isin(selected_values)]")
+    code_lines.append("    fig = px.bar(")
+    code_lines.append("        filtered_df, x='sepal_width', y='sepal_length', color='species'")
+    code_lines.append("    ).update_layout(")
+    code_lines.append("        template='plotly_dark',")
+    code_lines.append("        plot_bgcolor='rgba(0, 0, 0, 0)',")
+    code_lines.append("        paper_bgcolor='rgba(0, 0, 0, 0)',")
+    code_lines.append("        margin=dict(l=20, r=20, t=20, b=20)")
+    code_lines.append("    )")
+    code_lines.append("    return fig")
+    code_lines.append("")
     code_lines.append("if __name__ == '__main__':")
     code_lines.append("    app.run_server(debug=True)")
 
