@@ -48,7 +48,21 @@ try {
 
 const selectedCells = ref(gridPositionData);
 
-const rows = computed(() => props.gridSize.startsWith('3') ? 3 : 4);
+// umändern auch das 3x3, 4x4, 5x5 funktioniert
+const rows = computed(() => {
+  if (props.gridSize.startsWith('3')) {
+    return 3;
+  } else if (props.gridSize.startsWith('4')) {
+    return 4;
+  } else if (props.gridSize.startsWith('5')) {
+    return 5;
+  } else {
+    return 4;
+  }
+});
+// const rows = computed(() => props.gridSize.startsWith('3') ? 3 : 4);
+
+
 const totalCells = computed(() => rows.value * rows.value);
 
 const gridStyle = computed(() => ({
@@ -76,7 +90,8 @@ function toggleCell(cell) {
 function validateGridPattern(selectedCells, gridSize) {
   selectedCells = selectedCells.filter(cell => cell !== 0);
   
-  const rows = gridSize.startsWith('3') ? 3 : 4;
+  // const rows = gridSize.startsWith('3') ? 3 : 4;
+  const rows = gridSize.startsWith('3') ? 3 : gridSize.startsWith('4') ? 4 : 5;
   const grid = new Array(rows).fill(null).map(() => new Array(rows).fill(false));
 
   selectedCells.forEach(cell => {
