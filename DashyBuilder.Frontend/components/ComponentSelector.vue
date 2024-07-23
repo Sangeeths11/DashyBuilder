@@ -37,6 +37,10 @@
               <input type="radio" class="form-radio text-blue-600" name="gridSize" value="5x5" v-model="gridSize" :disabled="isGridSizeDisabled">
               <span class="ml-2">5x5 <Icon name="mdi:grid" class="ml-1 w-10 h-10 text-blue-600"/></span>
             </label>
+            <label class="inline-flex items-center">
+              <input type="radio" class="form-radio text-blue-600" name="gridSize" value="6x6" v-model="gridSize" :disabled="isGridSizeDisabled">
+              <span class="ml-2">6x6 <Icon name="mdi:grid" class="ml-1 w-12 h-12 text-blue-600"/></span>
+            </label>  
           </div>
         </div>
       </div>

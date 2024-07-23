@@ -38,6 +38,7 @@
                     <option>3x3</option>
                     <option>4x4</option>
                     <option>5x5</option>
+                    <option>6x6</option>
                 </select>
                 <div class="flex justify-end space-x-4">
                     <button @click="closeCreateModal" class="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300">Abbrechen</button>

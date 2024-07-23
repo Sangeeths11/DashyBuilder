@@ -48,7 +48,7 @@ try {
 
 const selectedCells = ref(gridPositionData);
 
-// umändern auch das 3x3, 4x4, 5x5 funktioniert
+// siple change algorithm for correct grid pattern
 const rows = computed(() => {
   if (props.gridSize.startsWith('3')) {
     return 3;
@@ -56,12 +56,12 @@ const rows = computed(() => {
     return 4;
   } else if (props.gridSize.startsWith('5')) {
     return 5;
+  } else if (props.gridSize.startsWith('6')) {
+    return 6;
   } else {
     return 4;
   }
 });
-// const rows = computed(() => props.gridSize.startsWith('3') ? 3 : 4);
-
 
 const totalCells = computed(() => rows.value * rows.value);
 
@@ -90,8 +90,8 @@ function toggleCell(cell) {
 function validateGridPattern(selectedCells, gridSize) {
   selectedCells = selectedCells.filter(cell => cell !== 0);
   
-  // const rows = gridSize.startsWith('3') ? 3 : 4;
-  const rows = gridSize.startsWith('3') ? 3 : gridSize.startsWith('4') ? 4 : 5;
+  // siple change algorithm for correct grid pattern
+  const rows = gridSize.startsWith('3') ? 3 : gridSize.startsWith('4') ? 4 : gridSize.startsWith('5') ? 5 : 6;
   const grid = new Array(rows).fill(null).map(() => new Array(rows).fill(false));
 
   selectedCells.forEach(cell => {
