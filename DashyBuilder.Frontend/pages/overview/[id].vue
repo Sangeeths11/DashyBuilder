@@ -2,7 +2,7 @@
   <div>
     <h1 class="text-3xl font-bold mb-6">{{ name }}</h1>
     <ErrorMessageBox :message="errorMessage"/>
-    <ComponentSelector @add-widget="handleAddWidget" class="mb-5"/>
+    <ComponentSelector @add-widget="handleAddWidget" @errorMessage="errorMessageModal" class="mb-5"/>
     <DashboardArea :widgets="widgetStore.widgets" :gridSize="gridSize" @delete-widget="handleDeleteWidget"  @update-widget="handleUpdateWidget" />
     <button @click="downloadPythonFile" class="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded flex items-center justify-center">
       <Icon name="mdi:download" color="white" class="mr-1 text-2xl"/> Download Python File
@@ -45,6 +45,10 @@ const handleAddWidget = async (widget) => {
     return;
   }
   await widgetStore.createWidget(widget.type, widget.name, projectId.value);
+};
+
+const errorMessageModal = (message) => {
+  errorMessage.value = message;
 };
 
 const handleDeleteWidget = async (id) => {

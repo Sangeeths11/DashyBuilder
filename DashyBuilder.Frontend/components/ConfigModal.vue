@@ -1,6 +1,7 @@
 <template>
   <div class="fixed inset-0 bg-gray-500 bg-opacity-90 flex items-center justify-center z-50">
     <div class="bg-white p-6 rounded shadow-lg w-80 relative">
+      <ErrorMessageBox :message="errorMessage"/>
       <h3 class="text-lg font-bold mb-4">Configure Widget Position</h3>
       <div :style="gridStyle" class="grid-container">
         <div v-for="cell in totalCells" :key="cell"
@@ -26,6 +27,7 @@ const props = defineProps({
 
 const { fetchReservedPositions } = useWidgetStore();
 const reservedPositions = ref([]);
+const errorMessage = ref('');
 
 onMounted(async () => {
   reservedPositions.value = await fetchReservedPositions(props.widget.project_id);
@@ -160,7 +162,7 @@ function saveConfig() {
     emit('save', selectedCells.value.join(','));
     emit('close');
   } else {
-    alert('Invalid grid pattern. Please select a valid pattern.');
+    errorMessage.value = 'Invalid pattern.';
   }
 }
 

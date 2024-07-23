@@ -31,6 +31,7 @@
         
         <div v-if="openCreateProjectModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 z-50 flex justify-center items-center">
             <div class="bg-white p-5 rounded-lg shadow-lg">
+                <ErrorMessageBox :message="errorMessage" />
                 <h3 class="text-lg font-semibold mb-4">Neues Projekt erstellen</h3>
                 <input type="text" v-model="newProjectName" placeholder="Projektname" class="mb-4 p-2 w-full border rounded">
                 <select v-model="newProjectGrid" class="mb-4 p-2 w-full border rounded">
@@ -61,6 +62,7 @@ const projectStore = useProjectStore()
 const newProjectName = ref('')
 const newProjectGrid = ref('')
 const openCreateProjectModal = ref(false)
+const errorMessage = ref('')
 
 const filteredProjects = computed(() => {
   if (!projectStore.projects || projectStore.projects.length === 0) {
@@ -72,8 +74,13 @@ const filteredProjects = computed(() => {
 });
 
 async function createProject() {
+    console.log(newProjectName.value, newProjectGrid.value);
     if (!newProjectName.value || !newProjectGrid.value) {
-        alert("Bitte alle Felder ausfüllen");
+        errorMessage.value = 'Please fill out all fields.';
+        return;
+    }
+    else if (projectStore.projects.some(project => project.projectName === newProjectName.value)) {
+        errorMessage.value = 'A project with this name already exists.';
         return;
     }
     await projectStore.createProject(newProjectName.value, newProjectGrid.value);

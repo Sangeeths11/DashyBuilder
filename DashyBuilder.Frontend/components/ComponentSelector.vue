@@ -56,7 +56,7 @@
 </template>
 
 <script setup>
-const emit = defineEmits(['add-widget']);
+const emit = defineEmits(['add-widget', 'errorMessage']);
 
 const components = ref([
   { id: 1, name: 'Chart' },
@@ -92,7 +92,7 @@ function addWidget() {
     selectedComponent.value = '';
     componentName.value = '';
   } else {
-    alert("Bitte wählen Sie eine Komponente und geben Sie einen Namen ein");
+    emit('errorMessage', 'Please select a component and enter a name');
   }
 }
 </script>
