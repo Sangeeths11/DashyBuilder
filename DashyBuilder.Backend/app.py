@@ -22,6 +22,8 @@ def parse_grid_positions(grid_position_str, cols):
 
 def generate_plotly_code(widgets, grid_size):
     rows, cols = map(int, grid_size.split('x'))
+    has_filter = any(widget['type'] == 'Filter Box' for widget in widgets)
+    
     code_lines = [
         "from dash import Dash, dcc, html, Input, Output",
         "import dash_bootstrap_components as dbc",
@@ -41,11 +43,18 @@ def generate_plotly_code(widgets, grid_size):
         "",
         "# Create a graph card",
         "def drawFigure():",
+        "    fig = px.bar(df, x='sepal_width', y='sepal_length', color='species').update_layout(",
+        "        template='plotly_dark',",
+        "        plot_bgcolor='rgba(0, 0, 0, 0)',",
+        "        paper_bgcolor='rgba(0, 0, 0, 0)',",
+        "        margin=dict(l=20, r=20, t=20, b=20)",
+        "    )",
         "    return html.Div([",
         "        dbc.Card(",
         "            dbc.CardBody([",
         "                dcc.Graph(",
         "                    id='graph',",
+        "                    figure=fig,",
         "                    config={'displayModeBar': False},",
         "                    style={'height': '100%', 'width': '100%'},",
         "                    responsive=True",
@@ -133,22 +142,25 @@ def generate_plotly_code(widgets, grid_size):
     code_lines.append("        ])")
     code_lines.append("    ], fluid=True, style={'height': '100vh', 'padding': '0', 'margin': '0', 'width': '100vw', 'overflow': 'hidden'})")
     code_lines.append("])")
-    code_lines.append("")
-    code_lines.append("@app.callback(")
-    code_lines.append("    Output('graph', 'figure'),")
-    code_lines.append("    [Input('filter-dropdown', 'value')]")
-    code_lines.append(")")
-    code_lines.append("def update_graph(selected_values):")
-    code_lines.append("    filtered_df = df[df['species'].isin(selected_values)]")
-    code_lines.append("    fig = px.bar(")
-    code_lines.append("        filtered_df, x='sepal_width', y='sepal_length', color='species'")
-    code_lines.append("    ).update_layout(")
-    code_lines.append("        template='plotly_dark',")
-    code_lines.append("        plot_bgcolor='rgba(0, 0, 0, 0)',")
-    code_lines.append("        paper_bgcolor='rgba(0, 0, 0, 0)',")
-    code_lines.append("        margin=dict(l=20, r=20, t=20, b=20)")
-    code_lines.append("    )")
-    code_lines.append("    return fig")
+    
+    if has_filter:
+        code_lines.append("")
+        code_lines.append("@app.callback(")
+        code_lines.append("    Output('graph', 'figure'),")
+        code_lines.append("    [Input('filter-dropdown', 'value')]")
+        code_lines.append(")")
+        code_lines.append("def update_graph(selected_values):")
+        code_lines.append("    filtered_df = df[df['species'].isin(selected_values)]")
+        code_lines.append("    fig = px.bar(")
+        code_lines.append("        filtered_df, x='sepal_width', y='sepal_length', color='species'")
+        code_lines.append("    ).update_layout(")
+        code_lines.append("        template='plotly_dark',")
+        code_lines.append("        plot_bgcolor='rgba(0, 0, 0, 0)',")
+        code_lines.append("        paper_bgcolor='rgba(0, 0, 0, 0)',")
+        code_lines.append("        margin=dict(l=20, r=20, t=20, b=20)")
+        code_lines.append("    )")
+        code_lines.append("    return fig")
+    
     code_lines.append("")
     code_lines.append("if __name__ == '__main__':")
     code_lines.append("    app.run_server(debug=True)")
