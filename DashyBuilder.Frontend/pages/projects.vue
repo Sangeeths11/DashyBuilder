@@ -1,6 +1,7 @@
 <template>
     <div class="flex flex-col items-center justify-center min-h-screen bg-gray-50">
         <div class="bg-white p-6 rounded shadow-lg w-full max-w-lg text-center">
+            <SucessMessageBox :message="successMessage" />
             <h1 class="text-2xl font-bold mb-4">Projekte verwalten</h1>
             <input
                 type="text"
@@ -63,6 +64,7 @@ const newProjectName = ref('')
 const newProjectGrid = ref('')
 const openCreateProjectModal = ref(false)
 const errorMessage = ref('')
+const successMessage = ref('')
 
 const filteredProjects = computed(() => {
   if (!projectStore.projects || projectStore.projects.length === 0) {
@@ -77,10 +79,16 @@ async function createProject() {
     console.log(newProjectName.value, newProjectGrid.value);
     if (!newProjectName.value || !newProjectGrid.value) {
         errorMessage.value = 'Please fill out all fields.';
+        setTimeout(() => {
+            errorMessage.value = '';
+        }, 3000);
         return;
     }
     else if (projectStore.projects.some(project => project.projectName === newProjectName.value)) {
         errorMessage.value = 'A project with this name already exists.';
+        setTimeout(() => {
+            errorMessage.value = '';
+        }, 3000);
         return;
     }
     await projectStore.createProject(newProjectName.value, newProjectGrid.value);
@@ -88,10 +96,18 @@ async function createProject() {
     newProjectGrid.value = '';
     openCreateProjectModal.value = false;
     await projectStore.fetchProjects();
+    successMessage.value = 'Project created successfully.';
+    setTimeout(() => {
+        successMessage.value = '';
+    }, 3000);
 }
 
 function deleteProject(projectId) {
     projectStore.deleteProject(projectId);
+    successMessage.value = 'Project deleted successfully.';
+    setTimeout(() => {
+        successMessage.value = '';
+    }, 3000);
 }
 
 function closeCreateModal() {
