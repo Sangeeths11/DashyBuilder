@@ -45,6 +45,10 @@ try {
   }
 } catch (e) {
   console.error('Invalid gridPosition data:', props.widget.gridPosition);
+  errorMessage.value = 'Invalid gridPosition data.';
+  setTimeout(() => {
+    errorMessage.value = '';
+  }, 3000);
   gridPositionData = [];
 }
 
@@ -163,6 +167,9 @@ function saveConfig() {
     emit('close');
   } else {
     errorMessage.value = 'Invalid pattern.';
+    setTimeout(() => {
+      errorMessage.value = '';
+    }, 3000);
   }
 }
 

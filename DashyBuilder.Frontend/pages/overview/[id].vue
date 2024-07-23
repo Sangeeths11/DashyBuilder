@@ -76,6 +76,10 @@ const handleDeleteWidget = async (id) => {
 
 const handleUpdateWidget = async ({ id, gridPosition }) => {
   await widgetStore.updateWidget(id, { gridPosition });
+  successMessage.value = 'Grid position updated successfully';
+  setTimeout(() => {
+    successMessage.value = '';
+  }, 3000);
 };
 
 async function downloadPythonFile() {
