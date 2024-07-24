@@ -6,7 +6,6 @@
     <div class="flex flex-wrap mb-5">
       <div class="w-full lg:w-1/2 px-2 h-full">
         <UploadDataset @uploaded="handleDatasetUploaded" class="mb-5"/>
-        <!-- button who will open the DataExplorationModal -->
         <button @click="showDataExploration = true" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded flex items-center justify-center">
           <Icon name="mdi:table" color="white" class="mr-1 text-2xl"/> Data Exploration
         </button>
@@ -19,8 +18,6 @@
     <button @click="downloadPythonFile" class="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded flex items-center justify-center">
       <Icon name="mdi:download" color="white" class="mr-1 text-2xl"/> Download Python File
     </button>
-
-    <!-- Data Exploration Modal -->
     <DataExplorationModal :show="showDataExploration" :datasetId="uploadedDatasetId" @close="showDataExploration = false"/>
   </div>
 </template>

@@ -10,6 +10,7 @@
             <path d="M16.88 5.5a2 2 0 01.12 0h1a2 2 0 011.72 1.05 2 2 0 01.28.96v7a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h1.1a2 2 0 01.12 0H5a.5.5 0 000 1h10a.5.5 0 000-1h-.12zM9 8a.5.5 0 000 1h2a.5.5 0 000-1H9z"/>
           </svg>
           <span class="mt-2 text-base leading-normal">Select a file</span>
+          <span class="text-xs leading-normal">File must be in CSV format</span>
           <input id="file-upload" type="file" class="hidden" @change="handleFileUpload"/>
         </label>
         <button 

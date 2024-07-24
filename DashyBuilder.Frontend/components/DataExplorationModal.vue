@@ -24,12 +24,11 @@
         </div>
         <div>
           <h3 class="text-xl font-semibold mb-2">Missing Values</h3>
-          <div class="bg-gray-100 p-4 rounded shadow-sm">
-            <ul class="list-disc pl-5">
-              <li v-for="(value, key) in dataInfo.missing_values" :key="key">
-                <span class="font-semibold">{{ key }}:</span> <span class="text-red-500">{{ value }}</span>
-              </li>
-            </ul>
+          <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 bg-gray-100 p-4 rounded shadow-sm">
+            <div v-for="(value, key) in dataInfo.missing_values" :key="key" class="p-3 rounded bg-white shadow">
+              <p class="font-semibold">{{ key }}</p>
+              <p class="text-red-500">{{ value }}</p>
+            </div>
           </div>
         </div>
         <div>
