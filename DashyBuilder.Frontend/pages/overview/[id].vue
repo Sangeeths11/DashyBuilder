@@ -3,7 +3,14 @@
     <h1 class="text-3xl font-bold mb-6">{{ name }}</h1>
     <SucessMessageBox :message="successMessage"/>
     <ErrorMessageBox :message="errorMessage"/>
-    <ComponentSelector @add-widget="handleAddWidget" @errorMessage="errorMessageModal" class="mb-5"/>
+    <div class="flex flex-wrap mb-5">
+      <div class="w-full lg:w-1/2 px-2 flex">
+        <UploadDataset class="mb-5 flex-grow"/>
+      </div>
+      <div class="w-full lg:w-1/2 px-2 flex mt-2">
+        <ComponentSelector @add-widget="handleAddWidget" @errorMessage="errorMessageModal" class="mb-5 flex-grow"/>
+      </div>
+    </div>
     <DashboardArea :widgets="widgetStore.widgets" :gridSize="gridSize" @delete-widget="handleDeleteWidget"  @update-widget="handleUpdateWidget" />
     <button @click="downloadPythonFile" class="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded flex items-center justify-center">
       <Icon name="mdi:download" color="white" class="mr-1 text-2xl"/> Download Python File
