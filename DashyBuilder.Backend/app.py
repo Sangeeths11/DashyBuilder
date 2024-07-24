@@ -189,39 +189,67 @@ def export_dashboard():
 def upload_dataset():
     file = request.files['file']
     if file:
-        dataset_id = str(uuid.uuid4())
-        filepath = os.path.join(UPLOAD_FOLDER, f"{dataset_id}.csv")
-        file.save(filepath)
+        try:
+            dataset_id = str(uuid.uuid4())
+            filepath = os.path.join(UPLOAD_FOLDER, f"{dataset_id}.csv")
+            file.save(filepath)
 
-        df = pd.read_csv(filepath)
-        data = df.head(10).fillna('').to_dict(orient='records')
+            chunk_size = 10000
+            chunks = pd.read_csv(filepath, chunksize=chunk_size)
 
-        return jsonify({'data': data, 'filepath': filepath, 'datasetId': dataset_id})
+            preview_data = []
+
+            for chunk in chunks:
+                if len(preview_data) < 10:
+                    preview_data.extend(chunk.head(10 - len(preview_data)).fillna('').to_dict(orient='records'))
+                else:
+                    break
+
+            return jsonify({'data': preview_data, 'filepath': filepath, 'datasetId': dataset_id})
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
     return jsonify({'error': 'No file uploaded'}), 400
+
 
 @app.route('/data/<dataset_id>', methods=['GET'])
 def get_dataset(dataset_id):
     filepath = os.path.join(UPLOAD_FOLDER, f"{dataset_id}.csv")
     if os.path.exists(filepath):
-        try:
-            df = pd.read_csv(filepath)
-            num_rows, num_cols = df.shape
-            column_info = [{"name": col, "dtype": str(df[col].dtype)} for col in df.columns]
-            missing_values = df.isnull().sum().to_dict()
-            preview_data = df.head(10).fillna('').to_dict(orient='records')
-            basic_stats = df.describe(include='all').fillna('').to_dict()
-            
+        try:            
+            chunk_size = 10000
+            chunks = pd.read_csv(filepath, chunksize=chunk_size)
+
+            num_rows = 0
+            num_cols = 0
+            column_info = None
+            missing_values = None
+            preview_data = []
+
+            for chunk in chunks:
+                if column_info is None:
+                    num_cols = chunk.shape[1]
+                    column_info = [{"name": col, "dtype": str(chunk[col].dtype)} for col in chunk.columns]
+                    missing_values = chunk.isnull().sum()
+                    preview_data = chunk.head(10).fillna('').to_dict(orient='records')
+                else:
+                    missing_values += chunk.isnull().sum()
+                    if len(preview_data) < 10:
+                        preview_data.extend(chunk.head(10 - len(preview_data)).fillna('').to_dict(orient='records'))
+
+                num_rows += chunk.shape[0]
+
             data_info = {
                 "num_rows": num_rows,
                 "num_cols": num_cols,
                 "column_info": column_info,
-                "missing_values": missing_values,
+                "missing_values": missing_values.to_dict(),
                 "preview_data": preview_data,
             }
             return jsonify(data_info)
         except Exception as e:
             return jsonify({'error': str(e)}), 500
     return jsonify({'error': 'Dataset not found'}), 404
+
 
 if __name__ == "__main__":
     app.run(debug=True)
