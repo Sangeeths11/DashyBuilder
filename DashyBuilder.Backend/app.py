@@ -1,6 +1,13 @@
-from flask import Flask, request, make_response
+import uuid
+from flask import Flask, jsonify, request, make_response
 from flask_cors import CORS
 import json
+import os
+import pandas as pd
+
+UPLOAD_FOLDER = 'uploads'
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
 
 app = Flask(__name__)
 CORS(app, expose_headers=['Content-Disposition'])
@@ -177,6 +184,44 @@ def export_dashboard():
     response.headers['Content-Disposition'] = 'attachment; filename=dashboard.py'
     response.headers['Content-Type'] = 'text/plain'
     return response
+
+@app.route('/upload', methods=['POST'])
+def upload_dataset():
+    file = request.files['file']
+    if file:
+        dataset_id = str(uuid.uuid4())
+        filepath = os.path.join(UPLOAD_FOLDER, f"{dataset_id}.csv")
+        file.save(filepath)
+
+        df = pd.read_csv(filepath)
+        data = df.head(10).fillna('').to_dict(orient='records')
+
+        return jsonify({'data': data, 'filepath': filepath, 'datasetId': dataset_id})
+    return jsonify({'error': 'No file uploaded'}), 400
+
+@app.route('/data/<dataset_id>', methods=['GET'])
+def get_dataset(dataset_id):
+    filepath = os.path.join(UPLOAD_FOLDER, f"{dataset_id}.csv")
+    if os.path.exists(filepath):
+        try:
+            df = pd.read_csv(filepath)
+            num_rows, num_cols = df.shape
+            column_info = [{"name": col, "dtype": str(df[col].dtype)} for col in df.columns]
+            missing_values = df.isnull().sum().to_dict()
+            preview_data = df.head(10).fillna('').to_dict(orient='records')
+            basic_stats = df.describe(include='all').fillna('').to_dict()
+            
+            data_info = {
+                "num_rows": num_rows,
+                "num_cols": num_cols,
+                "column_info": column_info,
+                "missing_values": missing_values,
+                "preview_data": preview_data,
+            }
+            return jsonify(data_info)
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+    return jsonify({'error': 'Dataset not found'}), 404
 
 if __name__ == "__main__":
     app.run(debug=True)
