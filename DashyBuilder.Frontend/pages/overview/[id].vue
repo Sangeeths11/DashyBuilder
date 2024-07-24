@@ -4,17 +4,24 @@
     <SucessMessageBox :message="successMessage"/>
     <ErrorMessageBox :message="errorMessage"/>
     <div class="flex flex-wrap mb-5">
-      <div class="w-full lg:w-1/2 px-2 flex">
-        <UploadDataset class="mb-5 flex-grow"/>
+      <div class="w-full lg:w-1/2 px-2 h-full">
+        <UploadDataset @uploaded="handleDatasetUploaded" class="mb-5"/>
+        <!-- button who will open the DataExplorationModal -->
+        <button @click="showDataExploration = true" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded flex items-center justify-center">
+          <Icon name="mdi:table" color="white" class="mr-1 text-2xl"/> Data Exploration
+        </button>
       </div>
-      <div class="w-full lg:w-1/2 px-2 flex mt-2">
-        <ComponentSelector @add-widget="handleAddWidget" @errorMessage="errorMessageModal" class="mb-5 flex-grow"/>
+      <div class="w-full lg:w-1/2 px-2 h-full">
+        <ComponentSelector @add-widget="handleAddWidget" @errorMessage="errorMessageModal" class="mb-5"/>
       </div>
     </div>
-    <DashboardArea :widgets="widgetStore.widgets" :gridSize="gridSize" @delete-widget="handleDeleteWidget"  @update-widget="handleUpdateWidget" />
+    <DashboardArea :widgets="widgetStore.widgets" :gridSize="gridSize" @delete-widget="handleDeleteWidget" @update-widget="handleUpdateWidget" />
     <button @click="downloadPythonFile" class="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded flex items-center justify-center">
       <Icon name="mdi:download" color="white" class="mr-1 text-2xl"/> Download Python File
     </button>
+
+    <!-- Data Exploration Modal -->
+    <DataExplorationModal :show="showDataExploration" :datasetId="uploadedDatasetId" @close="showDataExploration = false"/>
   </div>
 </template>
 
@@ -33,6 +40,8 @@ const widgetStore = useWidgetStore();
 const errorMessage = ref('');
 const successMessage = ref('');
 const gridSize = ref('');
+const showDataExploration = ref(false);
+const uploadedDatasetId = ref(null);
 
 watch(projectId, async (newId, oldId) => {
   if (newId !== oldId) {
@@ -87,6 +96,11 @@ const handleUpdateWidget = async ({ id, gridPosition }) => {
   setTimeout(() => {
     successMessage.value = '';
   }, 3000);
+};
+
+const handleDatasetUploaded = (datasetId) => {
+  uploadedDatasetId.value = datasetId;
+  showDataExploration.value = true;
 };
 
 async function downloadPythonFile() {
