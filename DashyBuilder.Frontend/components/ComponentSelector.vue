@@ -1,10 +1,10 @@
 <template>
-  <div class="max-w-full mx-auto">
-    <div class="bg-white shadow-lg rounded-lg p-4">
+  <div class="max-w-full mx-auto h-full"> 
+    <div class="bg-white shadow-lg rounded-lg p-4 h-full flex flex-col">
       <h2 class="font-bold text-lg mb-4">Components</h2>
-      <div class="flex flex-col space-y-4">
-        <div class="flex flex-col lg:flex-row lg:space-x-4 space-y-4 lg:space-y-0">
-          <div class="flex flex-col w-full lg:w-1/3">
+      <div class="flex flex-col space-y-4 flex-grow">
+        <div class="flex flex-col lg:flex-row lg:space-x-4 space-y-4 lg:space-y-0 mb-5">
+          <div class="flex flex-col w-full lg:w-1/2">
             <label for="component-name" class="block text-gray-700 text-sm font-bold mb-2">Component Name</label>
             <input
               id="component-name"
@@ -14,7 +14,7 @@
               class="p-2 border rounded w-full"
             />
           </div>
-          <div class="flex flex-col w-full lg:w-1/3">
+          <div class="flex flex-col w-full lg:w-1/2">
             <label for="component-type" class="block text-gray-700 text-sm font-bold mb-2">Component Type</label>
             <select id="component-type" v-model="selectedComponent" class="p-2 border rounded w-full">
               <option disabled value="">Please select one</option>
@@ -23,9 +23,11 @@
               </option>
             </select>
           </div>
-          <div class="flex flex-col w-full lg:w-auto">
-            <label class="block text-gray-700 text-sm font-bold mb-2">Grid Size</label>
-            <div class="flex flex-wrap space-x-2">
+        </div>
+        <div class="flex flex-wrap justify-center space-x-4 space-y-4 mt-6">
+          <div class="flex flex-col items-center w-full sm:w-1/2 md:w-auto">
+            <label class="block text-gray-700 text-sm font-bold mb-2">Choosen Grid Size</label>
+            <div class="flex space-x-2">
               <label class="inline-flex items-center mb-2">
                 <input type="radio" class="form-radio text-blue-600" name="gridSize" value="4x4" v-model="gridSize" :disabled="isGridSizeDisabled">
                 <span class="ml-2">4x4 <Icon name="mdi:grid" class="ml-1 w-8 h-8 text-blue-600"/></span>
