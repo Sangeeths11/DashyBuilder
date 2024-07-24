@@ -4,7 +4,7 @@
       <SucessMessageBox :message="successMessage"/>
       <ErrorMessageBox :message="errorMessage"/>
       <h2 class="font-bold text-lg mb-4">Upload Dataset</h2>
-      <div class="flex flex-col items-center space-y-4 flex-grow">
+      <div class="flex flex-col items-center space-y-0 flex-grow">
         <label for="file-upload" class="w-full flex flex-col items-center px-4 py-16 bg-gray-100 text-blue rounded-lg shadow-lg tracking-wide uppercase border border-blue cursor-pointer hover:bg-blue-500 hover:text-white transition duration-300 ease-in-out">
           <svg class="w-12 h-12" fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
             <path d="M16.88 5.5a2 2 0 01.12 0h1a2 2 0 011.72 1.05 2 2 0 01.28.96v7a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h1.1a2 2 0 01.12 0H5a.5.5 0 000 1h10a.5.5 0 000-1h-.12zM9 8a.5.5 0 000 1h2a.5.5 0 000-1H9z"/>
