@@ -24,9 +24,9 @@
             </select>
           </div>
         </div>
-        <div class="flex flex-wrap justify-center space-x-4 space-y-4 mt-6">
+        <div class="flex flex-wrap justify-center space-x-4 space-y-4 mt-8">
           <div class="flex flex-col items-center w-full sm:w-1/2 md:w-auto">
-            <label class="block text-gray-700 text-sm font-bold mb-2">Choosen Grid Size</label>
+            <label class="block text-gray-700 text-sm font-bold mb-6">Choosen Grid Size</label>
             <div class="flex space-x-2">
               <label class="inline-flex items-center mb-2">
                 <input type="radio" class="form-radio text-blue-600" name="gridSize" value="4x4" v-model="gridSize" :disabled="isGridSizeDisabled">
