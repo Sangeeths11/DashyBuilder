@@ -79,9 +79,9 @@ def generate_plotly_code(widgets, grid_size):
         "        dbc.Card(",
         "            dbc.CardBody([",
         "                html.Div([",
-        "                    dbc.Table.from_dataframe(table_df, striped=True, bordered=True, hover=True, dark=True)",
-        "                ])",
-        "            ]), style={'height': '100%'}",
+        "                    dbc.Table.from_dataframe(table_df, striped=True, bordered=True, hover=True, dark=True, responsive=True, style={'width': '100%', 'overflowY': 'auto'})",
+        "                ], style={'height': '100%', 'overflowY': 'auto'})",
+        "            ]), style={'height': '100%', 'overflow': 'hidden'}",
         "        )",
         "    ], style={'height': '100%', 'padding': '2px'})",
         "",
@@ -127,8 +127,8 @@ def generate_plotly_code(widgets, grid_size):
         "    dbc.Container([",
         "        html.Div(style={",
         "            'display': 'grid',",
-        f"            'grid-template-columns': 'repeat({cols}, 1fr)',",
-        f"            'grid-template-rows': 'repeat({rows}, 1fr)',",
+        f"            'gridTemplateColumns': 'repeat({cols}, 1fr)',",
+        f"            'gridTemplateRows': 'repeat({rows}, 1fr)',",
         "            'gap': '10px',",
         "            'height': '99vh'",
         "        }, children=["
@@ -145,7 +145,7 @@ def generate_plotly_code(widgets, grid_size):
         elif widget['type'] == 'Text Block':
             component = f"drawText(text='{widget.get('name', 'Text')}')"
         code_lines.append(
-            f"            html.Div({component}, style={{'grid-column': '{min_col} / span {col_span}', 'grid-row': '{min_row} / span {row_span}', 'padding': '0px'}}),"
+            f"            html.Div({component}, style={{'gridColumn': '{min_col} / span {col_span}', 'gridRow': '{min_row} / span {row_span}', 'padding': '0px'}}),"
         )
     
     # Close the code
