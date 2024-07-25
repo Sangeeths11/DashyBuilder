@@ -51,6 +51,11 @@
               </tbody>
             </table>
           </div>
+          <div class="text-center">
+            <button @click="viewProfile" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+              View Profile Report
+            </button>
+          </div>
         </div>
       </div>
       <div v-else class="text-center">
@@ -78,6 +83,11 @@ watch(() => props.datasetId, async (newDatasetId) => {
     }
   }
 });
+
+const viewProfile = () => {
+  window.open(`http://localhost:5000/profile/${props.datasetId}`, '_blank');
+};
+
 </script>
 
 <style scoped>
