@@ -1,5 +1,6 @@
 import uuid
-from flask import Flask, jsonify, request, make_response
+from flask import Flask, jsonify, request, make_response, send_from_directory
+from ydata_profiling import ProfileReport
 from flask_cors import CORS
 import json
 import os
@@ -36,7 +37,9 @@ def generate_plotly_code(widgets, grid_size):
         "import dash_bootstrap_components as dbc",
         "import plotly.express as px",
         "import pandas as pd",
+        "import warnings",
         "",
+        "warnings.filterwarnings('ignore', category=FutureWarning)",
         "# Example table data",
         "table_data = {",
         "    'Spalte 1': [1, 2, 3, 4],",
@@ -250,6 +253,30 @@ def get_dataset(dataset_id):
             return jsonify({'error': str(e)}), 500
     return jsonify({'error': 'Dataset not found'}), 404
 
+@app.route('/profile/<dataset_id>', methods=['GET'])
+def generate_profile(dataset_id):
+    filepath = os.path.join(UPLOAD_FOLDER, f"{dataset_id}.csv")
+    if os.path.exists(filepath):
+        try:
+            
+            df = pd.read_csv(filepath, nrows=5000)
+            
+            profile = ProfileReport(
+                df,
+                title=f"Profiling Report for {dataset_id}",
+                minimal=True,
+                explorative=True,
+                pool_size=4
+            )
+            
+            print(f"Generating profile for {dataset_id}")
+            profile_file = os.path.join(UPLOAD_FOLDER, f"{dataset_id}_profile.html")
+            print(f"Saving profile to {profile_file}")
+            profile.to_file(profile_file)
+            return send_from_directory(UPLOAD_FOLDER, f"{dataset_id}_profile.html")
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+    return jsonify({'error': 'Dataset not found'}), 404
 
 if __name__ == "__main__":
     app.run(debug=True)
