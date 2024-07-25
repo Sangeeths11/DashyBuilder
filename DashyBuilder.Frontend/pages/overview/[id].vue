@@ -3,11 +3,22 @@
     <h1 class="text-3xl font-bold mb-6">{{ name }}</h1>
     <SucessMessageBox :message="successMessage"/>
     <ErrorMessageBox :message="errorMessage"/>
-    <ComponentSelector @add-widget="handleAddWidget" @errorMessage="errorMessageModal" class="mb-5"/>
-    <DashboardArea :widgets="widgetStore.widgets" :gridSize="gridSize" @delete-widget="handleDeleteWidget"  @update-widget="handleUpdateWidget" />
+    <div class="flex flex-wrap mb-5">
+      <div class="w-full lg:w-1/2 px-2 h-full">
+        <UploadDataset @uploaded="handleDatasetUploaded" class="mb-5"/>
+        <button @click="showDataExploration = true" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded flex items-center justify-center">
+          <Icon name="mdi:table" color="white" class="mr-1 text-2xl"/> Data Exploration
+        </button>
+      </div>
+      <div class="w-full lg:w-1/2 px-2 h-full">
+        <ComponentSelector @add-widget="handleAddWidget" @errorMessage="errorMessageModal" class="mb-5"/>
+      </div>
+    </div>
+    <DashboardArea :widgets="widgetStore.widgets" :gridSize="gridSize" @delete-widget="handleDeleteWidget" @update-widget="handleUpdateWidget" />
     <button @click="downloadPythonFile" class="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded flex items-center justify-center">
       <Icon name="mdi:download" color="white" class="mr-1 text-2xl"/> Download Python File
     </button>
+    <DataExplorationModal :show="showDataExploration" :datasetId="uploadedDatasetId" @close="showDataExploration = false"/>
   </div>
 </template>
 
@@ -26,6 +37,8 @@ const widgetStore = useWidgetStore();
 const errorMessage = ref('');
 const successMessage = ref('');
 const gridSize = ref('');
+const showDataExploration = ref(false);
+const uploadedDatasetId = ref(null);
 
 watch(projectId, async (newId, oldId) => {
   if (newId !== oldId) {
@@ -80,6 +93,11 @@ const handleUpdateWidget = async ({ id, gridPosition }) => {
   setTimeout(() => {
     successMessage.value = '';
   }, 3000);
+};
+
+const handleDatasetUploaded = (datasetId) => {
+  uploadedDatasetId.value = datasetId;
+  showDataExploration.value = true;
 };
 
 async function downloadPythonFile() {

@@ -1,6 +1,14 @@
-from flask import Flask, request, make_response
+import uuid
+from flask import Flask, jsonify, request, make_response, send_from_directory
+from ydata_profiling import ProfileReport
 from flask_cors import CORS
 import json
+import os
+import pandas as pd
+
+UPLOAD_FOLDER = 'uploads'
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
 
 app = Flask(__name__)
 CORS(app, expose_headers=['Content-Disposition'])
@@ -29,7 +37,9 @@ def generate_plotly_code(widgets, grid_size):
         "import dash_bootstrap_components as dbc",
         "import plotly.express as px",
         "import pandas as pd",
+        "import warnings",
         "",
+        "warnings.filterwarnings('ignore', category=FutureWarning)",
         "# Example table data",
         "table_data = {",
         "    'Spalte 1': [1, 2, 3, 4],",
@@ -69,9 +79,9 @@ def generate_plotly_code(widgets, grid_size):
         "        dbc.Card(",
         "            dbc.CardBody([",
         "                html.Div([",
-        "                    dbc.Table.from_dataframe(table_df, striped=True, bordered=True, hover=True, dark=True)",
-        "                ])",
-        "            ]), style={'height': '100%'}",
+        "                    dbc.Table.from_dataframe(table_df, striped=True, bordered=True, hover=True, dark=True, responsive=True, style={'width': '100%', 'overflowY': 'auto'})",
+        "                ], style={'height': '100%', 'overflowY': 'auto'})",
+        "            ]), style={'height': '100%', 'overflow': 'hidden'}",
         "        )",
         "    ], style={'height': '100%', 'padding': '2px'})",
         "",
@@ -117,8 +127,8 @@ def generate_plotly_code(widgets, grid_size):
         "    dbc.Container([",
         "        html.Div(style={",
         "            'display': 'grid',",
-        f"            'grid-template-columns': 'repeat({cols}, 1fr)',",
-        f"            'grid-template-rows': 'repeat({rows}, 1fr)',",
+        f"            'gridTemplateColumns': 'repeat({cols}, 1fr)',",
+        f"            'gridTemplateRows': 'repeat({rows}, 1fr)',",
         "            'gap': '10px',",
         "            'height': '99vh'",
         "        }, children=["
@@ -135,7 +145,7 @@ def generate_plotly_code(widgets, grid_size):
         elif widget['type'] == 'Text Block':
             component = f"drawText(text='{widget.get('name', 'Text')}')"
         code_lines.append(
-            f"            html.Div({component}, style={{'grid-column': '{min_col} / span {col_span}', 'grid-row': '{min_row} / span {row_span}', 'padding': '0px'}}),"
+            f"            html.Div({component}, style={{'gridColumn': '{min_col} / span {col_span}', 'gridRow': '{min_row} / span {row_span}', 'padding': '0px'}}),"
         )
     
     # Close the code
@@ -177,6 +187,96 @@ def export_dashboard():
     response.headers['Content-Disposition'] = 'attachment; filename=dashboard.py'
     response.headers['Content-Type'] = 'text/plain'
     return response
+
+@app.route('/upload', methods=['POST'])
+def upload_dataset():
+    file = request.files['file']
+    if file:
+        try:
+            dataset_id = str(uuid.uuid4())
+            filepath = os.path.join(UPLOAD_FOLDER, f"{dataset_id}.csv")
+            file.save(filepath)
+
+            chunk_size = 10000
+            chunks = pd.read_csv(filepath, chunksize=chunk_size)
+
+            preview_data = []
+
+            for chunk in chunks:
+                if len(preview_data) < 10:
+                    preview_data.extend(chunk.head(10 - len(preview_data)).fillna('').to_dict(orient='records'))
+                else:
+                    break
+
+            return jsonify({'data': preview_data, 'filepath': filepath, 'datasetId': dataset_id})
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+    return jsonify({'error': 'No file uploaded'}), 400
+
+
+@app.route('/data/<dataset_id>', methods=['GET'])
+def get_dataset(dataset_id):
+    filepath = os.path.join(UPLOAD_FOLDER, f"{dataset_id}.csv")
+    if os.path.exists(filepath):
+        try:            
+            chunk_size = 10000
+            chunks = pd.read_csv(filepath, chunksize=chunk_size)
+
+            num_rows = 0
+            num_cols = 0
+            column_info = None
+            missing_values = None
+            preview_data = []
+
+            for chunk in chunks:
+                if column_info is None:
+                    num_cols = chunk.shape[1]
+                    column_info = [{"name": col, "dtype": str(chunk[col].dtype)} for col in chunk.columns]
+                    missing_values = chunk.isnull().sum()
+                    preview_data = chunk.head(10).fillna('').to_dict(orient='records')
+                else:
+                    missing_values += chunk.isnull().sum()
+                    if len(preview_data) < 10:
+                        preview_data.extend(chunk.head(10 - len(preview_data)).fillna('').to_dict(orient='records'))
+
+                num_rows += chunk.shape[0]
+
+            data_info = {
+                "num_rows": num_rows,
+                "num_cols": num_cols,
+                "column_info": column_info,
+                "missing_values": missing_values.to_dict(),
+                "preview_data": preview_data,
+            }
+            return jsonify(data_info)
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+    return jsonify({'error': 'Dataset not found'}), 404
+
+@app.route('/profile/<dataset_id>', methods=['GET'])
+def generate_profile(dataset_id):
+    filepath = os.path.join(UPLOAD_FOLDER, f"{dataset_id}.csv")
+    if os.path.exists(filepath):
+        try:
+            
+            df = pd.read_csv(filepath, nrows=5000)
+            
+            profile = ProfileReport(
+                df,
+                title=f"Profiling Report for {dataset_id}",
+                minimal=True,
+                explorative=True,
+                pool_size=4
+            )
+            
+            print(f"Generating profile for {dataset_id}")
+            profile_file = os.path.join(UPLOAD_FOLDER, f"{dataset_id}_profile.html")
+            print(f"Saving profile to {profile_file}")
+            profile.to_file(profile_file)
+            return send_from_directory(UPLOAD_FOLDER, f"{dataset_id}_profile.html")
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+    return jsonify({'error': 'Dataset not found'}), 404
 
 if __name__ == "__main__":
     app.run(debug=True)
