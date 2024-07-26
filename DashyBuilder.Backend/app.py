@@ -196,19 +196,7 @@ def upload_dataset():
             dataset_id = str(uuid.uuid4())
             filepath = os.path.join(UPLOAD_FOLDER, f"{dataset_id}.csv")
             file.save(filepath)
-
-            chunk_size = 10000
-            chunks = pd.read_csv(filepath, chunksize=chunk_size)
-
-            preview_data = []
-
-            for chunk in chunks:
-                if len(preview_data) < 10:
-                    preview_data.extend(chunk.head(10 - len(preview_data)).fillna('').to_dict(orient='records'))
-                else:
-                    break
-
-            return jsonify({'data': preview_data, 'filepath': filepath, 'datasetId': dataset_id})
+            return jsonify({'filepath': filepath, 'datasetId': dataset_id})
         except Exception as e:
             return jsonify({'error': str(e)}), 500
     return jsonify({'error': 'No file uploaded'}), 400
@@ -220,7 +208,7 @@ def get_dataset(dataset_id):
     if os.path.exists(filepath):
         try:            
             chunk_size = 10000
-            chunks = pd.read_csv(filepath, chunksize=chunk_size)
+            chunks = pd.read_csv(filepath, chunksize=chunk_size, low_memory=False)
 
             num_rows = 0
             num_cols = 0
