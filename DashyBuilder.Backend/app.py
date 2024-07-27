@@ -177,6 +177,7 @@ def generate_plotly_code(widgets, grid_size):
 
     return "\n".join(code_lines)
 
+
 @app.route('/export', methods=['POST'])
 def export_dashboard():
     data = request.get_json()
@@ -188,30 +189,48 @@ def export_dashboard():
     response.headers['Content-Type'] = 'text/plain'
     return response
 
-@app.route('/upload', methods=['POST'])
-def upload_dataset():
-    file = request.files['file']
-    if file:
-        try:
-            dataset_id = str(uuid.uuid4())
-            filepath = os.path.join(UPLOAD_FOLDER, f"{dataset_id}.csv")
-            file.save(filepath)
 
-            chunk_size = 10000
-            chunks = pd.read_csv(filepath, chunksize=chunk_size)
+@app.route('/upload_chunk', methods=['POST'])
+def upload_chunk():
+    if 'chunk' not in request.files:
+        return jsonify({'error': 'No chunk part'}), 400
 
-            preview_data = []
+    chunk = request.files['chunk']
+    chunk_number = request.form['chunkNumber']
+    total_chunks = request.form['totalChunks']
+    filename = request.form['filename']
 
-            for chunk in chunks:
-                if len(preview_data) < 10:
-                    preview_data.extend(chunk.head(10 - len(preview_data)).fillna('').to_dict(orient='records'))
-                else:
-                    break
+    dataset_id = filename.replace('.', '_')
+    chunk_folder = os.path.join(UPLOAD_FOLDER, dataset_id)
 
-            return jsonify({'data': preview_data, 'filepath': filepath, 'datasetId': dataset_id})
-        except Exception as e:
-            return jsonify({'error': str(e)}), 500
-    return jsonify({'error': 'No file uploaded'}), 400
+    if not os.path.exists(chunk_folder):
+        os.makedirs(chunk_folder)
+
+    chunk.save(os.path.join(chunk_folder, f"{chunk_number}.part"))
+
+    return jsonify({'message': 'Chunk uploaded successfully'})
+
+
+@app.route('/finalize_upload', methods=['POST'])
+def finalize_upload():
+    data = request.get_json()
+    filename = data['filename']
+    print(f"Finalizing upload for {filename}")
+    dataset_id = filename.replace('.', '_')
+    chunk_folder = os.path.join(UPLOAD_FOLDER, dataset_id)
+
+    assembled_file_path = os.path.join(UPLOAD_FOLDER, f"{dataset_id}.csv")
+    with open(assembled_file_path, 'wb') as assembled_file:
+        for chunk_file_name in sorted(os.listdir(chunk_folder), key=lambda x: int(x.split('.')[0])):
+            chunk_file_path = os.path.join(chunk_folder, chunk_file_name)
+            with open(chunk_file_path, 'rb') as chunk_file:
+                assembled_file.write(chunk_file.read())
+    
+    for chunk_file_name in os.listdir(chunk_folder):
+        os.remove(os.path.join(chunk_folder, chunk_file_name))
+    os.rmdir(chunk_folder)
+
+    return jsonify({'filepath': assembled_file_path, 'datasetId': dataset_id})
 
 
 @app.route('/data/<dataset_id>', methods=['GET'])
@@ -220,7 +239,7 @@ def get_dataset(dataset_id):
     if os.path.exists(filepath):
         try:            
             chunk_size = 10000
-            chunks = pd.read_csv(filepath, chunksize=chunk_size)
+            chunks = pd.read_csv(filepath, chunksize=chunk_size, low_memory=False)
 
             num_rows = 0
             num_cols = 0
@@ -252,6 +271,7 @@ def get_dataset(dataset_id):
         except Exception as e:
             return jsonify({'error': str(e)}), 500
     return jsonify({'error': 'Dataset not found'}), 404
+
 
 @app.route('/profile/<dataset_id>', methods=['GET'])
 def generate_profile(dataset_id):

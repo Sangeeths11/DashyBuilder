@@ -27,7 +27,6 @@
 </template>
 
 <script setup>
-
 const selectedFile = ref(null);
 const isLoading = ref(false);
 const successMessage = ref('');
@@ -44,11 +43,27 @@ const exploreDataset = (datasetId) => {
   router.push(`/dataExploration/${datasetId}`);
 };
 
+const uploadChunk = async (chunk, chunkNumber, totalChunks, filename) => {
+  const formData = new FormData();
+  formData.append('chunk', chunk);
+  formData.append('chunkNumber', chunkNumber);
+  formData.append('totalChunks', totalChunks);
+  formData.append('filename', filename);
+
+  const response = await fetch('http://localhost:5000/upload_chunk', {
+    method: 'POST',
+    body: formData
+  });
+
+  if (!response.ok) throw new Error('Failed to upload chunk');
+};
+
 const uploadDataset = async () => {
   if (!selectedFile.value) return;
 
-  const formData = new FormData();
-  formData.append('file', selectedFile.value);
+  const CHUNK_SIZE = 5 * 1024 * 1024; // 5MB
+  const totalChunks = Math.ceil(selectedFile.value.size / CHUNK_SIZE);
+  const filename = selectedFile.value.name;
 
   isLoading.value = true;
   successMessage.value = '';
@@ -56,14 +71,20 @@ const uploadDataset = async () => {
   uploadedDatasetId.value = null;
 
   try {
-    const response = await fetch('http://localhost:5000/upload', {
+    for (let i = 0; i < totalChunks; i++) {
+      const chunk = selectedFile.value.slice(i * CHUNK_SIZE, (i + 1) * CHUNK_SIZE);
+      await uploadChunk(chunk, i, totalChunks, filename);
+    }
+
+    const finalizeResponse = await fetch('http://localhost:5000/finalize_upload', {
       method: 'POST',
-      body: formData
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ filename })
     });
 
-    if (!response.ok) throw new Error('Failed to upload dataset');
+    if (!finalizeResponse.ok) throw new Error('Failed to finalize upload');
 
-    const result = await response.json();
+    const result = await finalizeResponse.json();
     successMessage.value = 'Dataset uploaded successfully';
     emit('uploaded', result.datasetId);
     console.log('Dataset ID:', result.datasetId);
