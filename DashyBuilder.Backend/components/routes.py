@@ -4,6 +4,7 @@ import pandas as pd
 from ydata_profiling import ProfileReport
 from components.dashboard import generate_plotly_code
 from components.uploader import FileUploader
+import components.hosting as hosting
 
 file_uploader = FileUploader('uploads')
 
@@ -89,3 +90,14 @@ def register_routes(app):
             except Exception as e:
                 return jsonify({'error': str(e)}), 500
         return jsonify({'error': 'Dataset not found'}), 404
+    
+    @app.route('/upload_to_pythonanywhere', methods=['POST'])
+    def upload_to_pythonanywhere():
+        data = request.get_json()
+        file_path = data.get('file_path')
+        if not file_path:
+            return jsonify({'error': 'No file_path provided'}), 400
+        try:
+            return hosting.upload_file_to_pythonanywhere(file_path)
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500

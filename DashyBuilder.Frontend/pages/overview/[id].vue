@@ -15,10 +15,16 @@
       </div>
     </div>
     <DashboardArea :widgets="widgetStore.widgets" :gridSize="gridSize" @delete-widget="handleDeleteWidget" @update-widget="handleUpdateWidget" />
-    <button @click="downloadPythonFile" class="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded flex items-center justify-center">
-      <Icon name="mdi:download" color="white" class="mr-1 text-2xl"/> Download Python File
-    </button>
+    <div class="flex justify-between mt-4">
+      <button @click="downloadPythonFile" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded flex items-center justify-center">
+        <Icon name="mdi:download" color="white" class="mr-1 text-2xl"/> Download Python File
+      </button>
+      <button @click="hostDashboard" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded flex items-center justify-center">
+        <Icon name="mdi:cloud-upload" color="white" class="mr-1 text-2xl"/> Host Dashboard
+      </button>
+    </div>
     <DataExplorationModal :show="showDataExploration" :datasetId="uploadedDatasetId" @close="showDataExploration = false"/>
+    <HostingModal :show="showHostingModal" :url="hostedUrl" @close="showHostingModal = false"/>
   </div>
 </template>
 
@@ -39,6 +45,8 @@ const successMessage = ref('');
 const gridSize = ref('');
 const showDataExploration = ref(false);
 const uploadedDatasetId = ref(null);
+const showHostingModal = ref(false);
+const hostedUrl = ref('');
 
 watch(projectId, async (newId, oldId) => {
   if (newId !== oldId) {
@@ -141,6 +149,49 @@ async function downloadPythonFile() {
     }, 3000);
   } catch (error) {
     console.error('Error downloading the python file:', error);
+    errorMessage.value = error.message;
+    setTimeout(() => {
+      errorMessage.value = '';
+    }, 3000);
+  }
+}
+
+async function hostDashboard() {
+  const invalidWidgets = widgetStore.widgets.filter(widget => !widget.gridPosition || !widget.gridPosition.gridPosition);
+
+  if (invalidWidgets.length > 0) {
+    errorMessage.value = 'Please set the grid position for all widgets before hosting the dashboard.';
+    setTimeout(() => {
+      errorMessage.value = '';
+    }, 3000);
+    return;
+  }
+  console.log('Host dashboard');
+  console.log(widgetStore.widgets);
+  console.log(gridSize.value);
+  try {
+    const response = await fetch('http://localhost:5000/upload_to_pythonanywhere', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        // just a example file for the path: 'dashboards/ExampleDashboard.py'
+        file_path: 'dashboards/FirstDashboardWorked.py',
+      })
+    });
+
+    if (!response.ok) throw new Error('Network response was not ok.');
+
+    const result = await response.json();
+    hostedUrl.value = result.url;
+    showHostingModal.value = true;
+    successMessage.value = 'Dashboard hosted successfully';
+    setTimeout(() => {
+      successMessage.value = '';
+    }, 3000);
+  } catch (error) {
+    console.error('Error hosting the dashboard:', error);
     errorMessage.value = error.message;
     setTimeout(() => {
       errorMessage.value = '';
