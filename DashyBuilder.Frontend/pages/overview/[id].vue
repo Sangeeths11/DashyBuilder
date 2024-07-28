@@ -177,7 +177,7 @@ async function hostDashboard() {
       },
       body: JSON.stringify({
         // just a example file for the path: 'dashboards/ExampleDashboard.py'
-        file_path: 'dashboards/FirstDashboardWorked.py',
+        file_path: 'dashboards/ExampleDashboard.py',
       })
     });
 
