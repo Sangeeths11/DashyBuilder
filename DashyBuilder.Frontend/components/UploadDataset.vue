@@ -13,7 +13,7 @@
           <span class="text-xs leading-normal">File must be in CSV format</span>
           <input id="file-upload" type="file" class="hidden" @change="handleFileUpload"/>
         </label>
-        <button 
+        <button
           @click="uploadDataset"
           :disabled="!selectedFile || isLoading"
           class="w-full bg-blue-500 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded mt-4 flex items-center justify-center transition duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed">
@@ -33,7 +33,7 @@ const successMessage = ref('');
 const errorMessage = ref('');
 const uploadedDatasetId = ref(null);
 const router = useRouter();
-const emit = defineEmits(['uploaded']);
+const emit = defineEmits(['uploaded', 'loading']);  // Hinzugefügt
 
 const handleFileUpload = (event) => {
   selectedFile.value = event.target.files[0];
@@ -66,6 +66,7 @@ const uploadDataset = async () => {
   const filename = selectedFile.value.name;
 
   isLoading.value = true;
+  emit('loading', true);  // Hinzugefügt
   successMessage.value = '';
   errorMessage.value = '';
   uploadedDatasetId.value = null;
@@ -87,6 +88,7 @@ const uploadDataset = async () => {
     const result = await finalizeResponse.json();
     successMessage.value = 'Dataset uploaded successfully';
     emit('uploaded', result.datasetId);
+    emit('loading', false);  // Hinzugefügt
     console.log('Dataset ID:', result.datasetId);
     uploadedDatasetId.value = result.datasetId;
     setTimeout(() => {
@@ -99,6 +101,7 @@ const uploadDataset = async () => {
     }, 3000);
   } finally {
     isLoading.value = false;
+    emit('loading', false);  // Hinzugefügt
   }
 };
 </script>

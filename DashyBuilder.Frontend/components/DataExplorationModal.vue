@@ -59,14 +59,13 @@
         </div>
       </div>
       <div v-else class="text-center">
-        <p>No data available. Please upload a dataset.</p>
+        <p>Loading data...</p>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-
 const props = defineProps({
   show: Boolean,
   datasetId: String,
@@ -76,10 +75,19 @@ const dataInfo = ref(null);
 
 watch(() => props.datasetId, async (newDatasetId) => {
   if (newDatasetId) {
-    const response = await fetch(`http://localhost:5000/data/${newDatasetId}`);
-    if (response.ok) {
-      const result = await response.json();
-      dataInfo.value = result;
+    dataInfo.value = null;  // Setze das Dateninfo-Objekt zurück
+    try {
+      const response = await fetch(`http://localhost:5000/data/${newDatasetId}`);
+      if (response.ok) {
+        const result = await response.json();
+        dataInfo.value = result;
+      } else {
+        dataInfo.value = null;
+        console.error('Fehler beim Laden der Daten.');
+      }
+    } catch (error) {
+      dataInfo.value = null;
+      console.error('Fehler beim Laden der Daten:', error);
     }
   }
 });
@@ -87,7 +95,6 @@ watch(() => props.datasetId, async (newDatasetId) => {
 const viewProfile = () => {
   window.open(`http://localhost:5000/profile/${props.datasetId}`, '_blank');
 };
-
 </script>
 
 <style scoped>
