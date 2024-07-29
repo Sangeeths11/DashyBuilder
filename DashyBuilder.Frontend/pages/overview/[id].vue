@@ -1,7 +1,7 @@
 <template>
   <div>
     <h1 class="text-3xl font-bold mb-6">{{ name }}</h1>
-    <SuccessMessageBox :message="successMessage"/>
+    <SucessMessageBox :message="successMessage"/>
     <ErrorMessageBox :message="errorMessage"/>
     <div class="flex flex-wrap mb-5">
       <div class="w-full lg:w-1/2 px-2 h-full">
@@ -205,20 +205,21 @@ async function hostDashboard() {
     });
 
     if (!response.ok) throw new Error('Network response was not ok.');
-
+  } catch (error) {
+    console.error('Error exporting the dashboard:', error);
+    errorMessage.value = error.message;
+    setTimeout(() => {
+      errorMessage.value = '';
+    }, 3000);
+  } finally {
     try {
       const response = await fetch('http://localhost:5000/run-script', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-          file_path: 'dashboards/Dashboard.py',
-        })
       });
-
       if (!response.ok) throw new Error('Network response was not ok.');
-
       const result = await response.json();
       hostedUrl.value = result.stdout;
       showHostingModal.value = true;
@@ -233,13 +234,6 @@ async function hostDashboard() {
         errorMessage.value = '';
       }, 3000);
     }
-  } catch (error) {
-    console.error('Error exporting the dashboard:', error);
-    errorMessage.value = error.message;
-    setTimeout(() => {
-      errorMessage.value = '';
-    }, 3000);
-  } finally {
     loadingDashboard.value = false;
   }
 }

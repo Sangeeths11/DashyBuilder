@@ -115,7 +115,6 @@ def register_routes(app):
     def run_script():
         script_path = 'hostingEndpoint.py'
         result = subprocess.run(['python', script_path], capture_output=True, text=True)
-        print(result)
         return jsonify({
             'stdout': result.stdout,
             'stderr': result.stderr,
