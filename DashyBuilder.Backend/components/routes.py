@@ -1,6 +1,7 @@
 from flask import jsonify, request, make_response, send_from_directory
 import os
 import pandas as pd
+import subprocess
 from ydata_profiling import ProfileReport
 from components.dashboard import generate_plotly_code
 from components.uploader import FileUploader
@@ -18,10 +19,18 @@ def register_routes(app):
         data = request.get_json()
         widgets = data.get('widgets', [])
         grid_size = data.get('grid_size', '4x4')
+        cloudsave = data.get('save', False)
         python_code = generate_plotly_code(widgets, grid_size)
         response = make_response(python_code)
         response.headers['Content-Disposition'] = 'attachment; filename=dashboard.py'
         response.headers['Content-Type'] = 'text/plain'
+        if data.get('save'):
+            try:
+                with open('dashboards/Dashboard.py', 'w') as f:
+                    f.write(python_code)
+                return jsonify({'message': 'Dashboard saved successfully'}), 200
+            except Exception as e:
+                return jsonify({'error': str(e)}), 500
         return response
 
     @app.route('/upload_chunk', methods=['POST'])
@@ -101,3 +110,13 @@ def register_routes(app):
             return hosting.upload_file_to_pythonanywhere(file_path)
         except Exception as e:
             return jsonify({'error': str(e)}), 500
+        
+    @app.route('/run-script', methods=['POST'])
+    def run_script():
+        script_path = 'hostingEndpoint.py'
+        result = subprocess.run(['python', script_path], capture_output=True, text=True)
+        return jsonify({
+            'stdout': result.stdout,
+            'stderr': result.stderr,
+            'returncode': result.returncode
+    })

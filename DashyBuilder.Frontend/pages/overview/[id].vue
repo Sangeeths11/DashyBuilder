@@ -5,8 +5,8 @@
     <ErrorMessageBox :message="errorMessage"/>
     <div class="flex flex-wrap mb-5">
       <div class="w-full lg:w-1/2 px-2 h-full">
-        <UploadDataset @uploaded="handleDatasetUploaded" class="mb-5"/>
-        <button @click="showDataExploration = true" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded flex items-center justify-center">
+        <UploadDataset @uploaded="handleDatasetUploaded" @loading="loadingData = $event" class="mb-5"/>
+        <button v-if="uploadedDatasetId && !loadingData" @click="showDataExploration = true" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded flex items-center justify-center">
           <Icon name="mdi:table" color="white" class="mr-1 text-2xl"/> Data Exploration
         </button>
       </div>
@@ -22,6 +22,9 @@
       <button @click="hostDashboard" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded flex items-center justify-center">
         <Icon name="mdi:cloud-upload" color="white" class="mr-1 text-2xl"/> Host Dashboard
       </button>
+    </div>
+    <div v-if="loadingDashboard" class="fixed inset-0 bg-gray-100 bg-opacity-75 flex items-center justify-center">
+      <div class="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-64 w-64"></div>
     </div>
     <DataExplorationModal :show="showDataExploration" :datasetId="uploadedDatasetId" @close="showDataExploration = false"/>
     <HostingModal :show="showHostingModal" :url="hostedUrl" @close="showHostingModal = false"/>
@@ -47,6 +50,8 @@ const showDataExploration = ref(false);
 const uploadedDatasetId = ref(null);
 const showHostingModal = ref(false);
 const hostedUrl = ref('');
+const loadingData = ref(false);
+const loadingDashboard = ref(false);
 
 watch(projectId, async (newId, oldId) => {
   if (newId !== oldId) {
@@ -84,7 +89,7 @@ const errorMessageModal = (message) => {
   errorMessage.value = message;
   setTimeout(() => {
     errorMessage.value = '';
-  }, 3000);
+    }, 3000);
 };
 
 const handleDeleteWidget = async (id) => {
@@ -103,9 +108,22 @@ const handleUpdateWidget = async ({ id, gridPosition }) => {
   }, 3000);
 };
 
-const handleDatasetUploaded = (datasetId) => {
+const handleDatasetUploaded = async (datasetId) => {
   uploadedDatasetId.value = datasetId;
-  showDataExploration.value = true;
+  loadingData.value = true;  // Daten werden geladen
+
+  try {
+    const response = await fetch(`http://localhost:5000/data/${datasetId}`);
+    if (response.ok) {
+      showDataExploration.value = true;
+    } else {
+      errorMessage.value = 'Fehler beim Laden der Daten.';
+    }
+  } catch (error) {
+    errorMessage.value = 'Fehler beim Laden der Daten: ' + error.message;
+  } finally {
+    loadingData.value = false;
+  }
 };
 
 async function downloadPythonFile() {
@@ -129,7 +147,8 @@ async function downloadPythonFile() {
       },
       body: JSON.stringify({
         widgets: widgetStore.widgets,
-        grid_size: gridSize.value
+        grid_size: gridSize.value,
+        save: false,
       })
     });
 
@@ -169,33 +188,53 @@ async function hostDashboard() {
   console.log('Host dashboard');
   console.log(widgetStore.widgets);
   console.log(gridSize.value);
+  
+  loadingDashboard.value = true;
+  
   try {
-    const response = await fetch('http://localhost:5000/upload_to_pythonanywhere', {
+    const response = await fetch('http://localhost:5000/export', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        // just a example file for the path: 'dashboards/ExampleDashboard.py'
-        file_path: 'dashboards/FirstDashboardWorked.py',
+        widgets: widgetStore.widgets,
+        grid_size: gridSize.value,
+        save: true,
       })
     });
 
     if (!response.ok) throw new Error('Network response was not ok.');
-
-    const result = await response.json();
-    hostedUrl.value = result.url;
-    showHostingModal.value = true;
-    successMessage.value = 'Dashboard hosted successfully';
-    setTimeout(() => {
-      successMessage.value = '';
-    }, 3000);
   } catch (error) {
-    console.error('Error hosting the dashboard:', error);
+    console.error('Error exporting the dashboard:', error);
     errorMessage.value = error.message;
     setTimeout(() => {
       errorMessage.value = '';
     }, 3000);
+  } finally {
+    try {
+      const response = await fetch('http://localhost:5000/run-script', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+      });
+      if (!response.ok) throw new Error('Network response was not ok.');
+      const result = await response.json();
+      hostedUrl.value = result.stdout;
+      showHostingModal.value = true;
+      successMessage.value = 'Dashboard hosted successfully';
+      setTimeout(() => {
+        successMessage.value = '';
+      }, 3000);
+    } catch (error) {
+      console.error('Error hosting the dashboard:', error);
+      errorMessage.value = error.message;
+      setTimeout(() => {
+        errorMessage.value = '';
+      }, 3000);
+    }
+    loadingDashboard.value = false;
   }
 }
 
@@ -203,3 +242,16 @@ onMounted(async () => {
   await widgetStore.fetchWidgetsByProjectId(projectId.value);
 });
 </script>
+
+<style scoped>
+.loader {
+  border-top-color: #3498db;
+  animation: spin 1.5s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+</style>

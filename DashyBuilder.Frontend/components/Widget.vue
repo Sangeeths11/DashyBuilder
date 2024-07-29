@@ -10,7 +10,13 @@
         <Icon name="carbon:close-outline" class="text-danger hover:text-dark-danger"/>
       </button>
     </div>
+    <div v-if="widget.type === 'Chart'" class="absolute top-2 left-2">
+      <button @click="openChartModal">
+        <Icon name="mdi:pen" color="white" class="text-orange-300 hover:text-orange-500"/>
+      </button>
+    </div>
     <ConfigModal v-if="isConfigModalOpen" :widget="widget" :isOpen="isConfigModalOpen" :gridSize="gridSize" @close="closeConfigModal" @save="saveGridPosition" />
+    <ChartTypeModal v-if="isChartModalOpen" :widget="widget" :isOpen="isChartModalOpen" @close="closeChartModal" @save="saveChartType" />
   </div>
 </template>
 
@@ -23,6 +29,7 @@ const props = defineProps({
 const emit = defineEmits(['delete-widget', 'update-widget']);
 
 const isConfigModalOpen = ref(false);
+const isChartModalOpen = ref(false);
 
 function emitDelete() {
   emit('delete-widget', props.widget.id);
@@ -32,12 +39,24 @@ function openConfigModal() {
   isConfigModalOpen.value = true;
 }
 
+function openChartModal() {
+  isChartModalOpen.value = true;
+}
+
 function closeConfigModal() {
   isConfigModalOpen.value = false;
 }
 
+function closeChartModal() {
+  isChartModalOpen.value = false;
+}
+
 function saveGridPosition(position) {
   emit('update-widget', { id: props.widget.id, gridPosition: position });
+}
+
+function saveChartType(type) {
+  emit('update-widget', { id: props.widget.id, chartType: type });
 }
 </script>
 
