@@ -1,6 +1,7 @@
 from flask import jsonify, request, make_response, send_from_directory
 import os
 import pandas as pd
+import subprocess
 from ydata_profiling import ProfileReport
 from components.dashboard import generate_plotly_code
 from components.uploader import FileUploader
@@ -109,3 +110,14 @@ def register_routes(app):
             return hosting.upload_file_to_pythonanywhere(file_path)
         except Exception as e:
             return jsonify({'error': str(e)}), 500
+        
+    @app.route('/run-script', methods=['POST'])
+    def run_script():
+        script_path = 'hostingEndpoint.py'
+        result = subprocess.run(['python', script_path], capture_output=True, text=True)
+        print(result)
+        return jsonify({
+            'stdout': result.stdout,
+            'stderr': result.stderr,
+            'returncode': result.returncode
+    })
