@@ -1,4 +1,18 @@
 import pandas as pd
+import logging
+
+def configure_logging():
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.FileHandler("app.log"),
+            logging.StreamHandler()
+        ]
+    )
+
+logger = logging.getLogger(__name__)
+configure_logging()
 
 def parse_grid_positions(grid_position_str, cols):
     positions = list(map(int, grid_position_str.split(',')))
@@ -157,4 +171,5 @@ def generate_plotly_code(widgets, grid_size):
     code_lines.append("if __name__ == '__main__':")
     code_lines.append("    app.run_server(debug=True)")
 
+    logging.info(f"Generated Plotly code: {code_lines}")
     return "\n".join(code_lines)
