@@ -25,7 +25,7 @@ if not PA_USERNAME or not PA_API_TOKEN:
     logger.error("Please set the PYTHONANYWHERE_USERNAME and PYTHONANYWHERE_API_TOKEN environment variables.")
     raise ValueError("Please set the PYTHONANYWHERE_USERNAME and PYTHONANYWHERE_API_TOKEN environment variables.")
 
-FILE_PATH = os.path.abspath('dashboards\\Dashboard.py')
+FILE_PATH = os.path.abspath('DashyBuilder.Backend\\dashboards\\Dashboard.py')
 FILE_NAME = os.path.basename(FILE_PATH)
 
 if not os.path.exists(FILE_PATH):

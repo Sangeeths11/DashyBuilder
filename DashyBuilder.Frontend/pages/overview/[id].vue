@@ -213,11 +213,14 @@ async function hostDashboard() {
     }, 3000);
   } finally {
     try {
-      const response = await fetch('http://localhost:5000/run-script', {
+      const response = await fetch('http://localhost:5000/upload_to_pythonanywhere', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
+        body: JSON.stringify({
+          file_path: 'dashboards\\Dashboard.py'
+        })
       });
       if (!response.ok) throw new Error('Network response was not ok.');
       const result = await response.json();
