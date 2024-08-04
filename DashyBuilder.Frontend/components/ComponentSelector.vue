@@ -84,18 +84,21 @@ onMounted(async () => {
 });
 
 function addWidget() {
-  if (selectedComponent.value && componentName.value) {
-    emit('add-widget', {
-      id: Date.now(),
-      type: components.value.find(c => c.id === selectedComponent.value).name,
-      name: componentName.value,
-      gridSize: gridSize.value
-    });
-    selectedComponent.value = '';
-    componentName.value = '';
-  } else {
-    emit('errorMessage', 'Please select a component and enter a name');
-  }
+    if(componentName.value.includes(' ')) {
+        emit('errorMessage', 'The name cannot contain spaces');
+    }
+    else if (selectedComponent.value && componentName.value) {
+      emit('add-widget', {
+        id: Date.now(),
+        type: components.value.find(c => c.id === selectedComponent.value).name,
+        name: componentName.value,
+        gridSize: gridSize.value
+      });
+      selectedComponent.value = '';
+      componentName.value = '';
+    } else {
+      emit('errorMessage', 'Please select a component and enter a name');
+    }
 }
 </script>
 
