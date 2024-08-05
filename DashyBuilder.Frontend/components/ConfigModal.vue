@@ -9,7 +9,7 @@
         </strong>
       </p>
       
-      <div :style="gridStyle" class="grid-container" @mousedown="startSelection" @mousemove="moveSelection" @mouseup="endSelection" @mouseleave="endSelection">
+      <div :style="gridStyle" class="grid-container" @mousedown="startSelection" @mousemove="throttledMoveSelection" @mouseup="endSelection" @mouseleave="endSelection">
         <div v-for="cell in totalCells" :key="cell"
             :class="['cell', isSelected(cell) ? 'selected' : '', isOriginal(cell) ? 'original' : '', isDisabled(cell) ? 'disabled' : '']">
         </div>
@@ -24,6 +24,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
+import { throttle } from 'lodash';
 
 const props = defineProps({
   widget: Object,
@@ -35,7 +36,6 @@ const { fetchReservedPositions } = useWidgetStore();
 const reservedPositions = ref([]);
 const errorMessage = ref('');
 
-// Initialisieren der Originalpositionen
 let gridPositionData;
 try {
   if (props.widget.gridPosition && typeof props.widget.gridPosition.gridPosition === 'string') {
@@ -52,8 +52,8 @@ try {
   gridPositionData = [];
 }
 
-const selectedCells = ref([]); // Auswahl wird erst bei Interaktion festgelegt
-const originalCells = ref([...gridPositionData]);  // Speichert die Originalpositionen und zeigt sie direkt grün an
+const selectedCells = ref([]);
+const originalCells = ref([...gridPositionData]);
 
 onMounted(async () => {
   reservedPositions.value = await fetchReservedPositions(props.widget.project_id);
@@ -95,7 +95,7 @@ function startSelection(event) {
   if (cell && !isDisabled(cell)) {
     isSelecting.value = true;
     startCell.value = cell;
-    selectRange(cell, cell); // Start mit einer Zelle
+    selectRange(cell, cell);
   }
 }
 
@@ -108,6 +108,9 @@ function moveSelection(event) {
   }
 }
 
+// Verwende Throttle für die moveSelection-Funktion
+const throttledMoveSelection = throttle(moveSelection, 50); // Throttle auf 50ms setzen
+
 function endSelection() {
   isSelecting.value = false;
   startCell.value = null;
@@ -116,7 +119,7 @@ function endSelection() {
 function getCellFromEvent(event) {
   const cellElement = event.target.closest('.cell');
   if (cellElement) {
-    const index = Array.from(cellElement.parentElement.children).indexOf(cellElement);
+    const index = [...cellElement.parentElement.children].indexOf(cellElement);
     return index + 1;
   }
   return null;
@@ -132,7 +135,6 @@ function selectRange(start, end) {
 
   selectedCells.value = [];
 
-  // Entferne alle grünen Markierungen (Originalpositionen)
   originalCells.value = [];
 
   for (let row = startRow; row <= endRow; row++) {
@@ -146,11 +148,11 @@ function selectRange(start, end) {
 }
 
 function isOriginal(cell) {
-  return originalCells.value.includes(cell); // Grüne Markierung für Originalpositionen
+  return originalCells.value.includes(cell);
 }
 
 function isSelected(cell) {
-  return selectedCells.value.includes(cell); // Blaue Markierung für aktuelle Auswahl
+  return selectedCells.value.includes(cell);
 }
 
 function isDisabled(cell) {
@@ -231,7 +233,6 @@ function saveConfig() {
 }
 
 function close() {
-  // Stelle sicher, dass die ursprünglichen Positionen wieder reserviert werden, wenn abgebrochen wird
   reservedPositions.value.push(...originalCells.value);
   emit('close');
 }
@@ -248,6 +249,7 @@ function close() {
   position: relative;
   cursor: pointer;
   aspect-ratio: 1;
+  transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out;
 }
 .cell.original {
   background-color: #4caf50; /* Grün für Originalposition */
