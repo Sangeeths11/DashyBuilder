@@ -3,11 +3,15 @@
     <div class="bg-white p-6 rounded shadow-lg w-80 relative">
       <ErrorMessageBox :message="errorMessage"/>
       <h3 class="text-lg font-bold mb-4">Configure Widget Position</h3>
-      <div :style="gridStyle" class="grid-container">
+      <p class="text-sm text-gray-600 mb-4">Please select the position for the widget: 
+        <strong class="text-sm text-gray-600 mb-2">
+          {{ widget.name }} ({{ widget.type }})
+        </strong>
+      </p>
+      
+      <div :style="gridStyle" class="grid-container" @mousedown="startSelection" @mousemove="moveSelection" @mouseup="endSelection" @mouseleave="endSelection">
         <div v-for="cell in totalCells" :key="cell"
-            :class="['cell', isSelected(cell) ? 'selected' : '', isDisabled(cell) ? 'disabled' : '']"
-            @click="toggleCell(cell)">
-          <span v-if="isSelected(cell)" class="cross">✕</span>
+            :class="['cell', isSelected(cell) ? 'selected' : '', isOriginal(cell) ? 'original' : '', isDisabled(cell) ? 'disabled' : '']">
         </div>
       </div>
       <div class="mt-4">
@@ -19,6 +23,8 @@
 </template>
 
 <script setup>
+import { ref, computed, onMounted } from 'vue';
+
 const props = defineProps({
   widget: Object,
   gridSize: String,
@@ -29,13 +35,7 @@ const { fetchReservedPositions } = useWidgetStore();
 const reservedPositions = ref([]);
 const errorMessage = ref('');
 
-onMounted(async () => {
-  reservedPositions.value = await fetchReservedPositions(props.widget.project_id);
-  reservedPositions.value = reservedPositions.value.filter(pos => pos !== props.widget.gridPosition);
-});
-
-const emit = defineEmits(['close', 'save']);
-
+// Initialisieren der Originalpositionen
 let gridPositionData;
 try {
   if (props.widget.gridPosition && typeof props.widget.gridPosition.gridPosition === 'string') {
@@ -52,9 +52,16 @@ try {
   gridPositionData = [];
 }
 
-const selectedCells = ref(gridPositionData);
+const selectedCells = ref([]); // Auswahl wird erst bei Interaktion festgelegt
+const originalCells = ref([...gridPositionData]);  // Speichert die Originalpositionen und zeigt sie direkt grün an
 
-// siple change algorithm for correct grid pattern
+onMounted(async () => {
+  reservedPositions.value = await fetchReservedPositions(props.widget.project_id);
+  reservedPositions.value = reservedPositions.value.filter(pos => !originalCells.value.includes(pos));
+});
+
+const emit = defineEmits(['close', 'save']);
+
 const rows = computed(() => {
   if (props.gridSize.startsWith('4')) {
     return 4;
@@ -80,23 +87,79 @@ const gridStyle = computed(() => ({
   aspectRatio: '1'
 }));
 
-function toggleCell(cell) {
-  if (!isDisabled(cell) || isSelected(cell)) {
-    const index = selectedCells.value.indexOf(cell);
-    if (index === -1) {
-      selectedCells.value.push(cell);
-      reservedPositions.value.push(cell);
-    } else {
-      selectedCells.value.splice(index, 1);
-      reservedPositions.value = reservedPositions.value.filter(pos => pos !== cell);
+let isSelecting = ref(false);
+let startCell = ref(null);
+
+function startSelection(event) {
+  const cell = getCellFromEvent(event);
+  if (cell && !isDisabled(cell)) {
+    isSelecting.value = true;
+    startCell.value = cell;
+    selectRange(cell, cell); // Start mit einer Zelle
+  }
+}
+
+function moveSelection(event) {
+  if (isSelecting.value && startCell.value) {
+    const endCell = getCellFromEvent(event);
+    if (endCell && !isDisabled(endCell)) {
+      selectRange(startCell.value, endCell);
     }
   }
 }
 
+function endSelection() {
+  isSelecting.value = false;
+  startCell.value = null;
+}
+
+function getCellFromEvent(event) {
+  const cellElement = event.target.closest('.cell');
+  if (cellElement) {
+    const index = Array.from(cellElement.parentElement.children).indexOf(cellElement);
+    return index + 1;
+  }
+  return null;
+}
+
+function selectRange(start, end) {
+  const min = Math.min(start, end);
+  const max = Math.max(start, end);
+  const startRow = Math.floor((min - 1) / rows.value);
+  const startCol = (min - 1) % rows.value;
+  const endRow = Math.floor((max - 1) / rows.value);
+  const endCol = (max - 1) % rows.value;
+
+  selectedCells.value = [];
+
+  // Entferne alle grünen Markierungen (Originalpositionen)
+  originalCells.value = [];
+
+  for (let row = startRow; row <= endRow; row++) {
+    for (let col = startCol; col <= endCol; col++) {
+      const cell = row * rows.value + col + 1;
+      if (!isDisabled(cell)) {
+        selectedCells.value.push(cell);
+      }
+    }
+  }
+}
+
+function isOriginal(cell) {
+  return originalCells.value.includes(cell); // Grüne Markierung für Originalpositionen
+}
+
+function isSelected(cell) {
+  return selectedCells.value.includes(cell); // Blaue Markierung für aktuelle Auswahl
+}
+
+function isDisabled(cell) {
+  return reservedPositions.value.includes(cell) && !isOriginal(cell);
+}
+
 function validateGridPattern(selectedCells, gridSize) {
   selectedCells = selectedCells.filter(cell => cell !== 0);
-  
-  // siple change algorithm for correct grid pattern
+
   const rows = gridSize.startsWith('4') ? 4 : gridSize.startsWith('5') ? 5 : gridSize.startsWith('6') ? 6 : gridSize.startsWith('12') ? 12 : 4;
   const grid = new Array(rows).fill(null).map(() => new Array(rows).fill(false));
 
@@ -111,10 +174,10 @@ function validateGridPattern(selectedCells, gridSize) {
       return;
     }
     visited.add(`${row},${col}`);
-    dfs(row + 1, col, visited); 
-    dfs(row - 1, col, visited); 
+    dfs(row + 1, col, visited);
+    dfs(row - 1, col, visited);
     dfs(row, col + 1, visited);
-    dfs(row, col - 1, visited); 
+    dfs(row, col - 1, visited);
   }
 
   let found = false;
@@ -134,7 +197,6 @@ function validateGridPattern(selectedCells, gridSize) {
     return false;
   }
 
-  // Prüfe auf rechteckige oder quadratische Form
   const selectedRows = selectedCells.map(cell => Math.floor((cell - 1) / rows));
   const selectedCols = selectedCells.map(cell => (cell - 1) % rows);
   const minRow = Math.min(...selectedRows);
@@ -153,16 +215,11 @@ function validateGridPattern(selectedCells, gridSize) {
   return true;
 }
 
-function isSelected(cell) {
-  return selectedCells.value.includes(cell);
-}
-
-function isDisabled(cell) {
-  return reservedPositions.value.includes(cell) && !isSelected(cell);
-}
-
 function saveConfig() {
   if (validateGridPattern(selectedCells.value, props.gridSize)) {
+    // Neue Positionen hinzufügen
+    reservedPositions.value.push(...selectedCells.value);
+
     emit('save', selectedCells.value.join(','));
     emit('close');
   } else {
@@ -174,10 +231,11 @@ function saveConfig() {
 }
 
 function close() {
+  // Stelle sicher, dass die ursprünglichen Positionen wieder reserviert werden, wenn abgebrochen wird
+  reservedPositions.value.push(...originalCells.value);
   emit('close');
 }
 </script>
-
 
 <style scoped>
 .grid-container {
@@ -191,19 +249,14 @@ function close() {
   cursor: pointer;
   aspect-ratio: 1;
 }
+.cell.original {
+  background-color: #4caf50; /* Grün für Originalposition */
+}
 .cell.selected {
-  background-color: #bcd;
+  background-color: #bcd; /* Blau für neue Auswahl */
 }
 .cell.disabled {
   background-color: #ddd;
   cursor: not-allowed;
-}
-.cross {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: medium;
-  color: red;
 }
 </style>
