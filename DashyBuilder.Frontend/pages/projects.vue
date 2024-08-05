@@ -49,9 +49,6 @@
             </div>
         </div>
     </div>
-    <div>
-        <GridStackConfigurator />
-    </div>
 </template>
 
 <script setup>
