@@ -13,7 +13,8 @@ export const useProjectStore = defineStore('projectStore', () => {
         id,
         user_id,
         projectName,
-        gridSize
+        gridSize,
+        researchQuestion
       `);
 
     if (error) {
@@ -58,7 +59,7 @@ export const useProjectStore = defineStore('projectStore', () => {
     }
   }
 
-  const createProject = async (projectName, gridSize) => {
+  const createProject = async (projectName, gridSize, researchQuestion) => {
     if (!user.value) {
       errorMessages.value.push('User must be logged in to create a project.');
       return;
@@ -69,7 +70,8 @@ export const useProjectStore = defineStore('projectStore', () => {
       .insert({
         user_id: user.value.id,
         projectName,
-        gridSize
+        gridSize,
+        researchQuestion
       })
       .select();
 
@@ -99,6 +101,22 @@ export const useProjectStore = defineStore('projectStore', () => {
     }
   };
 
+  const updateProject = async (projectId, updatedData) => {
+    const { data, error } = await client
+      .from('projects')
+      .update(updatedData)
+      .match({ id: projectId });
+
+    if (error) {
+      errorMessages.value.push('Error updating project: ' + error.message);
+      console.error('Error updating project:', error);
+    } else {
+      console.log('Project updated:', data);
+      // Optional: die Liste der Projekte neu laden
+      fetchProjects();
+    }
+  };
+
   return {
     projects,
     fetchProjectNameById,
@@ -107,6 +125,7 @@ export const useProjectStore = defineStore('projectStore', () => {
     fetchProjects,
     errorMessages,
     createProject,
-    deleteProject
+    deleteProject,
+    updateProject
   };
 });
