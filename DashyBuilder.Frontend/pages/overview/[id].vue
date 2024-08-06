@@ -6,15 +6,18 @@
     <div class="flex flex-wrap mb-5">
       <div class="w-full lg:w-1/2 px-2 h-full">
         <UploadDataset @uploaded="handleDatasetUploaded" @loading="loadingData = $event" class="mb-5"/>
-        <button v-if="uploadedDatasetId && !loadingData" @click="showDataExploration = true" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded flex items-center justify-center">
-          <Icon name="mdi:table" color="white" class="mr-1 text-2xl"/> Data Exploration
-        </button>
       </div>
       <div class="w-full lg:w-1/2 px-2 h-full">
         <ComponentSelector @add-widget="handleAddWidget" @errorMessage="errorMessageModal" class="mb-5"/>
       </div>
     </div>
-    <DashboardArea :widgets="widgetStore.widgets" :gridSize="gridSize" @delete-widget="handleDeleteWidget" @update-widget="handleUpdateWidget" />
+    <DashboardArea 
+      :widgets="widgetStore.widgets" 
+      :gridSize="gridSize"
+      :uploadedDatasetId="uploadedDatasetId" 
+      @delete-widget="handleDeleteWidget" 
+      @update-widget="handleUpdateWidget" 
+    />
     <div class="flex justify-between mt-4">
       <button @click="downloadPythonFile" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded flex items-center justify-center">
         <Icon name="mdi:download" color="white" class="mr-1 text-2xl"/> Download Python File
@@ -26,7 +29,6 @@
     <div v-if="loadingDashboard" class="fixed inset-0 bg-gray-100 bg-opacity-75 flex items-center justify-center">
       <div class="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-64 w-64"></div>
     </div>
-    <DataExplorationModal :show="showDataExploration" :datasetId="uploadedDatasetId" @close="showDataExploration = false"/>
     <HostingModal :show="showHostingModal" :url="hostedUrl" @close="showHostingModal = false"/>
   </div>
 </template>
@@ -46,7 +48,6 @@ const widgetStore = useWidgetStore();
 const errorMessage = ref('');
 const successMessage = ref('');
 const gridSize = ref('');
-const showDataExploration = ref(false);
 const uploadedDatasetId = ref(null);
 const showHostingModal = ref(false);
 const hostedUrl = ref('');
@@ -115,7 +116,6 @@ const handleDatasetUploaded = async (datasetId) => {
   try {
     const response = await fetch(`http://localhost:5000/data/${datasetId}`);
     if (response.ok) {
-      showDataExploration.value = true;
     } else {
       errorMessage.value = 'Fehler beim Laden der Daten.';
     }
