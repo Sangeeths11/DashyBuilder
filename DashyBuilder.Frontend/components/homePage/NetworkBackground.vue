@@ -53,8 +53,8 @@ export default defineComponent({
         nodes.push({
           x: Math.random() * window.innerWidth,
           y: Math.random() * window.innerHeight,
-          vx: (Math.random() - 0.5) * 4,
-          vy: (Math.random() - 0.5) * 4,
+          vx: (Math.random() - 0.5) * 2,
+          vy: (Math.random() - 0.5) * 2,
           type: chartTypes[Math.floor(Math.random() * chartTypes.length)],
           data,
           colors: ['hsl(210, 100%, 50%)', 'hsl(210, 100%, 60%)', 'hsl(210, 100%, 70%)', 'hsl(210, 100%, 80%)', 'hsl(210, 100%, 90%)']
