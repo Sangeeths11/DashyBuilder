@@ -2,6 +2,9 @@
 
 A customizable dashboard tool that enables users to design and manage dynamic dashboards. Built with Vue3, Nuxt, and Supabase, it offers intuitive layout options and exports to Plotly Python code.
 
+![grafik](https://github.com/user-attachments/assets/f09152a3-f557-4019-9c93-9322760a1797)
+
+
 ## Docker
 
 The `docker-compose.yml` file describes the Docker environment with the appropriate containers. For this to function properly, the corresponding environment variables need to be set. This involves copying the `.env.example` file and renaming it to `.env`. Subsequently, the relevant values must be entered into the `.env` file.
