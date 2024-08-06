@@ -43,6 +43,11 @@ const uploadedDatasetId = ref(null);
 const showDataExploration = ref(false); // Hinzugefügt
 const router = useRouter();
 const emit = defineEmits(['uploaded', 'loading']);  // Hinzugefügt
+const projectStore = useProjectStore();
+
+const props = defineProps({
+  projectId: String
+});
 
 const handleFileUpload = (event) => {
   selectedFile.value = event.target.files[0];
@@ -100,6 +105,7 @@ const uploadDataset = async () => {
     emit('loading', false);  // Hinzugefügt
     console.log('Dataset ID:', result.datasetId);
     uploadedDatasetId.value = result.datasetId;
+    await projectStore.updateProject(props.projectId, { filePath: uploadedDatasetId.value });
     setTimeout(() => {
       successMessage.value = '';
     }, 3000);
@@ -113,6 +119,10 @@ const uploadDataset = async () => {
     emit('loading', false);  // Hinzugefügt
   }
 };
+
+onMounted(async () => {
+   uploadedDatasetId.value = await projectStore.fetchProjectFilePath(props.projectId);
+});
 </script>
 
 <style scoped>

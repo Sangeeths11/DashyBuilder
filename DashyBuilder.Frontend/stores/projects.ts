@@ -59,6 +59,16 @@ export const useProjectStore = defineStore('projectStore', () => {
     }
   }
 
+  async function fetchProjectFilePath(id) {
+    const { data, error } = await client.from('projects').select('filePath').eq('id', id).single();
+    if (error) {
+      console.error('Error fetching project grid size:', error);
+      return null;
+    } else {
+      return data.filePath;
+    }
+  }
+
   const createProject = async (projectName, gridSize, researchQuestion) => {
     if (!user.value) {
       errorMessages.value.push('User must be logged in to create a project.');
@@ -122,6 +132,7 @@ export const useProjectStore = defineStore('projectStore', () => {
     fetchProjectNameById,
     fetchProjectGridSizeById,
     fetchProjectGridSize,
+    fetchProjectFilePath,
     fetchProjects,
     errorMessages,
     createProject,

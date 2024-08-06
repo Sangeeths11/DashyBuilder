@@ -5,7 +5,12 @@
     <ErrorMessageBox :message="errorMessage"/>
     <div class="flex flex-wrap mb-5">
       <div class="w-full lg:w-1/2 px-2 h-full">
-        <UploadDataset @uploaded="handleDatasetUploaded" @loading="loadingData = $event" class="mb-5"/>
+        <UploadDataset 
+          @uploaded="handleDatasetUploaded" 
+          @loading="loadingData = $event" 
+          class="mb-5"
+          :projectId="projectId"
+        />
       </div>
       <div class="w-full lg:w-1/2 px-2 h-full">
         <ComponentSelector @add-widget="handleAddWidget" @errorMessage="errorMessageModal" class="mb-5"/>
