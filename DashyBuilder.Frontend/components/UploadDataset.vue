@@ -1,8 +1,8 @@
 <template>
-  <div class="max-w-full mx-auto h-full">
+  <SucessMessageBox :message="successMessage"/>
+  <ErrorMessageBox :message="errorMessage"/>
+  <div class="max-w-full mx-auto h-full relative">
     <div class="bg-white shadow-lg rounded-lg p-4 h-full flex flex-col">
-      <SucessMessageBox :message="successMessage"/>
-      <ErrorMessageBox :message="errorMessage"/>
       <h2 class="font-bold text-lg mb-4">Upload Dataset</h2>
       <div class="flex flex-col items-center space-y-4 flex-grow">
         <label for="file-upload" class="w-full flex flex-col items-center px-4 py-16 bg-gray-100 text-blue rounded-lg shadow-lg tracking-wide uppercase border border-blue cursor-pointer hover:bg-blue-500 hover:text-white transition duration-300 ease-in-out">
@@ -23,6 +23,14 @@
         </button>
       </div>
     </div>
+
+    <!-- Fancy Data Exploration Button -->
+    <button v-if="uploadedDatasetId" @click="showDataExploration = true" class="absolute top-4 right-4 bg-blue-600 hover:bg-blue-800 text-white font-bold p-2 rounded-full flex items-center justify-center shadow-lg transition duration-300 ease-in-out">
+      <Icon name="mdi:table" color="white" class="text-2xl"/>
+    </button>
+
+    <!-- DataExplorationModal -->
+    <DataExplorationModal :show="showDataExploration" :datasetId="uploadedDatasetId" @close="showDataExploration = false"/>
   </div>
 </template>
 
@@ -32,6 +40,7 @@ const isLoading = ref(false);
 const successMessage = ref('');
 const errorMessage = ref('');
 const uploadedDatasetId = ref(null);
+const showDataExploration = ref(false); // Hinzugefügt
 const router = useRouter();
 const emit = defineEmits(['uploaded', 'loading']);  // Hinzugefügt
 
