@@ -23,7 +23,7 @@
         <Icon name="mdi:cloud-upload" color="white" class="text-2xl"/>
     </button>
     <HostingModal :show="showHostingModal" :url="hostedUrl" @close="showHostingModal = false"/>
-    <AISuggestionModal :show="showAISuggestion" @close="showAISuggestion = false"/>
+    <AISuggestionModal :show="showAISuggestion" @close="showAISuggestion = false" :uploadedDatasetId="uploadedDatasetId" :researchQuestion="researchQuestion"/>
     <div v-if="loadingDashboard" class="fixed inset-0 bg-gray-100 bg-opacity-75 flex items-center justify-center">
       <div class="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-64 w-64"></div>
     </div>
@@ -34,28 +34,25 @@
 const props = defineProps({
   widgets: Array,
   gridSize: String,
-  uploadedDatasetId: String
+  uploadedDatasetId: String,
+  projectId: String,
 });
 
 const errorMessage = ref('');
 const successMessage = ref('');
 const loadingDashboard = ref(false);
+const researchQuestion = ref('');
+const projectStore = useProjectStore();
+
+researchQuestion.value = await projectStore.fetchProjectResearchQuestionById(props.projectId);
+console.log('Research question:', researchQuestion.value);
 
 watch(() => props.widgets, () => {
   console.log('Widgets changed');
   console.log(props.widgets);
+  console.log('Project ID:', props.projectId);
+  
 });
-
-watch(() => props.gridSize, () => {
-  console.log('Grid size changed');
-  console.log(props.gridSize);
-});
-
-watch(() => props.uploadedDatasetId, () => {
-  console.log('Uploaded dataset ID changed');
-  console.log(props.uploadedDatasetId);
-});
-
 const hostedUrl = ref('');
 const showHostingModal = ref(false);
 const showAISuggestion = ref(false); // Hinzugefügt

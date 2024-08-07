@@ -19,7 +19,8 @@
     <DashboardArea 
       :widgets="widgetStore.widgets" 
       :gridSize="gridSize"
-      :uploadedDatasetId="uploadedDatasetId" 
+      :uploadedDatasetId="uploadedDatasetId"
+      :projectId="projectId" 
       @delete-widget="handleDeleteWidget" 
       @update-widget="handleUpdateWidget" 
     />
