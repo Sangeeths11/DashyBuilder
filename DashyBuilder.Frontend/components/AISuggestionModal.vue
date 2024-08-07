@@ -125,7 +125,7 @@ async function callOpenAI() {
 async function fetchDatasetInfo() {
   loading.value = true;
   error.value = null;
-  errorMessages.value = null;
+  errorMessage.value = null;
 
   try {
     const response = await fetch(`http://localhost:5000/ai/${props.uploadedDatasetId}`);
