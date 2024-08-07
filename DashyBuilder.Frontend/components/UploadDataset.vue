@@ -31,6 +31,9 @@
 
     <!-- DataExplorationModal -->
     <DataExplorationModal :show="showDataExploration" :datasetId="uploadedDatasetId" @close="showDataExploration = false"/>
+    <div v-if="loadingDashboard" class="fixed inset-0 bg-gray-100 bg-opacity-75 flex items-center justify-center">
+      <div class="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-64 w-64"></div>
+    </div>
   </div>
 </template>
 
@@ -44,6 +47,7 @@ const showDataExploration = ref(false); // Hinzugefügt
 const router = useRouter();
 const emit = defineEmits(['uploaded', 'loading']);  // Hinzugefügt
 const projectStore = useProjectStore();
+const loadingDashboard = ref(false);
 
 const props = defineProps({
   projectId: String
@@ -58,6 +62,7 @@ const exploreDataset = (datasetId) => {
 };
 
 const uploadChunk = async (chunk, chunkNumber, totalChunks, filename) => {
+
   const formData = new FormData();
   formData.append('chunk', chunk);
   formData.append('chunkNumber', chunkNumber);
@@ -74,7 +79,7 @@ const uploadChunk = async (chunk, chunkNumber, totalChunks, filename) => {
 
 const uploadDataset = async () => {
   if (!selectedFile.value) return;
-
+  loadingDashboard.value = true;
   const CHUNK_SIZE = 5 * 1024 * 1024; // 5MB
   const totalChunks = Math.ceil(selectedFile.value.size / CHUNK_SIZE);
   const filename = selectedFile.value.name;
@@ -115,6 +120,7 @@ const uploadDataset = async () => {
       errorMessage.value = '';
     }, 3000);
   } finally {
+    loadingDashboard.value = false;
     isLoading.value = false;
     emit('loading', false);  // Hinzugefügt
   }
@@ -137,5 +143,16 @@ label {
 button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.loader {
+  border-top-color: #3498db;
+  animation: spin 1.5s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 </style>
