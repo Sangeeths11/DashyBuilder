@@ -10,11 +10,12 @@
         <Icon name="carbon:close-outline" class="text-danger hover:text-dark-danger"/>
       </button>
     </div>
-    <div v-if="widget.type === 'Chart'" class="absolute top-2 left-2">
+    <!-- TODO: Add Chart Infomartion -->
+    <!-- <div v-if="widget.type === 'Chart'" class="absolute top-2 left-2">
       <button @click="openChartModal">
         <Icon name="mdi:pen" color="white" class="text-orange-300 hover:text-orange-500"/>
       </button>
-    </div>
+    </div> -->
     <ConfigModal v-if="isConfigModalOpen" :widget="widget" :isOpen="isConfigModalOpen" :gridSize="gridSize" @close="closeConfigModal" @save="saveGridPosition" />
     <ChartTypeModal v-if="isChartModalOpen" :widget="widget" :isOpen="isChartModalOpen" @close="closeChartModal" @save="saveChartType" />
   </div>

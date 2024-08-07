@@ -27,14 +27,11 @@
       <button @click="downloadPythonFile" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded flex items-center justify-center">
         <Icon name="mdi:download" color="white" class="mr-1 text-2xl"/> Download Python File
       </button>
-      <button @click="hostDashboard" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded flex items-center justify-center">
-        <Icon name="mdi:cloud-upload" color="white" class="mr-1 text-2xl"/> Host Dashboard
-      </button>
     </div>
     <div v-if="loadingDashboard" class="fixed inset-0 bg-gray-100 bg-opacity-75 flex items-center justify-center">
       <div class="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-64 w-64"></div>
     </div>
-    <HostingModal :show="showHostingModal" :url="hostedUrl" @close="showHostingModal = false"/>
+    
   </div>
 </template>
 
@@ -54,8 +51,6 @@ const errorMessage = ref('');
 const successMessage = ref('');
 const gridSize = ref('');
 const uploadedDatasetId = ref(null);
-const showHostingModal = ref(false);
-const hostedUrl = ref('');
 const loadingData = ref(false);
 const loadingDashboard = ref(false);
 
@@ -180,74 +175,9 @@ async function downloadPythonFile() {
   }
 }
 
-async function hostDashboard() {
-  const invalidWidgets = widgetStore.widgets.filter(widget => !widget.gridPosition || !widget.gridPosition.gridPosition);
-
-  if (invalidWidgets.length > 0) {
-    errorMessage.value = 'Please set the grid position for all widgets before hosting the dashboard.';
-    setTimeout(() => {
-      errorMessage.value = '';
-    }, 3000);
-    return;
-  }
-  console.log('Host dashboard');
-  console.log(widgetStore.widgets);
-  console.log(gridSize.value);
-  
-  loadingDashboard.value = true;
-  
-  try {
-    const response = await fetch('http://localhost:5000/export', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        widgets: widgetStore.widgets,
-        grid_size: gridSize.value,
-        save: true,
-      })
-    });
-
-    if (!response.ok) throw new Error('Network response was not ok.');
-  } catch (error) {
-    console.error('Error exporting the dashboard:', error);
-    errorMessage.value = error.message;
-    setTimeout(() => {
-      errorMessage.value = '';
-    }, 3000);
-  } finally {
-    try {
-      const response = await fetch('http://localhost:5000/upload_to_pythonanywhere', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          file_path: 'dashboards\\Dashboard.py'
-        })
-      });
-      if (!response.ok) throw new Error('Network response was not ok.');
-      const result = await response.json();
-      hostedUrl.value = result.stdout;
-      showHostingModal.value = true;
-      successMessage.value = 'Dashboard hosted successfully';
-      setTimeout(() => {
-        successMessage.value = '';
-      }, 3000);
-    } catch (error) {
-      console.error('Error hosting the dashboard:', error);
-      errorMessage.value = error.message;
-      setTimeout(() => {
-        errorMessage.value = '';
-      }, 3000);
-    }
-    loadingDashboard.value = false;
-  }
-}
-
 onMounted(async () => {
   await widgetStore.fetchWidgetsByProjectId(projectId.value);
+  uploadedDatasetId.value = await projectStore.fetchProjectFilePath(projectId.value);
 });
 </script>
 
