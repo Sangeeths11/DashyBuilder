@@ -13,14 +13,20 @@
         @update-widget="emitUpdateWidget"
       />
     </div>
-    <button v-if="uploadedDatasetId" @click="showAISuggestion = true" class="absolute top-4 right-16 bg-purple-600 hover:bg-purple-800 text-white font-bold p-2 rounded-full flex items-center justify-center shadow-lg transition duration-300 ease-in-out">
+    <button v-if="uploadedDatasetId" @click="showAISuggestion = true" class="absolute top-4 right-28 bg-purple-600 hover:bg-purple-800 text-white font-bold p-2 rounded-full flex items-center justify-center shadow-lg transition duration-300 ease-in-out">
       <Icon name="mdi:robot" color="white" class="text-2xl"/>
+    </button>
+    <button @click="downloadPythonFile" class="absolute top-4 right-16 bg-blue-600 hover:bg-blue-800 text-white font-bold p-2 rounded-full flex items-center justify-center shadow-lg transition duration-300 ease-in-out">
+        <Icon name="mdi:download" color="white" class="text-2xl"/>
     </button>
     <button @click="hostDashboard" class="absolute top-4 right-4 bg-green-600 hover:bg-green-800 text-white font-bold p-2 rounded-full flex items-center justify-center shadow-lg transition duration-300 ease-in-out">
         <Icon name="mdi:cloud-upload" color="white" class="text-2xl"/>
     </button>
     <HostingModal :show="showHostingModal" :url="hostedUrl" @close="showHostingModal = false"/>
     <AISuggestionModal :show="showAISuggestion" @close="showAISuggestion = false"/>
+    <div v-if="loadingDashboard" class="fixed inset-0 bg-gray-100 bg-opacity-75 flex items-center justify-center">
+      <div class="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-64 w-64"></div>
+    </div>
   </div>
 </template>
 
@@ -120,6 +126,54 @@ async function hostDashboard() {
   }
 }
 
+async function downloadPythonFile() {
+  const invalidWidgets = widgetStore.widgets.filter(widget => !widget.gridPosition || !widget.gridPosition.gridPosition);
+  
+  if (invalidWidgets.length > 0) {
+    errorMessage.value = 'Please set the grid position for all widgets before downloading the python file.';
+    setTimeout(() => {
+      errorMessage.value = '';
+    }, 3000);
+    return;
+  }
+  console.log('Download python file');
+  console.log('Exporting dashboard', widgetStore.widgets, props.gridSize);
+  try {
+    const response = await fetch('http://localhost:5000/export', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        widgets: widgetStore.widgets,
+        grid_size: props.gridSize,
+        save: false,
+      })
+    });
+
+    if (!response.ok) throw new Error('Network response was not ok.');
+
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'dashboard.py');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    successMessage.value = 'Python file downloaded successfully';
+    setTimeout(() => {
+      successMessage.value = '';
+    }, 3000);
+  } catch (error) {
+    console.error('Error downloading the python file:', error);
+    errorMessage.value = error.message;
+    setTimeout(() => {
+      errorMessage.value = '';
+    }, 3000);
+  }
+}
+
 function emitDeleteWidget(id) {
   emit('delete-widget', id);
 }
@@ -130,4 +184,14 @@ function emitUpdateWidget(data) {
 </script>
 
 <style scoped>
+.loader {
+  border-top-color: #3498db;
+  animation: spin 1.5s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
 </style>

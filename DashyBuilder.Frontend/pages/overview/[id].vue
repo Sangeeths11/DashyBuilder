@@ -23,15 +23,6 @@
       @delete-widget="handleDeleteWidget" 
       @update-widget="handleUpdateWidget" 
     />
-    <div class="flex justify-between mt-4">
-      <button @click="downloadPythonFile" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded flex items-center justify-center">
-        <Icon name="mdi:download" color="white" class="mr-1 text-2xl"/> Download Python File
-      </button>
-    </div>
-    <div v-if="loadingDashboard" class="fixed inset-0 bg-gray-100 bg-opacity-75 flex items-center justify-center">
-      <div class="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-64 w-64"></div>
-    </div>
-    
   </div>
 </template>
 
@@ -52,7 +43,6 @@ const successMessage = ref('');
 const gridSize = ref('');
 const uploadedDatasetId = ref(null);
 const loadingData = ref(false);
-const loadingDashboard = ref(false);
 
 watch(projectId, async (newId, oldId) => {
   if (newId !== oldId) {
@@ -125,55 +115,6 @@ const handleDatasetUploaded = async (datasetId) => {
     loadingData.value = false;
   }
 };
-
-async function downloadPythonFile() {
-  const invalidWidgets = widgetStore.widgets.filter(widget => !widget.gridPosition || !widget.gridPosition.gridPosition);
-  
-  if (invalidWidgets.length > 0) {
-    errorMessage.value = 'Please set the grid position for all widgets before downloading the python file.';
-    setTimeout(() => {
-      errorMessage.value = '';
-    }, 3000);
-    return;
-  }
-  console.log('Download python file');
-  console.log(widgetStore.widgets);
-  console.log(gridSize.value);
-  try {
-    const response = await fetch('http://localhost:5000/export', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        widgets: widgetStore.widgets,
-        grid_size: gridSize.value,
-        save: false,
-      })
-    });
-
-    if (!response.ok) throw new Error('Network response was not ok.');
-
-    const blob = await response.blob();
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', 'dashboard.py');
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    successMessage.value = 'Python file downloaded successfully';
-    setTimeout(() => {
-      successMessage.value = '';
-    }, 3000);
-  } catch (error) {
-    console.error('Error downloading the python file:', error);
-    errorMessage.value = error.message;
-    setTimeout(() => {
-      errorMessage.value = '';
-    }, 3000);
-  }
-}
 
 onMounted(async () => {
   await widgetStore.fetchWidgetsByProjectId(projectId.value);
