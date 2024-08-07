@@ -23,7 +23,7 @@
         <Icon name="mdi:cloud-upload" color="white" class="text-2xl"/>
     </button>
     <HostingModal :show="showHostingModal" :url="hostedUrl" @close="showHostingModal = false"/>
-    <AISuggestionModal :show="showAISuggestion" @close="showAISuggestion = false" :uploadedDatasetId="uploadedDatasetId" :researchQuestion="researchQuestion"/>
+    <AISuggestionModal :show="showAISuggestion" @close="showAISuggestion = false" :uploadedDatasetId="uploadedDatasetId" :researchQuestion="researchQuestion" :projectId="projectId"/>
     <div v-if="loadingDashboard" class="fixed inset-0 bg-gray-100 bg-opacity-75 flex items-center justify-center">
       <div class="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-64 w-64"></div>
     </div>

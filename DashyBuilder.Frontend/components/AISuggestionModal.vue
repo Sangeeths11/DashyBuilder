@@ -1,19 +1,62 @@
 <template>
   <div v-if="show" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50">
-    <div class="bg-white rounded-lg shadow-lg p-6 w-1/2">
-      <h2 class="text-2xl font-bold mb-4">AI Suggestions</h2>
-      <p class="mb-4">Research question: {{ researchQuestion }}</p>
-      <div v-if="loading">Loading data...</div>
-      <div v-else>
-        <div v-if="error">{{ error }}</div>
-        <div v-else>
-          <h3 class="font-semibold mb-2">AI Result</h3>
-          <pre>{{ aiResult }}</pre>
+    <div class="bg-white rounded-lg shadow-lg p-6 w-1/2 relative">
+      <ErrorMessageBox :message="errorMessage"/>
+      <SucessMessageBox :message="successMessage"/>
+      <h2 class="text-3xl font-bold mb-4 text-gray-800">AI Suggestions</h2>
+      <div>
+        <div class="p-4 bg-gray-100 rounded-lg mb-6">
+          <h3 class="text-lg font-semibold text-gray-700">Research Question:</h3>
+          <p class="text-gray-600">{{ researchQuestion }}</p>
         </div>
       </div>
-      <button @click="$emit('close')" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mt-4">
-        Close
-      </button>
+      
+      <div v-if="loading" class="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-50">
+        <div class="flex flex-col items-center">
+          <div class="loader"></div>
+          <p class="ml-4 text-gray-700 font-semibold mt-4">AI is generating the best 4 widgets for you...</p>
+        </div>
+      </div>
+      
+      <div v-else>
+        <div v-if="error" class="text-red-500 font-bold">
+          <p>{{ error }}</p>
+        </div>
+        
+        <div v-else-if="parsedResult.error" class="text-red-500 font-bold">
+          <p>{{ parsedResult.error }}</p>
+        </div>
+        
+        <div v-else>
+          <h3 class="font-semibold mb-2 text-gray-800">Select Widgets to Include:</h3>
+          <ul class="space-y-2">
+            <li v-for="(widget, index) in parsedResult.widgets" :key="index" class="flex items-center">
+              <input 
+                type="checkbox" 
+                v-model="selectedWidgets" 
+                :value="widget" 
+                class="mr-2 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+              />
+              <label class="text-gray-700">{{ widget.widgetType }}: {{ widget.widgetName }}</label>
+            </li>
+          </ul>
+          
+          <div class="mt-6 flex justify-end space-x-4">
+            <button 
+              @click="applyWidgets" 
+              class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out"
+            >
+              Apply Widgets
+            </button>
+            <button 
+              @click="$emit('close')" 
+              class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -25,25 +68,33 @@ const props = defineProps({
     required: true
   },
   uploadedDatasetId: String,
-  researchQuestion: String
+  researchQuestion: String,
+  projectId: String
 });
 
 const loading = ref(false);
 const error = ref(null);
 const columnInfo = ref([]);
 const previewData = ref([]);
-const aiResult = ref('')
+const aiResult = ref({});
+const selectedWidgets = ref([]);
+const widgetStore = useWidgetStore();
+const parsedResult = ref({});
+const errorMessage = ref('');
+const successMessage = ref(''); 
 
 watch(() => props.show, async (newValue) => {
   if (newValue && props.uploadedDatasetId) {
-    // Modal wurde geöffnet und DatasetId ist verfügbar
-    await fetchDatasetInfo();
-    await callOpenAI();
+    if (Object.keys(parsedResult.value).length === 0) {
+      // Falls kein Ergebnis vorhanden ist, mache die API-Aufrufe
+      await fetchDatasetInfo();
+      await callOpenAI();
+    }
   }
 });
 
 async function callOpenAI() {
-  if(!aiResult.value) {
+    loading.value = true; // Ladezustand starten
     try {
       const response = await fetch('http://localhost:5000/ai/openai-process', {
         method: 'POST',
@@ -58,20 +109,23 @@ async function callOpenAI() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to call OpenAI API');
+        errorMessage.value = 'Failed to fetch AI suggestions';
       }
 
       const result = await response.json();
-      aiResult.value = result.result;
+      aiResult.value = result;
+      parsedResult.value = JSON.parse(aiResult.value.result);
     } catch (err) {
-      error.value = `Error: ${err.message}`;
+      errorMessage.value = err;
+    } finally {
+      loading.value = false; // Ladezustand beenden
     }
-  }
 }
 
 async function fetchDatasetInfo() {
   loading.value = true;
   error.value = null;
+  errorMessages.value = null;
 
   try {
     const response = await fetch(`http://localhost:5000/ai/${props.uploadedDatasetId}`);
@@ -84,14 +138,38 @@ async function fetchDatasetInfo() {
     previewData.value = data.preview_data || [];
   } catch (err) {
     error.value = `Error: ${err.message}`;
+    errorMessage.value = err;
   } finally {
     loading.value = false;
   }
-  console.log('Column info:', columnInfo.value);
-  console.log('Preview data:', previewData.value);
+}
+
+async function applyWidgets() {
+  try {
+    for (const widget of selectedWidgets.value) {
+      // widgetname ohne leerzeichen speichern lassen
+      const name = widget.widgetName.replace(/\s/g, '');
+      await widgetStore.createWidget(widget.widgetType, name, props.projectId);
+    }
+    successMessage.value = 'Widgets successfully saved';
+  } catch (err) {
+    errorMessage.value = err;
+  }
 }
 </script>
 
 <style scoped>
-/* Optional: Style-Anpassungen für das Modal */
+.loader {
+  border: 8px solid #f3f3f3;
+  border-top: 8px solid #3498db;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
 </style>
