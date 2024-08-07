@@ -2,6 +2,7 @@ from components.widgets.base import Widget
 
 class FilterBoxWidget(Widget):
     def generate_code(self):
+        self.name = self.name.replace(" ", "")
         return f"""
 def drawFilterBox_{self.name}():
     return html.Div([

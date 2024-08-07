@@ -2,6 +2,7 @@ from components.widgets.base import Widget
 
 class TextBlockWidget(Widget):
     def generate_code(self):
+        self.name = self.name.replace(" ", "")
         return f"""
 def drawTextBlock_{self.name}(text='Text'):
     return html.Div([

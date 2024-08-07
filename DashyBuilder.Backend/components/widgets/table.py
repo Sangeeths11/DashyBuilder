@@ -2,6 +2,7 @@ from components.widgets.base import Widget
 
 class TableWidget(Widget):
     def generate_code(self):
+        self.name = self.name.replace(" ", "")
         return f"""
 def drawTable_{self.name}():
     return html.Div([

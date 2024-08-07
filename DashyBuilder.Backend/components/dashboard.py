@@ -40,6 +40,7 @@ def generate_plotly_code(widgets, grid_size):
             widget_instance = widget_class(widget, cols)
             function_definitions.append(widget_instance.generate_code())
             widget_name = widget_type.replace(" ", "")
+            widget_instance.name = widget_instance.name.replace(" ", "")
             layout_component = (
                     f"            html.Div(draw{widget_name}_{widget_instance.name}(), "
                     f"style={{'gridColumn': '{widget_instance.min_col} / span {widget_instance.col_span}', "

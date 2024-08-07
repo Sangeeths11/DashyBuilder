@@ -2,6 +2,7 @@ from components.widgets.base import Widget
 
 class ChartWidget(Widget):
     def generate_code(self):
+        self.name = self.name.replace(" ", "")
         return f"""
 def drawChart_{self.name}():
     fig = px.bar(df, x='sepal_width', y='sepal_length', color='species').update_layout(
