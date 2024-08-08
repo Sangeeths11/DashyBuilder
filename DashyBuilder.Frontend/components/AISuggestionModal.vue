@@ -21,10 +21,22 @@
       <div v-else>
         <div v-if="error" class="text-red-500 font-bold">
           <p>{{ error }}</p>
+          <button 
+              @click="$emit('close')" 
+              class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out float-right"
+            >
+              Close
+            </button>
         </div>
         
         <div v-else-if="parsedResult.error" class="text-red-500 font-bold">
           <p>{{ parsedResult.error }}</p>
+          <button 
+              @click="$emit('close')" 
+              class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out float-right"
+            >
+              Close
+            </button>
         </div>
         
         <div v-else>
@@ -35,9 +47,12 @@
                 type="checkbox" 
                 v-model="selectedWidgets" 
                 :value="widget" 
+                :disabled="isWidgetSaved(widget)"
                 class="mr-2 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
               />
-              <label class="text-gray-700">{{ widget.widgetType }}: {{ widget.widgetName }}</label>
+              <label :class="{ 'line-through text-gray-400': isWidgetSaved(widget) }">
+                {{ widget.widgetType }}: {{ widget.widgetName }}
+              </label>
             </li>
           </ul>
           
@@ -62,6 +77,8 @@
 </template>
 
 <script setup>
+const emit = defineEmits(['close']);
+
 const props = defineProps({
   show: {
     type: Boolean,
@@ -78,6 +95,7 @@ const columnInfo = ref([]);
 const previewData = ref([]);
 const aiResult = ref({});
 const selectedWidgets = ref([]);
+const savedWidgets = ref([]);
 const widgetStore = useWidgetStore();
 const parsedResult = ref({});
 const errorMessage = ref('');
@@ -90,6 +108,8 @@ watch(() => props.show, async (newValue) => {
       await fetchDatasetInfo();
       await callOpenAI();
     }
+    selectedWidgets.value = [];
+    updateSavedWidgets();
   }
 });
 
@@ -147,14 +167,28 @@ async function fetchDatasetInfo() {
 async function applyWidgets() {
   try {
     for (const widget of selectedWidgets.value) {
-      // widgetname ohne leerzeichen speichern lassen
-      const name = widget.widgetName.replace(/\s/g, '');
-      await widgetStore.createWidget(widget.widgetType, name, props.projectId);
+      await widgetStore.createWidget(widget.widgetType, widget.widgetName, props.projectId);
+      savedWidgets.value.push(widget); // Gespeicherte Widgets verfolgen
     }
     successMessage.value = 'Widgets successfully saved';
+    closeModal();
   } catch (err) {
     errorMessage.value = err;
   }
+}
+
+function closeModal() {
+  selectedWidgets.value = [];
+  emit('close');
+}
+
+function updateSavedWidgets() {
+  savedWidgets.value = widgetStore.widgets;
+}
+
+function isWidgetSaved(widget) {
+  savedWidgets.value = widgetStore.widgets;
+  return savedWidgets.value.some(saved => saved.name === widget.widgetName);
 }
 </script>
 

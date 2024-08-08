@@ -84,10 +84,7 @@ onMounted(async () => {
 });
 
 function addWidget() {
-    if(componentName.value.includes(' ')) {
-        emit('errorMessage', 'The name cannot contain spaces');
-    }
-    else if (selectedComponent.value && componentName.value) {
+    if (selectedComponent.value && componentName.value) {
       emit('add-widget', {
         id: Date.now(),
         type: components.value.find(c => c.id === selectedComponent.value).name,
