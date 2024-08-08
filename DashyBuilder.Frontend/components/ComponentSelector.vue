@@ -14,6 +14,33 @@
               class="p-2 border rounded w-full"
             />
           </div>
+          <div class="flex flex-col w-full lg:w-1/2 space-y-2">
+            <div class="flex space-x-4">
+              <div class="flex flex-col w-1/2">
+                <label for="columns" class="block text-gray-700 text-sm font-bold">Columns</label>
+                <input
+                  id="columns"
+                  v-model="columns"
+                  type="text"
+                  disabled
+                  class="p-2 border rounded w-full bg-gray-100"
+                />
+              </div>
+              <div class="flex flex-col w-1/2">
+                <label for="rows" class="block text-gray-700 text-sm font-bold">Rows</label>
+                <input
+                  id="rows"
+                  v-model="rows"
+                  type="text"
+                  disabled
+                  class="p-2 border rounded w-full bg-gray-100"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex flex-col lg:flex-row lg:space-x-4 space-y-4 lg:space-y-0 mb-5">
           <div class="flex flex-col w-full lg:w-1/2">
             <label for="component-type" class="block text-gray-700 text-sm font-bold mb-2">Component Type</label>
             <select id="component-type" v-model="selectedComponent" class="p-2 border rounded w-full">
@@ -23,30 +50,16 @@
               </option>
             </select>
           </div>
-        </div>
-        <div class="flex flex-wrap justify-center space-x-4 space-y-4 mt-8">
-          <div class="flex flex-col items-center w-full sm:w-1/2 md:w-auto">
-            <label class="block text-gray-700 text-sm font-bold mb-6">Choosen Grid Size</label>
-            <div class="flex space-x-2">
-              <label class="inline-flex items-center mb-2">
-                <input type="radio" class="form-radio text-blue-600" name="gridSize" value="4x4" v-model="gridSize" :disabled="isGridSizeDisabled">
-                <span class="ml-2">4x4 <Icon name="mdi:grid" class="ml-1 w-8 h-8 text-blue-600"/></span>
-              </label>
-              <label class="inline-flex items-center mb-2">
-                <input type="radio" class="form-radio text-blue-600" name="gridSize" value="5x5" v-model="gridSize" :disabled="isGridSizeDisabled">
-                <span class="ml-2">5x5 <Icon name="mdi:grid" class="ml-1 w-10 h-10 text-blue-600"/></span>
-              </label>
-              <label class="inline-flex items-center mb-2">
-                <input type="radio" class="form-radio text-blue-600" name="gridSize" value="6x6" v-model="gridSize" :disabled="isGridSizeDisabled">
-                <span class="ml-2">6x6 <Icon name="mdi:grid" class="ml-1 w-12 h-12 text-blue-600"/></span>
-              </label>
-              <label class="inline-flex items-center mb-2">
-                <input type="radio" class="form-radio text-blue-600" name="gridSize" value="12x12" v-model="gridSize" :disabled="isGridSizeDisabled">
-                <span class="ml-2">12x12 <Icon name="mdi:grid" class="ml-1 w-16 h-16 text-blue-600"/></span>
-              </label>
+          <!-- Grid Size Selection and Preview -->
+          <div class="flex flex-col w-full lg:w-1/2 items-center justify-center">
+            <label class="block text-gray-700 text-sm font-bold mb-2">Grid Preview</label>
+            <div class="grid-preview" :class="`grid-cols-${columns} grid-rows-${rows}`" :style="gridStyle">
+              <div v-for="cell in gridCells" :key="cell" class="grid-cell"></div>
             </div>
           </div>
         </div>
+
+        <!-- Add Widget Button -->
         <button 
           @click="addWidget"
           class="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded flex items-center justify-center">
@@ -69,10 +82,22 @@ const components = ref([
 
 const componentName = ref('');
 const selectedComponent = ref('');
-const gridSize = ref('3x3');
+const gridSize = ref('4x4');
+const columns = ref('');
+const rows = ref('');
+const gridCells = ref([]);
+const gridStyle = ref({});
 const isGridSizeDisabled = ref(false);
 const route = useRoute();
 const projectStore = useProjectStore();
+
+watch(gridSize, (newValue) => {
+  const [cols, rws] = newValue.split('x');
+  columns.value = cols;
+  rows.value = rws;
+  updateGridCells();
+  updateGridStyle();
+});
 
 onMounted(async () => {
   const projectId = route.params.id;
@@ -81,7 +106,27 @@ onMounted(async () => {
     gridSize.value = projectGridSize;
     isGridSizeDisabled.value = true;
   }
+  const [cols, rws] = gridSize.value.split('x');
+  columns.value = cols;
+  rows.value = rws;
+  updateGridCells();
+  updateGridStyle();
 });
+
+function updateGridCells() {
+  gridCells.value = Array.from({ length: columns.value * rows.value });
+}
+
+function updateGridStyle() {
+  const maxDimension = Math.max(columns.value, rows.value);
+  const cellSize = maxDimension > 6 ? '6px' : '12px';
+  gridStyle.value = {
+    width: `${columns.value * parseInt(cellSize) + (columns.value - 1) * 2}px`,
+    height: `${rows.value * parseInt(cellSize) + (rows.value - 1) * 2}px`,
+    gridTemplateColumns: `repeat(${columns.value}, ${cellSize})`,
+    gridTemplateRows: `repeat(${rows.value}, ${cellSize})`,
+  };
+}
 
 function addWidget() {
     if (selectedComponent.value && componentName.value) {
@@ -100,4 +145,27 @@ function addWidget() {
 </script>
 
 <style scoped>
+.grid-preview {
+  display: grid;
+  gap: 2px;
+  background-color: #e2e8f0;
+  border: 2px solid #cbd5e0;
+  margin-top: 4px;
+}
+
+.grid-cell {
+  background-color: #ffffff;
+  border: 1px solid #cbd5e0;
+  box-sizing: border-box;
+}
+
+.grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
+.grid-cols-5 { grid-template-columns: repeat(5, 1fr); }
+.grid-cols-6 { grid-template-columns: repeat(6, 1fr); }
+.grid-cols-12 { grid-template-columns: repeat(12, 1fr); }
+
+.grid-rows-4 { grid-template-rows: repeat(4, 1fr); }
+.grid-rows-5 { grid-template-rows: repeat(5, 1fr); }
+.grid-rows-6 { grid-template-rows: repeat(6, 1fr); }
+.grid-rows-12 { grid-template-rows: repeat(12, 1fr); }
 </style>
