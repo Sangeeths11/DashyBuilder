@@ -13,18 +13,20 @@
         @update-widget="emitUpdateWidget"
       />
     </div>
-    <button v-if="uploadedDatasetId" @click="showAISuggestion = true" class="absolute top-4 right-28 bg-purple-600 hover:bg-purple-800 text-white font-bold p-2 rounded-full flex items-center justify-center shadow-lg transition duration-300 ease-in-out">
-      <Icon name="mdi:robot" color="white" class="text-2xl" />
-    </button>
-    <button @click="downloadPythonFile" class="absolute top-4 right-16 bg-blue-600 hover:bg-blue-800 text-white font-bold p-2 rounded-full flex items-center justify-center shadow-lg transition duration-300 ease-in-out">
-      <Icon name="mdi:download" color="white" class="text-2xl" />
-    </button>
-    <button @click="hostDashboard" class="absolute top-4 right-4 bg-green-600 hover:bg-green-800 text-white font-bold p-2 rounded-full flex items-center justify-center shadow-lg transition duration-300 ease-in-out">
-      <Icon name="mdi:cloud-upload" color="white" class="text-2xl" />
-    </button>
-    <button @click="toggleCodeViewer" class="absolute top-4 right-44 bg-gray-600 hover:bg-gray-800 text-white font-bold p-2 rounded-full flex items-center justify-center shadow-lg transition duration-300 ease-in-out">
-      <Icon name="mdi:code-braces" color="white" class="text-2xl" />
-    </button>
+    <div class="absolute top-4 right-4 flex space-x-4">
+      <button v-if="uploadedDatasetId" @click="showAISuggestion = true" class="bg-purple-600 hover:bg-purple-800 text-white font-bold p-2 rounded-full flex items-center justify-center shadow-lg transition duration-300 ease-in-out">
+        <Icon name="mdi:robot" color="white" class="text-2xl" />
+      </button>
+      <button @click="downloadPythonFile" class="bg-blue-600 hover:bg-blue-800 text-white font-bold p-2 rounded-full flex items-center justify-center shadow-lg transition duration-300 ease-in-out">
+        <Icon name="mdi:download" color="white" class="text-2xl" />
+      </button>
+      <button @click="hostDashboard" class="bg-green-600 hover:bg-green-800 text-white font-bold p-2 rounded-full flex items-center justify-center shadow-lg transition duration-300 ease-in-out">
+        <Icon name="mdi:cloud-upload" color="white" class="text-2xl" />
+      </button>
+      <button @click="toggleCodeViewer" class="bg-gray-600 hover:bg-gray-800 text-white font-bold p-2 rounded-full flex items-center justify-center shadow-lg transition duration-300 ease-in-out">
+        <Icon name="mdi:code-braces" color="white" class="text-2xl" />
+      </button>
+    </div>
     <HostingModal :show="showHostingModal" :url="hostedUrl" @close="showHostingModal = false" />
     <AISuggestionModal :show="showAISuggestion" @close="showAISuggestion = false" :uploadedDatasetId="uploadedDatasetId" :researchQuestion="researchQuestion" :projectId="projectId" />
     <div v-if="loadingDashboard" class="fixed inset-0 bg-gray-100 bg-opacity-75 flex items-center justify-center">
