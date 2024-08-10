@@ -9,9 +9,12 @@ export default defineNuxtConfig({
       autoprefixer: {},
     },
   },
+  monacoEditor: {
+
+  },
   supabase: {
     redirect: false
   },
   compatibilityDate: "2024-07-02",
-  modules: ["@nuxt/icon","@nuxtjs/supabase","@pinia/nuxt"]
+  modules: ["@nuxt/icon", "@nuxtjs/supabase", "@pinia/nuxt", "nuxt-monaco-editor"]
 })
