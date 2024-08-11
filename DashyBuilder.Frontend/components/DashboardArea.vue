@@ -34,21 +34,22 @@
     </div>
 
     <!-- Code Viewer Slider -->
-    <div :class="['fixed inset-y-0 right-0 transform transition-transform duration-300', showCodeViewer ? 'translate-x-0' : 'translate-x-full']" class="w-1/2 bg-white shadow-lg p-6 z-50">
+    <div :class="['fixed inset-y-0 right-0 transform transition-transform duration-300', showCodeViewer ? 'translate-x-0' : 'translate-x-full']" class="w-1/2 bg-white shadow-lg z-50 flex flex-col">
       <!-- Close Button -->
       <button @click="toggleCodeViewer" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800">
         <Icon name="mdi:close" class="text-2xl" />
       </button>
-      <h2 class="font-bold text-lg mb-4">Code Viewer</h2>
+      <h2 class="font-bold text-lg mb-4 mt-10 mx-4">Code Viewer</h2>
       <ClientOnly>
-        <MonacoEditor v-model="val" :lang="lang" :options="options" class="editor">
-          Loading...
-        </MonacoEditor>
+        <div class="flex-grow p-4 overflow-hidden">
+          <MonacoEditor v-model="val" :lang="lang" :options="options" class="w-full h-full editor">
+            Loading...
+          </MonacoEditor>
+        </div>
       </ClientOnly>
     </div>
   </div>
 </template>
-
 
 <script setup>
 const lang = ref('python');
@@ -270,7 +271,7 @@ function emitUpdateWidget(data) {
 
 .editor {
   width: 100%;
-  height: 80vh;
+  height: 100%;
 }
 
 .fixed {
