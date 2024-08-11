@@ -62,7 +62,8 @@
         <!-- Add Widget Button -->
         <button 
           @click="addWidget"
-          class="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded flex items-center justify-center">
+          class="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded flex items-center justify-center"
+          style="margin-top: 3.3em;">
           <Icon name="mdi:add" color="white" class="mr-1 text-3xl"/>Add Widget
         </button>
       </div>
