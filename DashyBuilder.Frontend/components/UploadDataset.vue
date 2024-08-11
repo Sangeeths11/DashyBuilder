@@ -1,8 +1,8 @@
 <template>
-  <SucessMessageBox :message="successMessage"/>
-  <ErrorMessageBox :message="errorMessage"/>
   <div class="w-full h-full flex flex-col justify-between">
-    <div class="bg-white shadow-lg rounded-lg p-4 h-full flex flex-col">
+    <SucessMessageBox :message="successMessage"/>
+    <ErrorMessageBox :message="errorMessage"/>
+    <div class="bg-white shadow-lg rounded-lg p-4 h-full flex flex-col relative">
       <h2 class="font-bold text-lg mb-4">Upload Dataset</h2>
       <div class="flex flex-col items-center space-y-4 flex-grow w-full">
         <label for="file-upload" class="w-full flex flex-col items-center px-4 py-16 bg-gray-100 text-blue rounded-lg shadow-lg tracking-wide uppercase border border-blue cursor-pointer hover:bg-blue-500 hover:text-white transition duration-300 ease-in-out">
@@ -16,18 +16,19 @@
         <button
           @click="uploadDataset"
           :disabled="!selectedFile || isLoading"
-          class="w-full bg-blue-500 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded mt-4 flex items-center justify-center transition duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed h-12">
+          class="w-full bg-blue-500 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded mt-4 flex items-center justify-center transition duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed h-12" style="margin-top: 1.8em;">
           <Icon name="mdi:upload" color="white" class="mr-1 text-3xl"/>
           <span v-if="isLoading">Uploading...</span>
           <span v-else>Upload Dataset</span>
         </button>
       </div>
-    </div>
 
-    <!-- Fancy Data Exploration Button -->
-    <button v-if="uploadedDatasetId" @click="showDataExploration = true" class="absolute top-4 right-4 bg-blue-600 hover:bg-blue-800 text-white font-bold p-2 rounded-full flex items-center justify-center shadow-lg transition duration-300 ease-in-out">
-      <Icon name="mdi:table" color="white" class="text-2xl"/>
-    </button>
+      <!-- Fancy Data Exploration Button -->
+      <button v-if="uploadedDatasetId" @click="showDataExploration = true" class="absolute top-4 right-4 bg-blue-600 hover:bg-blue-800 text-white font-bold p-2 rounded-full flex items-center justify-center shadow-lg transition duration-300 ease-in-out">
+        <Icon name="mdi:table" color="white" class="text-2xl"/>
+      </button>
+
+    </div>
 
     <!-- DataExplorationModal -->
     <DataExplorationModal :show="showDataExploration" :datasetId="uploadedDatasetId" @close="showDataExploration = false"/>
@@ -62,7 +63,6 @@ const exploreDataset = (datasetId) => {
 };
 
 const uploadChunk = async (chunk, chunkNumber, totalChunks, filename) => {
-
   const formData = new FormData();
   formData.append('chunk', chunk);
   formData.append('chunkNumber', chunkNumber);
