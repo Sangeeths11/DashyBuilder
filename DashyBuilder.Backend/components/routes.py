@@ -183,7 +183,7 @@ def register_routes(app):
             prompt_system = file.read()
 
         #write the new prompt to a file as a backup
-        with open('promptEngineering\\suggestionComponentPromptNew.txt', 'w') as file:
+        with open('promptEngineering\\suggestionComponentPromptNew.txt', 'w', encoding='utf-8') as file:
             file.write(prompt)
 
         # OpenAI API call
