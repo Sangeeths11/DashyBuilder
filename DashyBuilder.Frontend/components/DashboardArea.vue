@@ -49,6 +49,7 @@
   </div>
 </template>
 
+
 <script setup>
 const lang = ref('python');
 
@@ -56,13 +57,7 @@ const options = {
   automaticLayout: true
 };
 
-const val = ref('print("Hello nuxt-monaco-editor!")');
-
-watchEffect(() => {
-  if (lang.value === 'python') {
-    val.value = "print('Hello nuxt-monaco-editor!')";
-  }
-});
+const val = ref(''); // Startet leer, wird beim Öffnen des Editors geladen
 
 const props = defineProps({
   widgets: Array,
@@ -93,7 +88,39 @@ const showAISuggestion = ref(false);
 const emit = defineEmits(['delete-widget', 'update-widget']);
 const widgetStore = useWidgetStore();
 
+async function fetchDashboardCode() {
+  try {
+    const response = await fetch('http://localhost:5000/export', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        widgets: widgetStore.widgets,
+        grid_size: props.gridSize,
+        save: false, // Nicht speichern, nur abrufen
+      })
+    });
+
+    if (!response.ok) throw new Error('Network response was not ok.');
+
+    const code = await response.text();
+    val.value = code; // Lade den Code in den Editor
+  } catch (error) {
+    console.error('Please select to every Widget a Position', error);
+    errorMessage.value = "Please set the grid position for all widgets before seeing the code.";
+    showCodeViewer.value = false;
+    setTimeout(() => {
+      errorMessage.value = '';
+    }, 3000);
+  }
+}
+
 function toggleCodeViewer() {
+  if (!showCodeViewer.value) {
+    // Lade den Code, wenn der Slider geöffnet wird
+    fetchDashboardCode();
+  }
   showCodeViewer.value = !showCodeViewer.value;
 }
 
@@ -217,6 +244,7 @@ function emitUpdateWidget(data) {
   emit('update-widget', data);
 }
 </script>
+
 
 <style scoped>
 .loader {
