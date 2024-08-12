@@ -18,6 +18,7 @@ def generate_plotly_code(widgets, grid_size):
         "from dash import Dash, dcc, html, Input, Output",
         "import dash_bootstrap_components as dbc",
         "import plotly.express as px",
+        "import plotly.graph_objects as go",
         "import pandas as pd",
         "import warnings",
         "",
