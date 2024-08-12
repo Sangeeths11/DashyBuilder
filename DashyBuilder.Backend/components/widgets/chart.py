@@ -5,7 +5,7 @@ class ChartWidget(Widget):
         self.name = self.name.replace(" ", "")
         return f"""
 def drawChart_{self.name}():
-    fig = px.bar(df, x='sepal_width', y='sepal_length', color='species').update_layout(
+    fig = px.pie(df, names='species', values='sepal_length').update_layout(
         template='plotly_dark',
         plot_bgcolor='rgba(0, 0, 0, 0)',
         paper_bgcolor='rgba(0, 0, 0, 0)',
