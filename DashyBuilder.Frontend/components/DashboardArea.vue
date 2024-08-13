@@ -195,7 +195,7 @@ async function hostDashboard() {
       });
       if (!response.ok) throw new Error('Network response was not ok.');
       const result = await response.json();
-      hostedUrl.value = result.stdout;
+      hostedUrl.value = result.url;
       showHostingModal.value = true;
       successMessage.value = 'Dashboard hosted successfully';
       setTimeout(() => {
