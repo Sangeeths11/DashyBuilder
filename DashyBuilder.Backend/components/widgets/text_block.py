@@ -2,10 +2,10 @@ from components.widgets.base import Widget
 
 class TextBlockWidget(Widget):
     def generate_code(self):
+        self.title = self.name
         self.name = self.name.replace(" ", "")
-        self.text = self.name
         return f"""
-def drawTextBlock_{self.name}(text='{self.text}'):
+def drawTextBlock_{self.name}(text='{self.title}'):
     return html.Div([
         dbc.Card(
             dbc.CardBody([
