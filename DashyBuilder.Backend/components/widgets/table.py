@@ -12,6 +12,7 @@ def drawTable_{self.name}():
                     font=dict(color='white', size=14, family='Arial'),  # Weißer Text für Kontrast
                     align='center',
                     height=30),
+                    
         cells=dict(values=[df[col] for col in df.columns],
                    fill_color=[['#3b4147', '#434a51']*len(df)],  # Abwechselnde, dunkle Grautöne für die Zellen
                    align='center',
