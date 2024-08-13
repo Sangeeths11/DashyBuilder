@@ -2,6 +2,7 @@ from components.widgets.base import Widget
 
 class TableWidget(Widget):
     def generate_code(self):
+        self.title = self.name
         self.name = self.name.replace(" ", "")
         return f"""
 def drawTable_{self.name}():
@@ -19,7 +20,7 @@ def drawTable_{self.name}():
     )])
 
     fig.update_layout(
-        title={{'text': 'Table Title: {self.name}', 'y':0.95, 'x':0.5, 'xanchor': 'center', 'yanchor': 'top'}},
+        title={{'text': '{self.title}', 'y':0.95, 'x':0.5, 'xanchor': 'center', 'yanchor': 'top'}},
         template='plotly_dark',
         plot_bgcolor='rgba(0, 0, 0, 0)',
         paper_bgcolor='rgba(0, 0, 0, 0)',
