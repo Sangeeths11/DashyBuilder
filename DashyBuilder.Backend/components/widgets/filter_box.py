@@ -2,13 +2,14 @@ from components.widgets.base import Widget
 
 class FilterBoxWidget(Widget):
     def generate_code(self):
+        self.title = self.name
         self.name = self.name.replace(" ", "")
         return f"""
 def drawFilterBox_{self.name}():
     return html.Div([
         dbc.Card(
             dbc.CardBody([
-                html.Label('Filter by {self.name}:', style={{'color': 'white'}}),
+                html.Label('{self.title}:', style={{'color': 'white'}}),
                 html.Div([
                     html.Select(
                         id='{self.name}_select',
