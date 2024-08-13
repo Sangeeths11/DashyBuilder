@@ -19,10 +19,11 @@ def drawTable_{self.name}():
     )])
 
     fig.update_layout(
+        title={{'text': 'Table Title: {self.name}', 'y':0.95, 'x':0.5, 'xanchor': 'center', 'yanchor': 'top'}},
         template='plotly_dark',
         plot_bgcolor='rgba(0, 0, 0, 0)',
         paper_bgcolor='rgba(0, 0, 0, 0)',
-        margin=dict(l=20, r=20, t=20, b=20),
+        margin=dict(l=20, r=20, t=40, b=20),
         height=300  # Höhe anpassen je nach Layout-Anforderungen
     )
 
