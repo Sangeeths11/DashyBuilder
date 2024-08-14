@@ -24,7 +24,6 @@ def drawFilterBox_{self.name}():
                             'color': '#ffffff',
                             'border': '1px solid #4a4a4a',
                             'borderRadius': '5px',
-                            'padding': '
                             'width': '100%'
                         }}
                     )
