@@ -4,7 +4,7 @@ from components.widgets.text_block import TextBlockWidget
 from components.widgets.filter_box import FilterBoxWidget
 
 def generate_plotly_code(widgets, grid_size):
-    rows, cols = map(int, grid_size.split('x'))
+    cols, rows = map(int, grid_size.split('x'))
     widget_classes = {
         'Chart': ChartWidget,
         'Table': TableWidget,
