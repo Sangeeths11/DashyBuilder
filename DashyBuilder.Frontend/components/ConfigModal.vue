@@ -1,22 +1,24 @@
 <template>
   <div class="fixed inset-0 bg-gray-500 bg-opacity-90 flex items-center justify-center z-50">
-    <div class="bg-white p-6 rounded shadow-lg w-80 relative">
+    <div class="bg-white p-6 rounded shadow-lg w-[700px] h-[700px] relative flex flex-col"> <!-- Feste Größe des Modals -->
+      <button @click="close" class="absolute top-3 right-3 text-gray-600 hover:text-gray-900">
+        &times;
+      </button>
       <ErrorMessageBox :message="errorMessage"/>
-      <h3 class="text-lg font-bold mb-4">Configure Widget Position</h3>
-      <p class="text-sm text-gray-600 mb-4">Please select the position for the widget: 
+      <h3 class="text-lg font-bold mb-4 text-center">Configure Widget Position</h3>
+      <p class="text-sm text-gray-600 mb-4 text-center">Please select the position for the widget: 
         <strong class="text-sm text-gray-600 mb-2">
           {{ widget.name }} ({{ widget.type }})
         </strong>
       </p>
       
-      <div :style="gridStyle" class="grid-container" @mousedown="startSelection" @mousemove="throttledMoveSelection" @mouseup="endSelection" @mouseleave="endSelection">
+      <div :style="gridStyle" class="grid-container flex-grow" @mousedown="startSelection" @mousemove="throttledMoveSelection" @mouseup="endSelection" @mouseleave="endSelection">
         <div v-for="cell in totalCells" :key="cell"
             :class="['cell', isSelected(cell) ? 'selected' : '', isOriginal(cell) ? 'original' : '', isDisabled(cell) ? 'disabled' : '']">
         </div>
       </div>
-      <div class="mt-4">
-        <button @click="saveConfig" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded float-right">Save</button>
-        <button @click="close" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded float-left">Cancel</button>
+      <div class="mt-4 flex justify-center"> <!-- Button zentriert -->
+        <button @click="saveConfig" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Save</button>
       </div>
     </div>
   </div>
@@ -67,14 +69,22 @@ const [cols, rows] = props.gridSize.split('x').map(Number);
 
 const totalCells = computed(() => rows * cols);
 
-const gridStyle = computed(() => ({
-  display: 'grid',
-  gridTemplateColumns: `repeat(${cols}, 1fr)`,
-  gap: '5px',
-  width: '100%',
-  height: 'auto',
-  aspectRatio: `${cols}/${rows}`
-}));
+const cellSize = computed(() => {
+  const maxModalSize = 450; // Basisgröße des verfügbaren Platzes im Modal (abzüglich Paddings)
+  const maxGridDimension = Math.max(cols, rows);
+  return Math.floor(maxModalSize / maxGridDimension);
+});
+
+const gridStyle = computed(() => {
+  return {
+    display: 'grid',
+    gridTemplateColumns: `repeat(${cols}, ${cellSize.value}px)`,
+    gridTemplateRows: `repeat(${rows}, ${cellSize.value}px)`,
+    gap: '4px', // Kleinerer Abstand zwischen den Zellen, um mehr Platz zu nutzen
+    justifyContent: 'center',
+    alignContent: 'center',
+  };
+});
 
 let isSelecting = ref(false);
 let startCell = ref(null);
@@ -102,6 +112,7 @@ const throttledMoveSelection = throttle(moveSelection, 50);
 function endSelection() {
   isSelecting.value = false;
   startCell.value = null;
+
 }
 
 function getCellFromEvent(event) {
@@ -206,6 +217,9 @@ function validateGridPattern(selectedCells, gridSize) {
 }
 
 function saveConfig() {
+  if (selectedCells.value.length === 0) {
+    selectedCells.value = originalCells.value;
+  }
   if (validateGridPattern(selectedCells.value, props.gridSize)) {
     reservedPositions.value.push(...selectedCells.value);
 
@@ -229,6 +243,9 @@ function close() {
 .grid-container {
   width: 100%;
   height: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .cell {
   background-color: #f4f4f4;
@@ -237,6 +254,7 @@ function close() {
   cursor: pointer;
   aspect-ratio: 1;
   transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out;
+  border-radius: 4px;
 }
 .cell.original {
   background-color: #4caf50;
