@@ -13,19 +13,19 @@ def drawFilterBox_{self.name}():
                 html.Div([
                     html.Select(
                         id='{self.name}_select',
-                        className='form-select',  # Bootstrap class for styling the select element
+                        className='form-select',
                         children=[
                             html.Option('Setosa', value='setosa'),
                             html.Option('Versicolor', value='versicolor'),
                             html.Option('Virginica', value='virginica')
                         ],
                         style={{
-                            'backgroundColor': '#32383e',  # Custom background color
-                            'color': '#ffffff',  # Custom text color
-                            'border': '1px solid #4a4a4a',  # Custom border color
-                            'borderRadius': '5px',  # Rounded corners
-                            'padding': '5px',  # Padding inside the select box
-                            'width': '100%'  # Make sure it takes full width of the container
+                            'backgroundColor': '#32383e',
+                            'color': '#ffffff',
+                            'border': '1px solid #4a4a4a',
+                            'borderRadius': '5px',
+                            'padding': '
+                            'width': '100%'
                         }}
                     )
                 ], style={{'padding': '10px', 'backgroundColor': '#32383e', 'borderRadius': '10px', 'boxShadow': '0 4px 8px rgba(0, 0, 0, 0.2)'}})

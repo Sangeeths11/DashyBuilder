@@ -8,15 +8,15 @@ class TableWidget(Widget):
 def drawTable_{self.name}():
     fig = go.Figure(data=[go.Table(
         header=dict(values=list(df.columns),
-                    fill_color='#2e3338',  # Etwas dunklerer Grauton für den Header, um sich vom CardBody abzuheben
-                    font=dict(color='white', size=14, family='Arial'),  # Weißer Text für Kontrast
+                    fill_color='#2e3338',
+                    font=dict(color='white', size=14, family='Arial'),
                     align='center',
                     height=30),
                     
         cells=dict(values=[df[col] for col in df.columns],
-                   fill_color=[['#3b4147', '#434a51']*len(df)],  # Abwechselnde, dunkle Grautöne für die Zellen
+                   fill_color=[['#3b4147', '#434a51']*len(df)],
                    align='center',
-                   font=dict(color='white', size=12, family='Arial'),  # Weißer Text in den Zellen
+                   font=dict(color='white', size=12, family='Arial'),
                    height=25)
     )])
 
@@ -26,7 +26,7 @@ def drawTable_{self.name}():
         plot_bgcolor='rgba(0, 0, 0, 0)',
         paper_bgcolor='rgba(0, 0, 0, 0)',
         margin=dict(l=20, r=20, t=40, b=20),
-        height=300  # Höhe anpassen je nach Layout-Anforderungen
+        height=300
     )
 
     return html.Div([
