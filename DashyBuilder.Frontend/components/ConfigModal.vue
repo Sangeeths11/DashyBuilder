@@ -62,29 +62,18 @@ onMounted(async () => {
 
 const emit = defineEmits(['close', 'save']);
 
-const rows = computed(() => {
-  if (props.gridSize.startsWith('4')) {
-    return 4;
-  } else if (props.gridSize.startsWith('5')) {
-    return 5;
-  } else if (props.gridSize.startsWith('6')) {
-    return 6;
-  } else if (props.gridSize.startsWith('12')) {
-    return 12;
-  } else {
-    return 4;
-  }
-});
+// Dynamische Berechnung von Spalten und Reihen
+const [cols, rows] = props.gridSize.split('x').map(Number);
 
-const totalCells = computed(() => rows.value * rows.value);
+const totalCells = computed(() => rows * cols);
 
 const gridStyle = computed(() => ({
   display: 'grid',
-  gridTemplateColumns: `repeat(${rows.value}, 1fr)`,
+  gridTemplateColumns: `repeat(${cols}, 1fr)`,
   gap: '5px',
   width: '100%',
   height: 'auto',
-  aspectRatio: '1'
+  aspectRatio: `${cols}/${rows}`
 }));
 
 let isSelecting = ref(false);
@@ -108,8 +97,7 @@ function moveSelection(event) {
   }
 }
 
-// Verwende Throttle für die moveSelection-Funktion
-const throttledMoveSelection = throttle(moveSelection, 50); // Throttle auf 50ms setzen
+const throttledMoveSelection = throttle(moveSelection, 50);
 
 function endSelection() {
   isSelecting.value = false;
@@ -128,10 +116,10 @@ function getCellFromEvent(event) {
 function selectRange(start, end) {
   const min = Math.min(start, end);
   const max = Math.max(start, end);
-  const startRow = Math.floor((min - 1) / rows.value);
-  const startCol = (min - 1) % rows.value;
-  const endRow = Math.floor((max - 1) / rows.value);
-  const endCol = (max - 1) % rows.value;
+  const startRow = Math.floor((min - 1) / cols);
+  const startCol = (min - 1) % cols;
+  const endRow = Math.floor((max - 1) / cols);
+  const endCol = (max - 1) % cols;
 
   selectedCells.value = [];
 
@@ -139,7 +127,7 @@ function selectRange(start, end) {
 
   for (let row = startRow; row <= endRow; row++) {
     for (let col = startCol; col <= endCol; col++) {
-      const cell = row * rows.value + col + 1;
+      const cell = row * cols + col + 1;
       if (!isDisabled(cell)) {
         selectedCells.value.push(cell);
       }
@@ -162,17 +150,17 @@ function isDisabled(cell) {
 function validateGridPattern(selectedCells, gridSize) {
   selectedCells = selectedCells.filter(cell => cell !== 0);
 
-  const rows = gridSize.startsWith('4') ? 4 : gridSize.startsWith('5') ? 5 : gridSize.startsWith('6') ? 6 : gridSize.startsWith('12') ? 12 : 4;
-  const grid = new Array(rows).fill(null).map(() => new Array(rows).fill(false));
+  const [cols, rows] = gridSize.split('x').map(Number);
+  const grid = new Array(rows).fill(null).map(() => new Array(cols).fill(false));
 
   selectedCells.forEach(cell => {
-    const row = Math.floor((cell - 1) / rows);
-    const col = (cell - 1) % rows;
+    const row = Math.floor((cell - 1) / cols);
+    const col = (cell - 1) % cols;
     grid[row][col] = true;
   });
 
   function dfs(row, col, visited) {
-    if (row < 0 || row >= rows || col < 0 || col >= rows || !grid[row][col] || visited.has(`${row},${col}`)) {
+    if (row < 0 || row >= rows || col < 0 || col >= cols || !grid[row][col] || visited.has(`${row},${col}`)) {
       return;
     }
     visited.add(`${row},${col}`);
@@ -185,7 +173,7 @@ function validateGridPattern(selectedCells, gridSize) {
   let found = false;
   const visited = new Set();
   for (let row = 0; row < rows; row++) {
-    for (let col = 0; col < rows; col++) {
+    for (let col = 0; col < cols; col++) {
       if (grid[row][col]) {
         dfs(row, col, visited);
         found = true;
@@ -199,8 +187,8 @@ function validateGridPattern(selectedCells, gridSize) {
     return false;
   }
 
-  const selectedRows = selectedCells.map(cell => Math.floor((cell - 1) / rows));
-  const selectedCols = selectedCells.map(cell => (cell - 1) % rows);
+  const selectedRows = selectedCells.map(cell => Math.floor((cell - 1) / cols));
+  const selectedCols = selectedCells.map(cell => (cell - 1) % cols);
   const minRow = Math.min(...selectedRows);
   const maxRow = Math.max(...selectedRows);
   const minCol = Math.min(...selectedCols);
@@ -219,7 +207,6 @@ function validateGridPattern(selectedCells, gridSize) {
 
 function saveConfig() {
   if (validateGridPattern(selectedCells.value, props.gridSize)) {
-    // Neue Positionen hinzufügen
     reservedPositions.value.push(...selectedCells.value);
 
     emit('save', selectedCells.value.join(','));
@@ -240,8 +227,8 @@ function close() {
 
 <style scoped>
 .grid-container {
-  width: 200px;
-  height: 200px;
+  width: 100%;
+  height: auto;
 }
 .cell {
   background-color: #f4f4f4;
@@ -252,10 +239,10 @@ function close() {
   transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out;
 }
 .cell.original {
-  background-color: #4caf50; /* Grün für Originalposition */
+  background-color: #4caf50;
 }
 .cell.selected {
-  background-color: #bcd; /* Blau für neue Auswahl */
+  background-color: #bcd;
 }
 .cell.disabled {
   background-color: #ddd;
