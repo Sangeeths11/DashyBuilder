@@ -1,0 +1,334 @@
+%LaTeX-Vorlage --------------------------------------Rev. 1.1
+
+%Verfasser:
+
+%David Schober
+%Meienriedweg 15
+%2556 Scheuren
+%Student BSc Informationswissenschaften der FHGR
+%isc_tz_z_21
+%david.schober@stud.fhgr.ch
+
+%Diese Vorlage steht unter der CC0-Lizenz. Das betrifft den Quelltext sowie die formalen Aspekte wie Gestaltung und Formatierung.
+%Die Angaben zum Autor sind nur vorhanden, falls eine Quellenangabe trotzdem vorgeschrieben wird.
+%Das ist auch der einzige Grund sie in der Vorlage aufzuführen und zu belassen.
+%Sieht am fertigen Dokument sowieso niemand! :-)
+
+%Die Probleme zwischen den Lizenzen für die Nutzung der Vorlage bzw. für die Nutzung der Inhalte ergeben sich insofern nicht, da für die Nutzerinnen der Vorlage die Inhalte irrelevant sind. Zugleich haben die Nutzerinnen der Inhalte die Vorlage nicht.
+
+
+\documentclass[a4paper, 12pt]{scrartcl}
+
+%Ab hier die zu ladenden Pakete
+%------------------------------------------------------------
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[ngerman]{babel}
+\usepackage{amsmath, amssymb, amstext}
+\usepackage{nameref}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{pdfpages}
+\usepackage{longtable}
+\usepackage{booktabs}
+\usepackage{pgfgantt}
+\usepackage{pdflscape} % Für das Drehen der Seite im PDF
+\usepackage[a4paper,margin=1in]{geometry}
+
+\definecolor{dukeblue}{rgb}{0.0, 0.0, 0.61}
+%------------------------------------------------------------
+
+
+%Ab hier für Schriftart und Schrift
+%------------------------------------------------------------
+\linespread{1.3} %Setze Zeilenabstand auf 1.3
+\usepackage{mathptmx} %Lade Times ähnliche Schriftart
+\usepackage{sectsty}
+\allsectionsfont{\rmfamily\raggedright} %Setze Schriftart für alle Überschriften
+\setkomafont{sectioning}{\normalcolor\bfseries}
+\setkomafont{sectionentrypagenumber}{\normalcolor\mdseries}
+%------------------------------------------------------------
+
+
+%Ab hier für manuelle Seitengeometrie
+%------------------------------------------------------------
+\usepackage{geometry} %Lade Paket für manuelle Seitengeometrie
+\geometry{a4paper, left=30mm, right=25mm, top=25mm, bottom=30mm}
+\headsep = 22pt %Setze Abstände für die Seitenränder
+%------------------------------------------------------------
+
+
+%Ab hier für Kopf- und Fusszeile
+%------------------------------------------------------------
+\usepackage{fancyhdr} %Lade Paket für Kopf- und Fusszeile
+\renewcommand{\headrulewidth}{0pt} % Keine Linie unter Kopfzeile
+\renewcommand{\footrulewidth}{0.5pt} %Linie unter Fusszeile
+\pagestyle{fancy} %Definiere Stil der Kopf- und Fusszeile
+\lhead{\footnotesize{}} %Leer --> wird nicht angezeigt, bis manueller aufruf
+\rhead{\footnotesize{}} %Leer --> wird nicht angezeigt, bis manueller aufruf
+\cfoot{} %Leer --> wird nicht angezeigt, bis manueller aufruf
+%------------------------------------------------------------
+
+
+%Ab hier für Biblatex
+%------------------------------------------------------------
+\usepackage[style=apa, citetracker=true, maxcitenames=1, backend=biber]{biblatex}
+
+\DeclareLanguageMapping{german}{german-apa}
+
+\usepackage[babel, german=quotes]{csquotes} 
+
+\AtEveryCitekey{%
+	\ifciteseen{}{\defcounter{maxnames}{6}\clearfield{namehash}}}
+
+
+\addbibresource{literatur.bib}
+%-------------------------------------------------------------
+
+
+%Ab hier sind neu definierte Kommandos
+%-------------------------------------------------------------
+%Dieses Komando übergibt das selbe "Sektionslabel"(gültig für \section{xxx}, \subsection{xxx} usw.) an drei verschiedene Referenzkommandos: 1. Gliederungsebene, 2. Überschrift, 3. Seitenzahl im Dokument.
+\newcommand{\rtpref}[1]{Punkt~\ref{#1} \nameref{#1} ab 			Seite~\pageref{#1}}
+%Verwendug: \rtpref{"Sektionslabel"nach Wahl} 
+%Output: Punkt X.(X).(X) YYYYYYYYYYY ab Seite N(N) 
+%z.B.----> Punkt 2.1.2 Profession ab Seite 2
+\newcommand{\figref}[1]{Abbildung~\ref{#1} \nameref{#1} auf Seite~\pageref{#1}}
+
+%Dieses Komando setzt den Text in den geschweiften Klammern fett und kursiv.
+\newcommand{\texbfit}[1]{\textbf{\textit{#1}}}
+%Verwendung: \texbfit{Fett und kursiv}
+%Output: Fetter und kursiver Text.
+%-------------------------------------------------------------
+
+
+%Ab hier alles für Tabellen und Abbildungen
+%-------------------------------------------------------------
+\usepackage[justification=justified, singlelinecheck=false]{caption}
+\usepackage{tabularx}
+\usepackage{tabulary}
+%-------------------------------------------------------------
+
+
+%Ab hier für Links
+%-------------------------------------------------------------
+\usepackage[linktocpage=true, colorlinks=true, linkcolor=dukeblue, citecolor=dukeblue, filecolor=dukeblue, urlcolor=dukeblue]{hyperref}
+%-------------------------------------------------------------
+
+
+%Ab hier das Paket für Abkürzungen
+%-------------------------------------------------------------
+\usepackage[printonlyused, withpage]{acronym}
+
+%Weitere Optionen, Befehle und Aufrufe siehe:
+%https://www.namsu.de/Extra/pakete/Acronym.html
+%-------------------------------------------------------------
+
+\begin{document}
+
+%Titelseite
+%-------------------------------------------------------------
+\begin{center}
+	{\LARGE\textbf{Entwicklung eines dynamischen und modularen Dashboard-Layouts unter Verwendung moderner Frontend-Technologien}}\\
+	\vspace{40mm} %Vertikaler Abstand 70mm
+	{\large\textbf{Praktikumarbeit}}\\
+	\vspace{40mm}
+
+\begin{flushleft}
+	\begin{tabbing}
+		\hspace*{73mm}\= \kill
+		Verfasser: \> Sangeeths Chandrakumar\\
+		\> Riedenhaldenstrasse 26\\
+		\> 8046 Zürich\\
+		\> {sangeeths.chandrakumar@stud.fhgr.ch}\\
+	\end{tabbing}
+	
+	\begin{tabbing}
+		\hspace*{73mm}\= \kill
+		Studiengang: \> BSc Computational and Data Science\\
+		\hspace*{73mm}\= \kill
+		Modul: \> Fachpraktikum (cds-902)\\
+		\hspace*{73mm}\= \kill
+		Praktikumsbetreuer: \> Dr. rer. nat Helena JAMBOR\\
+	\end{tabbing}
+
+    \begin{tabbing}
+        \hspace*{73mm}\= \kill
+        Praktikumsbetrieb: \> \parbox[t]{0.6\textwidth}{Institut für Data Analysis, Artificial Intelligence, \\ Visualization und Simulation (DAViS)}\\
+        \hspace*{73mm}\= \kill
+        Betreuer: \> Dr. rer. nat Michael Burch\\
+    \end{tabbing}
+ 
+	\begin{tabbing}
+		\hspace*{73mm}\= \kill
+		Bearbeitungszeitraum: \> 20. September 2024 bis  21. Januar 2024 \\
+	\end{tabbing}
+	
+\end{flushleft}
+
+\vspace{10mm}
+
+\newcommand{\ausgeschriebenerMonat}[1]{%
+    \ifcase#1\or Januar\or Februar\or März\or April\or Mai\or Juni\or Juli\or August\or September\or Oktober\or November\or Dezember\fi%
+}
+
+\newcommand{\datum}{%
+    \textbf{Chur, \number\day.\ausgeschriebenerMonat{\month} \number\year}
+}
+\datum
+
+\end{center}
+
+\thispagestyle{empty} %Seite ohne Kopf- und Fusszeile
+%-------------------------------------------------------------
+
+
+
+%Abstract
+%-------------------------------------------------------------
+%\newpage
+%\thispagestyle{empty}
+%\thispagestyle{fancy}
+%\lhead{\footnotesize{Text}}
+%\rhead{\footnotesize{Text}}
+
+%\begin{flushleft}
+%\textbf{\Large\bigskip{Abstract}}
+
+
+%\end{flushleft}
+%-------------------------------------------------------------
+
+
+%Inhalts- Abbildungs und Tabellenverzeichnis
+%-------------------------------------------------------------
+\newpage
+\rfoot{\footnotesize \thepage} %Setze Sitenzahl in der Fusszeile rechts
+\pagenumbering{Roman} %Verwende römische Zahlen
+\setcounter{page}{1} %Beginne Seitennummerierung bei 1
+\lfoot{\footnotesize Sangeeths Chandrakumar} %Setze Name in der Fusszeile links
+\cfoot{\footnotesize Wissenschaftliches Arbeiten (cds-9031)}
+
+\begin{flushleft}
+\tableofcontents
+
+\newpage
+\cleardoublepage
+\addcontentsline{toc}{section}{\listfigurename}
+\listoffigures
+
+%Tabelleverzeichnis
+\newpage
+\cleardoublepage
+\addcontentsline{toc}{section}{\listtablename}
+\listoftables 
+
+%\newpage
+%\cleardoublepage
+%\addcontentsline{toc}{section}{Abkürzungsverzeichnis}
+%\section*{Abkürzungsverzeichnis}
+%\begin{acronym}[z.B.]
+%	\acro{zb}[z.B.]{zum Beispiel}
+%	\acro{kde}[KDE]{K Desktop Environment}
+%\end{acronym}
+
+%Es gibt die kurze und die lange Form von \ac{zb} ...
+%\ac{kde}\\
+%\ac{kde}
+%Beim zweiten Mal \ac{zb}
+
+\end{flushleft}
+%-------------------------------------------------------------
+
+
+
+% Ab hier beginnt die Arbeit
+%-------------------------------------------------------------
+\newpage
+\pagenumbering{arabic} %Verwende arabische Zahlen
+\setcounter{page}{1} %Beginne Seitennummerierung bei 1
+
+
+	%\begin{flushleft}
+		
+	\section{Einleitung}
+	\label{sec:einleitung}
+
+\subsection{Einführung in das Thema}
+Die Entwicklung dynamischer und modularer Dashboard-Layouts ist ein zentraler Aspekt moderner Webanwendungen, insbesondere im Bereich Data Science und Computational Science. Dashboards fungieren als wesentliche Schnittstelle zur Visualisierung und Analyse von Daten, was sie zu einem wichtigen Instrument für die Entscheidungsfindung in Unternehmen macht (\cite[S.119]{Dibia2023}). Ein effektives Dashboard-Design erfordert nicht nur eine ansprechende Benutzeroberfläche, sondern auch eine hohe Flexibilität und Modularität, um den vielfältigen Anforderungen der Benutzer gerecht zu werden.\\[1em] Aktuelle Studien zeigen, dass die Wahl der richtigen Frontend-Technologien entscheidend für den Erfolg solcher Dashboards ist. So betonen (\cite[S.119]{Dibia2023}), dass moderne JavaScript-Frameworks wie Vue.js und React aufgrund ihrer Komponentenstruktur und Wiederverwendbarkeit besonders geeignet sind, um komplexe und dynamische Benutzeroberflächen zu gestalten. Diese Arbeit untersucht die Entwicklung eines dynamischen und modularen Dashboard-Layouts unter Verwendung moderner Frontend-Technologien, insbesondere Vue 3, Nuxt 3 und Tailwind CSS, in Verbindung mit einem Python Flask Backend.
+
+\subsection{Problemstellung}
+Die Entwicklung von Dashboards steht vor mehreren Herausforderungen, die sowohl technischer als auch benutzerorientierter Natur sind. Zum einen müssen Dashboards flexibel genug sein, um sich an verschiedene Datenquellen und Anwendungsszenarien anzupassen (\cite[S.119]{Dibia2023}). Zum anderen sollten sie modular aufgebaut sein, um die Wartbarkeit und Erweiterbarkeit zu gewährleisten, was in großen und langfristigen Projekten entscheidend ist (\cite[S.119]{Dibia2023}). Traditionelle Frontend-Frameworks bieten zwar viele Funktionen, stossen jedoch oft an ihre Grenzen, wenn es darum geht, komplexe Anforderungen an Dynamik und Modularität zu erfüllen.\\[1em] Ein weiterer wichtiger Aspekt ist die Performance, insbesondere wenn Dashboards grosse Datenmengen in Echtzeit visualisieren müssen. Studien haben gezeigt, dass die Wahl der Architektur und der verwendeten Technologien massgeblich die Performance beeinflusst, was wiederum die Benutzererfahrung und die Effizienz der Datenanalyse direkt betrifft (\cite[S.119]{Dibia2023}).
+
+\subsection{Zielsetzung der Arbeit}
+Das Hauptziel dieser Arbeit ist es, die Potenziale und Grenzen moderner Frontend-Technologien bei der Entwicklung dynamischer und modularer Dashboard-Layouts zu untersuchen. Im Rahmen dieses Projekts wird ein flexibles Layout-Management-System entwickelt, das die Anordnung und Skalierung verschiedener Inhaltsboxen (Widgets) ermöglicht. Besonders Augenmerk wird dabei auf die Benutzerfreundlichkeit und Wartbarkeit des Dashboards gelegt. Daraus ergibt sich die zentrale Forschungsfrage dieser Arbeit:\\[1em]
+\textit{„Wie können moderne Frontend-Technologien zur Entwicklung eines dynamischen und modularen Dashboard-Layouts eingesetzt werden, um die Benutzerfreundlichkeit und Wartbarkeit zu maximieren?“}\\[1em] Dieses Vorhaben adressiert eine wesentliche Lücke in der aktuellen Lage der Datenvisualisierung: die Balance zwischen technischer Komplexität und Nutzerfreundlichkeit. Während moderne Technologien wie Vue 3, Nuxt 3 und Tailwind CSS leistungsstarke Werkzeuge zur Entwicklung dynamischer und modularer Dashboards bieten, bleibt die Herausforderung bestehen, diese Technologien so zu nutzen, dass sie auch für Benutzer ohne tiefgehende Programmierkenntnisse zugänglich sind. Diese Arbeit verspricht, einen Weg zu ebnen, auf dem in naher Zukunft jeder, der Einblicke in seine Daten gewinnen möchte, dies unabhängig von seinen technischen Fähigkeiten erreichen kann. Dies würde nicht nur die Effizienz und Flexibilität von Dashboards steigern, sondern auch deren Einsatzmöglichkeiten erheblich erweitern.
+\newpage
+	\section{Grundlagen}
+	\label{sec:grundlagen}
+ 
+\subsection{Plotly Dash}
+Plotly Dash ist ein Framework zur Entwicklung interaktiver Webanwendungen, das speziell für den Einsatz in der Datenvisualisierung konzipiert wurde. Dash ermöglicht es, komplexe Datenanalysen und -visualisierungen durch die Kombination von Python-Skripten mit reaktiven Webtechnologien zu erstellen. (\cite[S.119]{Dibia2023}) zeichnet sich Dash durch seine Fähigkeit aus, interaktive Dashboards zu erstellen, die direkt mit Datenquellen verbunden sind und eine Echtzeit-Aktualisierung der Daten ermöglichen.\\[1em] Das Framework basiert auf drei Haupttechnologien: Flask, React.js und Plotly.js. Flask fungiert als leichtgewichtiges Web-Framework, das die serverseitige Logik und die Anbindung an Datenquellen übernimmt (\cite[S.119]{Dibia2023}). React.js, eine JavaScript-Bibliothek für die Entwicklung von Benutzeroberflächen, ermöglicht die Erstellung dynamischer und reaktiver UI-Komponenten (\cite[S.119]{Dibia2023}). Plotly.js, die Visualisierungsbibliothek, bietet leistungsstarke Tools zur Erstellung interaktiver und ansprechender Diagramme und Graphen (\cite[S.119]{Dibia2023}).\\[1em] Die Modularität von Dash ist ein entscheidender Vorteil, der es Entwicklern erlaubt, verschiedene Komponenten wie Diagramme, Slider und Dropdown-Menüs zu kombinieren und anzupassen. Diese Flexibilität macht Dash besonders geeignet für Anwendungen im Bereich der Datenanalyse, wo unterschiedliche Visualisierungstypen oft in einem einzigen Dashboard zusammengeführt werden müssen (\cite[S.119]{Dibia2023}).
+
+\subsection{Vue.js und Nuxt.js}
+Vue.js ist ein progressives JavaScript-Framework, das durch seine Reaktivität und Modularität besticht. In der wissenschaftlichen Literatur wird Vue.js häufig als ein Framework hervorgehoben, das sich durch seine Lernfreundlichkeit und die Fähigkeit zur schrittweisen Integration in bestehende Projekte auszeichnet (\cite[S.119]{Dibia2023}). Laut (\cite[S.119]{Dibia2023}) ist Vue.js besonders geeignet für die Entwicklung von Single-Page Applications (SPAs), bei denen eine hohe Interaktivität der Benutzeroberfläche gefordert ist. \\[1em] Nuxt.js erweitert Vue.js um Funktionen wie serverseitiges Rendering (SSR) und statische Seitengenerierung, die besonders für die Entwicklung von performanten und SEO-freundlichen Webanwendungen wichtig sind (\cite[S.119]{Dibia2023}). SSR ist in der Lage, die Ladezeiten von Seiten zu reduzieren und die Benutzererfahrung zu verbessern, was besonders in datenintensiven Anwendungen von Bedeutung ist (\cite[S.119]{Dibia2023}).
+
+\subsection{Tailwind CSS}
+Tailwind CSS ist ein Utility-first CSS-Framework, das in der Webentwicklung zunehmend an Bedeutung gewinnt. Laut (\cite[S.119]{Dibia2023}) erlaubt es Tailwind CSS, schnell prototypische Benutzeroberflächen zu erstellen, indem es eine grosse Anzahl von vorgefertigten CSS-Klassen bereitstellt. Diese Klassen sind darauf ausgelegt, ohne zusätzliche Anpassungen direkt im HTML-Code verwendet zu werden, was den Entwicklungsprozess beschleunigt und eine konsistente Gestaltung der Benutzeroberfläche gewährleistet (\cite[S.119]{Dibia2023}).\\[1em] In wissenschaftlichen Untersuchungen wird hervorgehoben, dass Utility-first-Ansätze wie Tailwind CSS eine höhere Flexibilität und Wiederverwendbarkeit von Code bieten, da sie Entwicklern ermöglichen, ohne Abhängigkeit von spezifischen Designsystemen oder vorgefertigten Komponenten zu arbeiten (\cite[S.119]{Dibia2023}).
+
+\subsection{Python Flask}
+Flask ist ein mikroframework für Python, das sich durch seine Einfachheit und Flexibilität auszeichnet. Es wurde erstmals von (\cite[S.119]{Dibia2023}) beschrieben und hat sich seitdem als beliebte Wahl für die Entwicklung von Webanwendungen etabliert, insbesondere in Projekten, die eine schnelle und unkomplizierte Implementierung erfordern. Flask bietet grundlegende Funktionalitäten wie Routing und Vorlagen-Rendering, die durch eine Vielzahl von Erweiterungen an die spezifischen Bedürfnisse eines Projekts angepasst werden können (\cite[S.119]{Dibia2023}).\\[1em]Flask wird in vielen wissenschaftlichen Arbeiten als Beispiel für ein Framework hervorgehoben, das eine Balance zwischen Leichtigkeit und Erweiterbarkeit bietet, was es ideal für kleine bis mittelgrosse Webprojekte macht (\cite[S.119]{Dibia2023}). In deinem Projekt dient Flask als Backend-Framework, das die Kommunikation zwischen dem Frontend und den Datenquellen ermöglicht, eine entscheidende Rolle bei der Integration von Datenverarbeitungsroutinen spielt und eine stabile Grundlage für die Anwendungslogik bietet.
+
+\subsection{Datenvisualisierung und Benutzerfreundlichkeit}
+Datenvisualisierung ist ein wesentlicher Bestandteil der Datenanalyse, der es ermöglicht, komplexe Datensätze in eine visuelle Form zu überführen, die leicht verständlich und interpretierbar ist. (\cite[S.119]{Dibia2023}) betont, dass die Qualität der Visualisierung einen direkten Einfluss auf die Fähigkeit der Benutzer hat, aus den dargestellten Daten sinnvolle Erkenntnisse zu gewinnen.\\[1em]Benutzerfreundlichkeit ist ein weiterer kritischer Faktor bei der Entwicklung von Dashboards. Laut (\cite[S.119]{Dibia2023}) bestimmt die Benutzerfreundlichkeit, wie effektiv, effizient und zufriedenstellend eine Softwarelösung ist. In der Dashboard-Entwicklung bedeutet dies, dass die Visualisierungen intuitiv bedienbar sein müssen und die Interaktionen so gestaltet sein sollten, dass sie die analytische Arbeit des Benutzers unterstützen und nicht behindern (\cite[S.119]{Dibia2023}).\\[1em]Die Optimierung der Benutzeroberfläche und die Auswahl geeigneter Visualisierungstypen sind daher zentrale Herausforderungen, die durch eine Kombination von wissenschaftlichen Methoden und modernen technologischen Werkzeugen angegangen werden müssen (\cite[S.119]{Dibia2023}).
+
+
+ 
+
+		
+    
+%\end{landscape}
+\intextsep 5pt
+
+
+
+
+%Literaturverzeichnis
+%------------------------------------------------------------
+%Verwendete Literatur
+\newpage
+\pagenumbering{Roman}
+\setcounter{page}{4}
+%\setlength{\bibitemsep}{2\itemsep} %Abstand zwischen den Einträgen im Literaturverzeichnis
+\printbibliography[heading=bibnumbered, title={Verwendete Literatur}, keyword=verwendet] % Erstellen des Literaturverzeichnisses nur unter Berücksichtigung der Quelleneinträge mit de keyword "verwendet" das keyword ist manuell einzufügen.
+
+%Weiterführende Literatur
+\newpage
+\nocite{*} % Setzt alle Einträge in der .bib Datei als "zitiert"
+\printbibliography[heading=bibnumbered, title={Weiterführende Literatur}, notkeyword=verwendet] % schreibt alle Quellen ins Verzeichnis, die nicht über das keyword "verwendet" verfügen. 
+%\printbibliography[heading=subbibnumbered, title={Weiterführende Literatur}, keyword=verwendet]
+
+
+
+
+
+%------------------------------------------------------------
+
+
+%Glossar
+%------------------------------------------------------------
+%\newpage
+%------------------------------------------------------------
+
+%pdf einfügen
+%--------------------------------------------------------------
+\includepdf[pages={1}]{eigenstandigkeitserklarung.pdf}
+
+
+%--------------------------------------------------------------
+
+
+	%\end{flushleft}
+
+
+\end{document}
