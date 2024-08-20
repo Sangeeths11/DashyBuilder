@@ -100,8 +100,36 @@ export const useWidgetStore = defineStore('widgetStore', () => {
       console.error('Unexpected error fetching reserved positions:', error);
       return [];
     }
-  };  
+  };
 
+  const getWidgetByGridPosition = async (cell, projectId) => {
+    try {
+      const { data, error } = await client
+        .from('widgets')
+        .select('name, type, gridPosition')
+        .eq('project_id', projectId);
+
+      if (error) {
+        errorMessages.value.push('Error fetching widget by grid position: ' + error.message);
+        console.error('Error fetching widget by grid position:', error);
+        return null;
+      }
+
+      const widget = data.find(widget => {
+        if (widget.gridPosition && widget.gridPosition.gridPosition) {
+          const positions = widget.gridPosition.gridPosition.split(',').map(Number);
+          return positions.includes(cell);
+        }
+        return false;
+      });
+
+      return widget ? { name: widget.name, type: widget.type } : null;
+    } catch (error) {
+      console.error('Unexpected error fetching widget by grid position:', error);
+      return null;
+    }
+  };
+  
   return {
     widgets,
     errorMessages,
@@ -110,5 +138,6 @@ export const useWidgetStore = defineStore('widgetStore', () => {
     deleteWidget,
     updateWidget,
     fetchReservedPositions,
+    getWidgetByGridPosition, 
   };
 });

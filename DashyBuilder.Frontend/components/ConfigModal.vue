@@ -1,6 +1,7 @@
 <template>
   <div class="fixed inset-0 bg-gray-500 bg-opacity-90 flex items-center justify-center z-50">
-    <div class="bg-white p-6 rounded shadow-lg w-[700px] h-[700px] relative flex flex-col"> <!-- Feste Größe des Modals -->
+    <div class="bg-white p-6 rounded shadow-lg w-[700px] h-[700px] relative flex flex-col"> 
+      <!-- Feste Größe des Modals -->
       <button @click="close" class="absolute top-3 right-3 text-gray-600 hover:text-gray-900">
         &times;
       </button>
@@ -14,7 +15,9 @@
       
       <div :style="gridStyle" class="grid-container flex-grow" @mousedown="startSelection" @mousemove="throttledMoveSelection" @mouseup="endSelection" @mouseleave="endSelection">
         <div v-for="cell in totalCells" :key="cell"
-            :class="['cell', isSelected(cell) ? 'selected' : '', isOriginal(cell) ? 'original' : '', isDisabled(cell) ? 'disabled' : '']">
+            :class="['cell', isSelected(cell) ? 'selected' : '', isOriginal(cell) ? 'original' : '', isDisabled(cell) ? 'disabled' : '']"
+            @mouseenter="updateTooltipText(cell)" @mouseleave="hoverCell(null)">
+          <span v-if="hoveredCell === cell" class="tooltip">{{ tooltipText }}</span>
         </div>
       </div>
       <div class="mt-4 flex justify-center"> <!-- Button zentriert -->
@@ -37,6 +40,9 @@ const props = defineProps({
 const { fetchReservedPositions } = useWidgetStore();
 const reservedPositions = ref([]);
 const errorMessage = ref('');
+const hoveredCell = ref(null); // Ref für die hover-Zelle
+const tooltipText = ref(''); // Ref für den Tooltip-Text
+const widgetStore = useWidgetStore();
 
 let gridPositionData;
 try {
@@ -112,7 +118,6 @@ const throttledMoveSelection = throttle(moveSelection, 50);
 function endSelection() {
   isSelecting.value = false;
   startCell.value = null;
-
 }
 
 function getCellFromEvent(event) {
@@ -133,7 +138,6 @@ function selectRange(start, end) {
   const endCol = (max - 1) % cols;
 
   selectedCells.value = [];
-
   originalCells.value = [];
 
   for (let row = startRow; row <= endRow; row++) {
@@ -156,6 +160,26 @@ function isSelected(cell) {
 
 function isDisabled(cell) {
   return reservedPositions.value.includes(cell) && !isOriginal(cell);
+}
+
+function hoverCell(cell) {
+  hoveredCell.value = cell; // Setzt die aktuelle hover-Zelle
+}
+
+async function updateTooltipText(cell) {
+  hoverCell(cell); // Updates the hovered cell
+  if (isOriginal(cell)) {
+    tooltipText.value = `Original Widget Position: ${cell}`;
+  } else if (isDisabled(cell)) {
+    const widgetTooltip = await widgetStore.getWidgetByGridPosition(cell, props.widget.project_id);
+    if (widgetTooltip) {
+      tooltipText.value = `Reserved Cell: ${cell} (${widgetTooltip.name})`;
+    } else {
+      tooltipText.value = `Reserved Cell: ${cell} (Unknown Widget)`;
+    }
+  } else {
+    tooltipText.value = `Free Cell: ${cell}`;
+  }
 }
 
 function validateGridPattern(selectedCells, gridSize) {
@@ -265,5 +289,18 @@ function close() {
 .cell.disabled {
   background-color: #ddd;
   cursor: not-allowed;
+}
+.tooltip {
+  position: absolute;
+  top: -25px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.75);
+  color: #fff;
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-size: 12px;
+  white-space: nowrap;
+  z-index: 10;
 }
 </style>
