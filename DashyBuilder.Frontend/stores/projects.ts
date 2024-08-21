@@ -136,6 +136,21 @@ export const useProjectStore = defineStore('projectStore', () => {
       fetchProjects();
     }
   };
+  
+  const getFileName = async (projectId) => {
+    const { data, error } = await client
+      .from('projects')
+      .select('filePath')
+      .eq('id', projectId)
+      .single();
+
+    if (error) {
+      errorMessages.value.push('Error fetching file name: ' + error.message);
+      console.error('Error fetching file name:', error);
+    } else {
+      return data.filePath;
+    }
+  }
 
   return {
     projects,
@@ -148,6 +163,7 @@ export const useProjectStore = defineStore('projectStore', () => {
     errorMessages,
     createProject,
     deleteProject,
-    updateProject
+    updateProject,
+    getFileName
   };
 });

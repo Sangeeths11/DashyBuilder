@@ -114,6 +114,7 @@ const widgetStore = useWidgetStore();
 
 async function fetchDashboardCode() {
   try {
+    const file_path = await projectStore.getFileName(props.projectId);
     const response = await fetch('http://localhost:5000/export', {
       method: 'POST',
       headers: {
@@ -122,6 +123,7 @@ async function fetchDashboardCode() {
       body: JSON.stringify({
         widgets: widgetStore.widgets,
         grid_size: props.gridSize,
+        file_path: file_path,
         save: false, // Nicht speichern, nur abrufen
       })
     });
@@ -225,6 +227,8 @@ async function downloadPythonFile() {
   console.log('Download python file');
   console.log('Exporting dashboard', widgetStore.widgets, props.gridSize);
   try {
+    const file_path = await projectStore.getFileName(props.projectId);
+    console.log('File path:', file_path);
     const response = await fetch('http://localhost:5000/export', {
       method: 'POST',
       headers: {
@@ -233,6 +237,7 @@ async function downloadPythonFile() {
       body: JSON.stringify({
         widgets: widgetStore.widgets,
         grid_size: props.gridSize,
+        file_path: file_path,
         save: false,
       })
     });
@@ -243,16 +248,16 @@ async function downloadPythonFile() {
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.setAttribute('download', 'dashboard.py');
+    link.setAttribute('download', 'dashboard_export.zip'); // Updated filename to 'dashboard_export.zip'
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    successMessage.value = 'Python file downloaded successfully';
+    successMessage.value = 'ZIP file downloaded successfully';
     setTimeout(() => {
       successMessage.value = '';
     }, 3000);
   } catch (error) {
-    console.error('Error downloading the python file:', error);
+    console.error('Error downloading the ZIP file:', error);
     errorMessage.value = error.message;
     setTimeout(() => {
       errorMessage.value = '';

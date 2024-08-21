@@ -78,7 +78,8 @@ const components = ref([
   { id: 1, name: 'Chart' },
   { id: 2, name: 'Table' },
   { id: 3, name: 'Text Block' },
-  { id: 4, name: 'Filter Box' }
+  { id: 4, name: 'Filter Box' },
+  { id: 5, name: 'Button' },
 ]);
 
 const componentName = ref('');
