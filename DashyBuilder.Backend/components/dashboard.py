@@ -2,14 +2,16 @@ from components.widgets.chart import ChartWidget
 from components.widgets.table import TableWidget
 from components.widgets.text_block import TextBlockWidget
 from components.widgets.filter_box import FilterBoxWidget
+from components.widgets.button import ButtonWidget
 
-def generate_plotly_code(widgets, grid_size):
+def generate_plotly_code(widgets, grid_size, datapath):
     cols, rows = map(int, grid_size.split('x'))
     widget_classes = {
         'Chart': ChartWidget,
         'Table': TableWidget,
         'Text Block': TextBlockWidget,
-        'Filter Box': FilterBoxWidget
+        'Filter Box': FilterBoxWidget,
+        'Button': ButtonWidget
     }
     function_definitions = []
     layout_components = []
@@ -29,7 +31,7 @@ def generate_plotly_code(widgets, grid_size):
         "    'Spalte 3': [10.1, 20.2, 30.3, 40.4]",
         "}",
         "table_df = pd.DataFrame(table_data)",
-        "df = px.data.iris()",
+        f"df = pd.read_csv('{datapath}')",
         "app = Dash(__name__, external_stylesheets=[dbc.themes.SLATE])",
         ""
     ]
