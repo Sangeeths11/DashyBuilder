@@ -1,4 +1,5 @@
-from flask import jsonify, request, make_response, send_from_directory
+import io
+from flask import jsonify, request, make_response, send_from_directory, send_file
 import os
 import pandas as pd
 import subprocess
@@ -7,6 +8,7 @@ from components.dashboard import generate_plotly_code
 from components.uploader import FileUploader
 import components.hosting as hosting
 from openai import OpenAI
+import zipfile
 import os
 
 file_uploader = FileUploader('uploads')
@@ -21,18 +23,25 @@ def register_routes(app):
         data = request.get_json()
         widgets = data.get('widgets', [])
         grid_size = data.get('grid_size', '4x4')
-        cloudsave = data.get('save', False)
-        python_code = generate_plotly_code(widgets, grid_size)
-        response = make_response(python_code)
-        response.headers['Content-Disposition'] = 'attachment; filename=dashboard.py'
-        response.headers['Content-Type'] = 'text/plain'
-        if data.get('save'):
-            try:
-                with open('dashboards/Dashboard.py', 'w') as f:
-                    f.write(python_code)
-                return jsonify({'message': 'Dashboard saved successfully'}), 200
-            except Exception as e:
-                return jsonify({'error': str(e)}), 500
+        datapath = data.get('file_path')
+        
+        # Generiere den Python-Code für das Dashboard
+        python_code = generate_plotly_code(widgets, grid_size, datapath)
+        
+        dashboard_content = io.StringIO(python_code)
+        
+        zip_buffer = io.BytesIO()
+        with zipfile.ZipFile(zip_buffer, 'w') as zipf:
+            zipf.writestr('Dashboard.py', dashboard_content.getvalue())
+            print(f'uploads\\{datapath}.csv')
+            if os.path.exists(f'uploads\\{datapath}.csv'):
+                zipf.write(f'uploads\\{datapath}.csv', arcname=f'{datapath}.csv')
+            else:
+                return jsonify({'error': 'CSV file not found'}), 404
+
+        zip_buffer.seek(0)
+        response = send_file(zip_buffer, as_attachment=True, download_name='dashboard_export.zip', mimetype='application/zip')
+        
         return response
 
     @app.route('/upload_chunk', methods=['POST'])
