@@ -25,13 +25,9 @@ def generate_plotly_code(widgets, grid_size, datapath):
         "import warnings",
         "",
         "warnings.filterwarnings('ignore', category=FutureWarning)",
-        "table_data = {",
-        "    'Spalte 1': [1, 2, 3, 4],",
-        "    'Spalte 2': ['A', 'B', 'C', 'D'],",
-        "    'Spalte 3': [10.1, 20.2, 30.3, 40.4]",
-        "}",
-        "table_df = pd.DataFrame(table_data)",
-        f"df = pd.read_csv('{datapath}')",
+        # ToDO: For Bachelor's Thesis
+        # f"df = pd.read_csv('{datapath}.csv')",
+        "df = px.data.iris()",
         "app = Dash(__name__, external_stylesheets=[dbc.themes.SLATE])",
         ""
     ]
@@ -40,7 +36,7 @@ def generate_plotly_code(widgets, grid_size, datapath):
         widget_type = widget['type']
         widget_class = widget_classes.get(widget_type)
         if widget_class:
-            widget_instance = widget_class(widget, cols)
+            widget_instance = widget_class(widget, cols, datapath)
             function_definitions.append(widget_instance.generate_code())
             widget_name = widget_type.replace(" ", "")
             widget_instance.name = widget_instance.name.replace(" ", "")
