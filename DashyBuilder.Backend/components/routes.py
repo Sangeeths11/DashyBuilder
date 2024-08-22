@@ -43,6 +43,27 @@ def register_routes(app):
         response = send_file(zip_buffer, as_attachment=True, download_name='dashboard_export.zip', mimetype='application/zip')
         
         return response
+    
+    @app.route('/exportCode', methods=['POST'])
+    def export_code():
+        data = request.get_json()
+        widgets = data.get('widgets', [])
+        grid_size = data.get('grid_size', '4x4')
+        datapath = data.get('file_path')
+        python_code = generate_plotly_code(widgets, grid_size, datapath)
+        response = make_response(python_code)
+        response.headers['Content-Disposition'] = 'attachment; filename=dashboard.py'
+        response.headers['Content-Type'] = 'text/plain'
+        if data.get('save'):
+            try:
+                with open('dashboards/Dashboard.py', 'w') as f:
+                    f.write(python_code)
+                return jsonify({'message': 'Dashboard saved successfully'}), 200
+            except Exception as e:
+                return jsonify({'error': str(e)}), 500
+        return response
+        
+    
 
     @app.route('/upload_chunk', methods=['POST'])
     def upload_chunk():

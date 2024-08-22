@@ -115,7 +115,7 @@ const widgetStore = useWidgetStore();
 async function fetchDashboardCode() {
   try {
     const file_path = await projectStore.getFileName(props.projectId);
-    const response = await fetch('http://localhost:5000/export', {
+    const response = await fetch('http://localhost:5000/exportCode', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
