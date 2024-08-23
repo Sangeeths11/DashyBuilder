@@ -15,7 +15,10 @@
       
       <div :style="gridStyle" class="grid-container flex-grow" @mousedown="startSelection" @mousemove="throttledMoveSelection" @mouseup="endSelection" @mouseleave="endSelection">
         <div v-for="cell in totalCells" :key="cell"
-            :class="['cell', isSelected(cell) ? 'selected' : '', isOriginal(cell) ? 'original' : '', isDisabled(cell) ? 'disabled' : '']"
+            :class="['cell', isSelected(cell) ? 'selected' : '',
+            isOriginal(cell) ? 'original' : '',
+            isDisabled(cell) ? 'disabled' : '']"
+            :style="isDisabled(cell) ? { backgroundColor: '#F00' } : {}"
             @mouseenter="updateTooltipText(cell)" @mouseleave="hoverCell(null)">
           <span v-if="hoveredCell === cell" class="tooltip">{{ tooltipText }}</span>
         </div>
@@ -178,7 +181,7 @@ async function updateTooltipText(cell) {
       tooltipText.value = `Reserved Cell: ${cell} (Unknown Widget)`;
     }
   } else {
-    tooltipText.value = `Free Cell: ${cell}`;
+    hoverCell(null);
   }
 }
 

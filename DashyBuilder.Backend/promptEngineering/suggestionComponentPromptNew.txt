@@ -1,4 +1,4 @@
-Research Question: What coffee sort is the most selled one?
+Research Question: Test
 
 Dataset Information:
 - Column Names: ['date', 'datetime', 'cash_type', 'card', 'money', 'coffee_name']
