@@ -18,7 +18,7 @@
             :class="['cell', isSelected(cell) ? 'selected' : '',
             isOriginal(cell) ? 'original' : '',
             isDisabled(cell) ? 'disabled' : '']"
-            :style="isDisabled(cell) ? { backgroundColor: '#F00' } : {}"
+            :style="isDisabled(cell) ? { backgroundColor: '#D3D3D3' } : {}"
             @mouseenter="updateTooltipText(cell)" @mouseleave="hoverCell(null)">
           <span v-if="hoveredCell === cell" class="tooltip">{{ tooltipText }}</span>
         </div>
