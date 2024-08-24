@@ -74,7 +74,7 @@ const handleAddWidget = async (widget) => {
     }, 3000);
     return;
   }
-  await widgetStore.createWidget(widget.type, widget.name, projectId.value);
+  await widgetStore.createWidget(widget.type, widget.name, projectId.value, widget.chartType, widget.filterTypes);
   successMessage.value = 'Widget added successfully';
   setTimeout(() => {
     successMessage.value = '';

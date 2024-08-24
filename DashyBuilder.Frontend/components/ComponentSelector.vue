@@ -59,6 +59,32 @@
           </div>
         </div>
 
+        <!-- Chart Type Selection -->
+        <div v-if="selectedComponent === 1" class="flex flex-col lg:flex-row lg:space-x-4 space-y-4 lg:space-y-0 mb-5">
+          <div class="flex flex-col w-full lg:w-1/2">
+            <label for="chart-type" class="block text-gray-700 text-sm font-bold mb-2">Chart Type</label>
+            <select id="chart-type" v-model="selectedChartType" class="p-2 border rounded w-full">
+              <option disabled value="">Please select a chart type</option>
+              <option v-for="chart in chartTypes" :key="chart" :value="chart">
+                {{ chart }}
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Filter Type Selection -->
+        <div v-if="selectedComponent === 4" class="flex flex-col lg:flex-row lg:space-x-4 space-y-4 lg:space-y-0 mb-5">
+          <div class="flex flex-col w-full lg:w-1/2">
+            <label for="filter-types" class="block text-gray-700 text-sm font-bold mb-2">Filter Types</label>
+            <div class="flex flex-col space-y-2">
+              <div v-for="filter in filterTypes" :key="filter" class="flex items-center space-x-2">
+                <input type="checkbox" :value="filter" v-model="selectedFilterTypes" class="form-checkbox h-4 w-4 text-blue-600">
+                <span class="text-gray-700 text-sm">{{ filter }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Add Widget Button -->
         <button 
           @click="addWidget"
@@ -82,8 +108,13 @@ const components = ref([
   { id: 5, name: 'Button' },
 ]);
 
+const chartTypes = ref(['Scatter', 'Line', 'Bar', 'Pie', 'Bubble']);
+const filterTypes = ref(['Date Range', 'Category', 'Numeric Range']);
+
 const componentName = ref('');
 const selectedComponent = ref('');
+const selectedChartType = ref('');
+const selectedFilterTypes = ref([]);
 const gridSize = ref('4x4');
 const columns = ref('');
 const rows = ref('');
@@ -136,15 +167,20 @@ function addWidget() {
         id: Date.now(),
         type: components.value.find(c => c.id === selectedComponent.value).name,
         name: componentName.value,
+        chartType: selectedComponent.value === 1 ? selectedChartType.value : null,
+        filterTypes: selectedComponent.value === 4 ? selectedFilterTypes.value : null,
         gridSize: gridSize.value
       });
       selectedComponent.value = '';
       componentName.value = '';
+      selectedChartType.value = '';
+      selectedFilterTypes.value = [];
     } else {
       emit('errorMessage', 'Please select a component and enter a name');
     }
 }
 </script>
+
 
 <style scoped>
 .grid-preview {

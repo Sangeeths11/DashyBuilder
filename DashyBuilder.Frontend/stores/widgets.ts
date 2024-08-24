@@ -21,13 +21,15 @@ export const useWidgetStore = defineStore('widgetStore', () => {
     }
   };
 
-  const createWidget = async (type, name, projectId) => {
+  const createWidget = async (type, name, projectId, chartType, filterTypes) => {
     const { data, error } = await client
       .from('widgets')
       .insert([
         { type,
           name,
           project_id: projectId,
+          chartType: chartType || null,
+          filterTypes: filterTypes || null,
           gridPosition: '[]',
         }
       ])
