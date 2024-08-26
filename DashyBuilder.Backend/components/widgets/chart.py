@@ -29,7 +29,7 @@ def draw{self.chart_type}_{self.name}():
         dbc.Card(
             dbc.CardBody([
                 dcc.Graph(
-                    id='{self.name}_graph',
+                    id='{self.name}_{self.chart_type}_graph',
                     figure=fig,
                     config={{'displayModeBar': False}},
                     style={{'height': '100%', 'width': '100%'}},
