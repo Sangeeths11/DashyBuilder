@@ -2,10 +2,17 @@ from components.widgets.base import Widget
 import plotly.express as px
 import plotly.graph_objects as go
 
+from components.widgets.chart_types.bar_chart import generate_bar_chart_code
+from components.widgets.chart_types.line_chart import generate_line_chart_code
+from components.widgets.chart_types.scatter_chart import generate_scatter_chart_code
+from components.widgets.chart_types.bubble_chart import generate_bubble_chart_code
+from components.widgets.chart_types.pie_chart import generate_pie_chart_code
+from components.widgets.chart_types.default_chart import generate_default_chart_code
+
 class ChartWidget(Widget):
     def __init__(self, widget_info, cols, datapath):
         super().__init__(widget_info, cols, datapath)
-        self.chart_type = widget_info.get('chartType', 'Pie Chart')
+        self.chart_type = widget_info.get('chartType', 'Pie')
         print(f"ChartWidget: {self.chart_type}")
         
     def generate_code(self):
@@ -35,62 +42,14 @@ def draw{self.chart_type}_{self.name}():
 
     def _generate_chart_code(self):
         if self.chart_type == 'Bar':
-            return """
-    fig = px.bar(df, x='species', y='sepal_length').update_layout(
-        title={'text': '"""f'{self.title}'"""', 'y':0.95, 'x':0.01, 'xanchor': 'left', 'yanchor': 'top'},
-        template='plotly_dark',
-        plot_bgcolor='rgba(0, 0, 0, 0)',
-        paper_bgcolor='rgba(0, 0, 0, 0)',
-        margin=dict(l=20, r=20, t=40, b=20)
-    )
-            """
+            return generate_bar_chart_code(self.title)
         elif self.chart_type == 'Line':
-            return """
-    fig = px.line(df, x='sepal_length', y='sepal_width').update_layout(
-        title={'text': '"""f'{self.title}'"""', 'y':0.95, 'x':0.01, 'xanchor': 'left', 'yanchor': 'top'},
-        template='plotly_dark',
-        plot_bgcolor='rgba(0, 0, 0, 0)',
-        paper_bgcolor='rgba(0, 0, 0, 0)',
-        margin=dict(l=20, r=20, t=40, b=20)
-    )
-            """
+            return generate_line_chart_code(self.title)
         elif self.chart_type == 'Scatter':
-            return """
-    fig = px.scatter(df, x='sepal_length', y='sepal_width', color='species').update_layout(
-        title={'text': '"""f'{self.title}'"""', 'y':0.95, 'x':0.01, 'xanchor': 'left', 'yanchor': 'top'},
-        template='plotly_dark',
-        plot_bgcolor='rgba(0, 0, 0, 0)',
-        paper_bgcolor='rgba(0, 0, 0, 0)',
-        margin=dict(l=20, r=20, t=40, b=20)
-    )
-            """
+            return generate_scatter_chart_code(self.title)
         elif self.chart_type == 'Bubble':
-            return """
-    fig = px.scatter(df, x='sepal_length', y='sepal_width', size='petal_length', color='species').update_layout(
-        title={'text': '"""f'{self.title}'"""', 'y':0.95, 'x':0.01, 'xanchor': 'left', 'yanchor': 'top'},
-        template='plotly_dark',
-        plot_bgcolor='rgba(0, 0, 0, 0)',
-        paper_bgcolor='rgba(0, 0, 0, 0)',
-        margin=dict(l=20, r=20, t=40, b=20)
-    )
-            """
+            return generate_bubble_chart_code(self.title)
         elif self.chart_type == 'Pie':
-            return """
-    fig = px.pie(df, names='species', values='sepal_length').update_layout(
-        title={'text': '"""f'{self.title}'"""', 'y':0.95, 'x':0.01, 'xanchor': 'left', 'yanchor': 'top'},
-        template='plotly_dark',
-        plot_bgcolor='rgba(0, 0, 0, 0)',
-        paper_bgcolor='rgba(0, 0, 0, 0)',
-        margin=dict(l=20, r=20, t=40, b=20)
-    )
-            """
+            return generate_pie_chart_code(self.title)
         else:
-            return """
-    fig = go.Figure().update_layout(
-        title={'text': '"""f'{self.title}'"""', 'y':0.95, 'x':0.01, 'xanchor': 'left', 'yanchor': 'top'},
-        template='plotly_dark',
-        plot_bgcolor='rgba(0, 0, 0, 0)',
-        paper_bgcolor='rgba(0, 0, 0, 0)',
-        margin=dict(l=20, r=20, t=40, b=20)
-    )
-            """
+            return generate_default_chart_code(self.title)

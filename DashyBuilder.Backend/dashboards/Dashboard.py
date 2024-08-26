@@ -10,21 +10,21 @@ df = px.data.iris()
 app = Dash(__name__, external_stylesheets=[dbc.themes.SLATE])
 
 
-def drawBubble_SDAS():
+def drawLine_asd():
     
-    fig = px.scatter(df, x='sepal_length', y='sepal_width', size='petal_length', color='species').update_layout(
-        title={'text': 'SDAS', 'y':0.95, 'x':0.01, 'xanchor': 'left', 'yanchor': 'top'},
+    fig = px.line(df, x='sepal_length', y='sepal_width').update_layout(
+        title={'text': 'asd', 'y':0.95, 'x':0.01, 'xanchor': 'left', 'yanchor': 'top'},
         template='plotly_dark',
         plot_bgcolor='rgba(0, 0, 0, 0)',
         paper_bgcolor='rgba(0, 0, 0, 0)',
         margin=dict(l=20, r=20, t=40, b=20)
     )
-            
+    
     return html.Div([
         dbc.Card(
             dbc.CardBody([
                 dcc.Graph(
-                    id='SDAS_graph',
+                    id='asd_graph',
                     figure=fig,
                     config={'displayModeBar': False},
                     style={'height': '100%', 'width': '100%'},
@@ -44,12 +44,37 @@ def drawBar_asd():
         paper_bgcolor='rgba(0, 0, 0, 0)',
         margin=dict(l=20, r=20, t=40, b=20)
     )
-            
+    
     return html.Div([
         dbc.Card(
             dbc.CardBody([
                 dcc.Graph(
                     id='asd_graph',
+                    figure=fig,
+                    config={'displayModeBar': False},
+                    style={'height': '100%', 'width': '100%'},
+                    responsive=True
+                )
+            ]), style={'height': '100%'}
+        )
+    ], style={'height': '100%', 'padding': '2px'})
+
+
+def drawBubble_SDAS():
+    
+    fig = px.scatter(df, x='sepal_length', y='sepal_width', size='petal_length', color='species').update_layout(
+        title={'text': 'SDAS', 'y':0.95, 'x':0.01, 'xanchor': 'left', 'yanchor': 'top'},
+        template='plotly_dark',
+        plot_bgcolor='rgba(0, 0, 0, 0)',
+        paper_bgcolor='rgba(0, 0, 0, 0)',
+        margin=dict(l=20, r=20, t=40, b=20)
+    )
+    
+    return html.Div([
+        dbc.Card(
+            dbc.CardBody([
+                dcc.Graph(
+                    id='SDAS_graph',
                     figure=fig,
                     config={'displayModeBar': False},
                     style={'height': '100%', 'width': '100%'},
@@ -113,8 +138,9 @@ app.layout = html.Div([
             'gap': '10px',
             'height': '99vh'
         }, children=[
-            html.Div(drawBubble_SDAS(), style={'gridColumn': '1 / span 15', 'gridRow': '11 / span 8', 'padding': '0px'}),
+            html.Div(drawLine_asd(), style={'gridColumn': '1 / span 15', 'gridRow': '1 / span 5', 'padding': '0px'}),
             html.Div(drawBar_asd(), style={'gridColumn': '1 / span 15', 'gridRow': '6 / span 5', 'padding': '0px'}),
+            html.Div(drawBubble_SDAS(), style={'gridColumn': '1 / span 15', 'gridRow': '11 / span 8', 'padding': '0px'}),
             html.Div(drawFilterBox_sad(), style={'gridColumn': '16 / span 3', 'gridRow': '6 / span 5', 'padding': '0px'}),
         ])
     ], fluid=True, style={'height': '100vh', 'padding': '0', 'margin': '0', 'width': '100vw', 'overflow': 'hidden'})
