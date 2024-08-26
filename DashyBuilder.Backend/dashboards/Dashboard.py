@@ -85,45 +85,42 @@ def drawBubble_SDAS():
     ], style={'height': '100%', 'padding': '2px'})
 
 
-def drawFilterBox_sad():
+def drawFilterBox_asd():
     return html.Div([
         dbc.Card(
             dbc.CardBody([
-                html.Label('sad:', style={'color': 'white'}),
+                html.Label('asd:', style={'color': 'white'}),
                 html.Div([
 
-                html.Div([
-                    dcc.Dropdown(
-                        id='sad_category_dropdown',
-                        options=[
-                            {'label': 'Setosa', 'value': 'setosa'},
-                            {'label': 'Versicolor', 'value': 'versicolor'},
-                            {'label': 'Virginica', 'value': 'virginica'}
-                        ],
-                        multi=True,
-                        style={
-                            'backgroundColor': '#32383e',
-                            'color': '#000000',
-                            'border': '1px solid #4a4a4a',
-                            'borderRadius': '5px',
-                            'width': '100%'
-                        }
-                    )
-                ], style={'marginBottom': '20px', 'backgroundColor': '#32383e', 'borderRadius': '10px', 'boxShadow': '0 4px 8px rgba(0, 0, 0, 0.2)'})
-            ,
+    html.Div([
+        dcc.DatePickerRange(
+            id='asd_date_picker',
+            start_date='2023-08-27',
+            end_date='2024-08-26',
+            display_format='YYYY-MM-DD',
+            style={
+                'backgroundColor': '#32383e',
+                'color': '#ffffff',
+                'border': '1px solid #4a4a4a',
+                'borderRadius': '5px',
+                'width': '100%'
+            }
+        )
+    ], style={'marginBottom': '20px'})
+    ,
 
-                html.Div([
-                    dcc.RangeSlider(
-                        id='sad_numeric_slider',
-                        min=df['sepal_length'].min(),
-                        max=df['sepal_length'].max(),
-                        step=0.1,
-                        marks={i: str(i) for i in range(int(df['sepal_length'].min()), int(df['sepal_length'].max())+1)},
-                        value=[df['sepal_length'].min(), df['sepal_length'].max()],
-                        tooltip={'always_visible': True, 'placement': 'bottom'}
-                    )
-                ], style={'marginBottom': '20px', 'backgroundColor': '#32383e', 'borderRadius': '10px', 'boxShadow': '0 4px 8px rgba(0, 0, 0, 0.2)'})
-            
+    html.Div([
+        dcc.RangeSlider(
+            id='asd_numeric_slider',
+            min=df['sepal_length'].min(),
+            max=df['sepal_length'].max(),
+            step=0.1,
+            marks={i: str(i) for i in range(int(df['sepal_length'].min()), int(df['sepal_length'].max())+1)},
+            value=[df['sepal_length'].min(), df['sepal_length'].max()],
+            tooltip={'always_visible': True, 'placement': 'bottom'}
+        )
+    ], style={'marginBottom': '20px', 'backgroundColor': '#32383e', 'borderRadius': '10px', 'boxShadow': '0 4px 8px rgba(0, 0, 0, 0.2)'})
+    
 ])
             ]), style={'height': '100%'}
         )
@@ -141,7 +138,7 @@ app.layout = html.Div([
             html.Div(drawLine_asd(), style={'gridColumn': '1 / span 15', 'gridRow': '1 / span 5', 'padding': '0px'}),
             html.Div(drawBar_asd(), style={'gridColumn': '1 / span 15', 'gridRow': '6 / span 5', 'padding': '0px'}),
             html.Div(drawBubble_SDAS(), style={'gridColumn': '1 / span 15', 'gridRow': '11 / span 8', 'padding': '0px'}),
-            html.Div(drawFilterBox_sad(), style={'gridColumn': '16 / span 3', 'gridRow': '6 / span 5', 'padding': '0px'}),
+            html.Div(drawFilterBox_asd(), style={'gridColumn': '16 / span 3', 'gridRow': '11 / span 8', 'padding': '0px'}),
         ])
     ], fluid=True, style={'height': '100vh', 'padding': '0', 'margin': '0', 'width': '100vw', 'overflow': 'hidden'})
 ])
