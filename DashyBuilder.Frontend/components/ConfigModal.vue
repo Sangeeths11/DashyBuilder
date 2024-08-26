@@ -15,11 +15,16 @@
       
       <div :style="gridStyle" class="grid-container flex-grow" @mousedown="startSelection" @mousemove="throttledMoveSelection" @mouseup="endSelection" @mouseleave="endSelection">
         <div v-for="cell in totalCells" :key="cell"
-            :class="['cell', isSelected(cell) ? 'selected' : '',
-            isOriginal(cell) ? 'original' : '',
-            isDisabled(cell) ? 'disabled' : '']"
-            :style="isDisabled(cell) ? { backgroundColor: '#D3D3D3' } : {}"
-            @mouseenter="updateTooltipText(cell)" @mouseleave="hoverCell(null)">
+            :class="[
+              'cell', 
+              isSelected(cell) ? 'selected' : '',
+              isOriginal(cell) ? 'original' : '',
+              isDisabled(cell) ? 'disabled' : '',
+              isReserved(cell) ? 'reserved' : ''
+            ]"
+            :style="getCellStyle(cell)"
+            @mouseenter="updateTooltipText(cell)" 
+            @mouseleave="hoverCell(null)">
           <span v-if="hoveredCell === cell" class="tooltip">{{ tooltipText }}</span>
         </div>
       </div>
@@ -45,6 +50,7 @@ const reservedPositions = ref([]);
 const errorMessage = ref('');
 const hoveredCell = ref(null); // Ref für die hover-Zelle
 const tooltipText = ref(''); // Ref für den Tooltip-Text
+const reservedGroups = ref({}); // Initial leer
 const widgetStore = useWidgetStore();
 
 let gridPositionData;
@@ -55,7 +61,6 @@ try {
     gridPositionData = [];
   }
 } catch (e) {
-  console.error('Invalid gridPosition data:', props.widget.gridPosition);
   errorMessage.value = 'Invalid gridPosition data.';
   setTimeout(() => {
     errorMessage.value = '';
@@ -69,6 +74,14 @@ const originalCells = ref([...gridPositionData]);
 onMounted(async () => {
   reservedPositions.value = await fetchReservedPositions(props.widget.project_id);
   reservedPositions.value = reservedPositions.value.filter(pos => !originalCells.value.includes(pos));
+
+  // Teile die reservedPositions in kleine Chargen auf
+  const batchSize = 25; // Beispielsweise 50 Zellen pro Batch
+  for (let i = 0; i < reservedPositions.value.length; i += batchSize) {
+    const batch = reservedPositions.value.slice(i, i + batchSize);
+    const batchGroups = await groupReservedPositions(batch);
+    reservedGroups.value = { ...reservedGroups.value, ...batchGroups };
+  }
 });
 
 const emit = defineEmits(['close', 'save']);
@@ -83,6 +96,28 @@ const cellSize = computed(() => {
   const maxGridDimension = Math.max(cols, rows);
   return Math.floor(maxModalSize / maxGridDimension);
 });
+
+function isReserved(cell) {
+  // Durchlaufe alle Gruppen von reservierten Positionen
+  for (const group of Object.values(reservedGroups.value)) {
+    if (group.cells.includes(cell)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function getCellStyle(cell) {
+  for (const group of Object.values(reservedGroups.value)) {
+    if (group.cells.includes(cell)) {
+      const borderColor = group.color;
+      return {
+        border: `2px solid ${borderColor}`
+      };
+    }
+  }
+  return {};
+}
 
 const gridStyle = computed(() => {
   return {
@@ -260,6 +295,48 @@ function saveConfig() {
   }
 }
 
+const borderColors = [
+  'blue', 'purple', 'orange', 'teal', 'pink', 'brown', 'cyan', 'magenta'
+];
+
+const widgetCache = new Map();
+
+async function getCachedWidgetByGridPosition(cell, projectId) {
+  const cacheKey = `${projectId}-${cell}`;
+  if (widgetCache.has(cacheKey)) {
+    return widgetCache.get(cacheKey);
+  }
+  
+  const widget = await widgetStore.getWidgetByGridPosition(cell, projectId);
+  widgetCache.set(cacheKey, widget);
+  return widget;
+}
+
+async function groupReservedPositions() {
+  const groups = {};
+  let colorIndex = 0;
+
+  const widgetPromises = reservedPositions.value.map(cell => getCachedWidgetByGridPosition(cell, props.widget.project_id));
+  const widgets = await Promise.all(widgetPromises); // Warte auf alle Promises gleichzeitig
+
+  widgets.forEach((widget, index) => {
+    const cell = reservedPositions.value[index];
+    if (widget) {
+      const widgetId = widget.name + widget.type; // Eine eindeutige ID auf Basis von Namen und Typ
+      if (!groups[widgetId]) {
+        groups[widgetId] = {
+          cells: [],
+          color: borderColors[colorIndex % borderColors.length] // Farbe aus der Palette zuweisen
+        };
+        colorIndex++;
+      }
+      groups[widgetId].cells.push(cell);
+    }
+  });
+
+  return groups;
+}
+
 function close() {
   reservedPositions.value.push(...originalCells.value);
   emit('close');
@@ -292,6 +369,9 @@ function close() {
 .cell.disabled {
   background-color: #ddd;
   cursor: not-allowed;
+}
+.cell.reserved {
+  border-width: 2px;
 }
 .tooltip {
   position: absolute;
