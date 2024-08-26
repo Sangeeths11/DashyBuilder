@@ -98,13 +98,6 @@ const projectStore = useProjectStore();
 const showCodeViewer = ref(false);
 
 researchQuestion.value = await projectStore.fetchProjectResearchQuestionById(props.projectId);
-console.log('Research question:', researchQuestion.value);
-
-watch(() => props.widgets, () => {
-  console.log('Widgets changed');
-  console.log(props.widgets);
-  console.log('Project ID:', props.projectId);
-});
 
 const hostedUrl = ref('');
 const showHostingModal = ref(false);
@@ -115,6 +108,15 @@ const widgetStore = useWidgetStore();
 async function fetchDashboardCode() {
   try {
     const file_path = await projectStore.getFileName(props.projectId);
+    if (file_path === null) {
+      errorMessage.value = "Please upload a dataset before seeing the code.";
+      showCodeViewer.value = false;
+      setTimeout(() => {
+        errorMessage.value = '';
+      }, 3000);
+      return;
+    }
+    
     const response = await fetch('http://localhost:5000/exportCode', {
       method: 'POST',
       headers: {
@@ -133,7 +135,6 @@ async function fetchDashboardCode() {
     const code = await response.text();
     val.value = code; // Lade den Code in den Editor
   } catch (error) {
-    console.error('Please select to every Widget a Position', error);
     errorMessage.value = "Please set the grid position for all widgets before seeing the code.";
     showCodeViewer.value = false;
     setTimeout(() => {
@@ -160,10 +161,8 @@ async function hostDashboard() {
     }, 3000);
     return;
   }
-  console.log('Host dashboard');
   loadingDashboard.value = true;
 
-  console.log('Exporting dashboard', widgetStore.widgets, props.gridSize);
   try {
     const response = await fetch('http://localhost:5000/export', {
       method: 'POST',
@@ -179,7 +178,6 @@ async function hostDashboard() {
 
     if (!response.ok) throw new Error('Network response was not ok.');
   } catch (error) {
-    console.error('Error exporting the dashboard:', error);
     errorMessage.value = error.message;
     setTimeout(() => {
       errorMessage.value = '';
@@ -204,7 +202,6 @@ async function hostDashboard() {
         successMessage.value = '';
       }, 3000);
     } catch (error) {
-      console.error('Error hosting the dashboard:', error);
       errorMessage.value = error.message;
       setTimeout(() => {
         errorMessage.value = '';
@@ -224,11 +221,16 @@ async function downloadPythonFile() {
     }, 3000);
     return;
   }
-  console.log('Download python file');
-  console.log('Exporting dashboard', widgetStore.widgets, props.gridSize);
   try {
     const file_path = await projectStore.getFileName(props.projectId);
-    console.log('File path:', file_path);
+    if (file_path === null) {
+      errorMessage.value = "Please upload a dataset before seeing the code.";
+      showCodeViewer.value = false;
+      setTimeout(() => {
+        errorMessage.value = '';
+      }, 3000);
+      return;
+    }
     const response = await fetch('http://localhost:5000/export', {
       method: 'POST',
       headers: {
@@ -257,7 +259,6 @@ async function downloadPythonFile() {
       successMessage.value = '';
     }, 3000);
   } catch (error) {
-    console.error('Error downloading the ZIP file:', error);
     errorMessage.value = error.message;
     setTimeout(() => {
       errorMessage.value = '';
