@@ -29,15 +29,23 @@
         <Icon name="carbon:close-outline" class="text-danger hover:text-dark-danger"/>
       </button>
     </div>
+    <div class="absolute top-2 left-2 flex space-x-2">
+      <button @click="openChartModal" v-if="hasValidGridPosition && widget.type==='Chart'">
+        <Icon name="carbon:chart-line" class="text-primary hover:text-dark-primary"/>
+      </button>
+    </div>
     <ConfigModal v-if="isConfigModalOpen" :widget="widget" :isOpen="isConfigModalOpen" :gridSize="gridSize" @close="closeConfigModal" @save="saveGridPosition" />
-    <ChartTypeModal v-if="isChartModalOpen" :widget="widget" :isOpen="isChartModalOpen" @close="closeChartModal" @save="saveChartType" />
+    <ChartTypeModal v-if="isChartModalOpen" :widget="widget" :uploadedDatasetId="uploadedDatasetId" :isOpen="isChartModalOpen" @close="closeChartModal" @save="saveChartType" />
   </div>
 </template>
 
 <script setup>
+import UploadDataset from './UploadDataset.vue';
+
 const props = defineProps({
   widget: Object,
   gridSize: String,
+  uploadedDatasetId: String,
 });
 
 const emit = defineEmits(['delete-widget', 'update-widget']);

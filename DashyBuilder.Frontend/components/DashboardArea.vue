@@ -9,6 +9,7 @@
         :key="widget.id"
         :widget="widget"
         :gridSize="gridSize"
+        :uploadedDatasetId="uploadedDatasetId"
         @delete-widget="emitDeleteWidget"
         @update-widget="emitUpdateWidget"
       />
