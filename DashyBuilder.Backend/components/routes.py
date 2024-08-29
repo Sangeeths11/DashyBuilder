@@ -140,6 +140,22 @@ def register_routes(app):
             except Exception as e:
                 return jsonify({'error': str(e)}), 500
         return jsonify({'error': 'Dataset not found'}), 404
+    
+    @app.route('/data/column/<dataset_id>', methods=['GET'])
+    def get_columns(dataset_id):
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], f"{dataset_id}.csv")
+        if os.path.exists(filepath):
+            try:
+                df = pd.read_csv(filepath, nrows=1, low_memory=False)  # Nur die erste Zeile laden
+                column_info = [{"name": col, "dtype": str(df[col].dtype)} for col in df.columns]
+
+                data_info = {
+                    "column_info": column_info,
+                }
+                return jsonify(data_info)
+            except Exception as e:
+                return jsonify({'error': str(e)}), 500
+        return jsonify({'error': 'Dataset not found'}), 404
 
     @app.route('/profile/<dataset_id>', methods=['GET'])
     def generate_profile(dataset_id):

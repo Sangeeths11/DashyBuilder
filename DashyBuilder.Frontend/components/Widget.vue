@@ -33,9 +33,17 @@
       <button @click="openChartModal" v-if="hasValidGridPosition && widget.type==='Chart'">
         <Icon name="carbon:chart-line" class="text-primary hover:text-dark-primary"/>
       </button>
+      <button @click="openTableModal" v-if="hasValidGridPosition && widget.type==='Table'">
+        <Icon name="carbon:table" class="text-primary hover:text-dark-primary"/>
+      </button>
+      <button @click="openTextModal" v-if="hasValidGridPosition && widget.type==='Text Block'">
+        <Icon name="solar:text-bold" class="text-primary hover:text-dark-primary"/>
+      </button>
     </div>
     <ConfigModal v-if="isConfigModalOpen" :widget="widget" :isOpen="isConfigModalOpen" :gridSize="gridSize" @close="closeConfigModal" @save="saveGridPosition" />
     <ChartTypeModal v-if="isChartModalOpen" :widget="widget" :uploadedDatasetId="uploadedDatasetId" :isOpen="isChartModalOpen" @close="closeChartModal" @save="saveChartType" />
+    <TableModal v-if="isTableModalOpen" :widget="widget" :uploadedDatasetId="uploadedDatasetId" :isOpen="isTableModalOpen" @close="closeTableModal" @save="saveChartType" />
+    <TextModal v-if="isTextModalOpen" :widget="widget" :uploadedDatasetId="uploadedDatasetId" :isOpen="isTextModalOpen" @close="closeTextModal" @save="saveChartType" />
   </div>
 </template>
 
@@ -52,6 +60,8 @@ const emit = defineEmits(['delete-widget', 'update-widget']);
 
 const isConfigModalOpen = ref(false);
 const isChartModalOpen = ref(false);
+const isTableModalOpen = ref(false);
+const isTextModalOpen = ref(false);
 
 const hasValidGridPosition = computed(() => {
   return (
@@ -89,12 +99,29 @@ function openChartModal() {
   isChartModalOpen.value = true;
 }
 
+function openTableModal() {
+  isTableModalOpen.value = true;
+}
+
+function openTextModal() {
+  isTextModalOpen.value = true;
+
+}
+
 function closeConfigModal() {
   isConfigModalOpen.value = false;
 }
 
 function closeChartModal() {
   isChartModalOpen.value = false;
+}
+
+function closeTableModal() {
+  isTableModalOpen.value = false;
+}
+
+function closeTextModal() {
+  isTextModalOpen.value = false;
 }
 
 function saveGridPosition(position) {
