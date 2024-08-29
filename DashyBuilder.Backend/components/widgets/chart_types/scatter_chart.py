@@ -8,3 +8,9 @@ def generate_scatter_chart_code(title):
         margin=dict(l=20, r=20, t=40, b=20)
     )
     """
+
+
+# Scatter Eingabe Wert:
+# x,
+# y,
+# color,
