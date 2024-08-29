@@ -42,8 +42,6 @@
   </template>
   
   <script setup>
-  import { ref, watch } from 'vue';
-  
   const props = defineProps({
     isOpen: Boolean,
     widget: Object,

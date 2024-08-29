@@ -19,7 +19,6 @@
   </template>
   
   <script setup>
-  import { ref } from 'vue';
   
   const props = defineProps({
     isOpen: Boolean,
@@ -28,7 +27,7 @@
   
   const emit = defineEmits(['close', 'save']);
   
-  const textContent = ref(props.initialText || '');
+  const textContent = ref(props.initialText || 'Please give me some text!');
   
   function saveConfig() {
     emit('save', textContent.value);
