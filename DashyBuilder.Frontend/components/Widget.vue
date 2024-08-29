@@ -39,11 +39,19 @@
       <button @click="openTextModal" v-if="hasValidGridPosition && widget.type==='Text Block'">
         <Icon name="solar:text-bold" class="text-primary hover:text-dark-primary"/>
       </button>
+      <button @click="openButtonModal" v-if="hasValidGridPosition && widget.type==='Button'">
+        <Icon name="dashicons:button" class="text-primary hover:text-dark-primary"/>
+      </button>
+      <button @click="openFilterBoxModal" v-if="hasValidGridPosition && widget.type==='Filter Box'">
+        <Icon name="mdi:filter-outline" class="text-primary hover:text-dark-primary"/>
+      </button>
     </div>
     <ConfigModal v-if="isConfigModalOpen" :widget="widget" :isOpen="isConfigModalOpen" :gridSize="gridSize" @close="closeConfigModal" @save="saveGridPosition" />
     <ChartTypeModal v-if="isChartModalOpen" :widget="widget" :uploadedDatasetId="uploadedDatasetId" :isOpen="isChartModalOpen" @close="closeChartModal" @save="saveChartType" />
     <TableModal v-if="isTableModalOpen" :widget="widget" :uploadedDatasetId="uploadedDatasetId" :isOpen="isTableModalOpen" @close="closeTableModal" @save="saveChartType" />
     <TextModal v-if="isTextModalOpen" :widget="widget" :uploadedDatasetId="uploadedDatasetId" :isOpen="isTextModalOpen" @close="closeTextModal" @save="saveChartType" />
+    <ButtonModal v-if="isButtonModalOpen" :widget="widget" :uploadedDatasetId="uploadedDatasetId" :isOpen="isButtonModalOpen" @close="closeButtonModal" @save="saveChartType" />
+    <FilterBoxModal v-if="isFilterBoxModalOpen" :widget="widget" :uploadedDatasetId="uploadedDatasetId" :isOpen="isFilterBoxModalOpen" @close="closeFilterBoxModal" @save="saveChartType" />
   </div>
 </template>
 
@@ -62,6 +70,8 @@ const isConfigModalOpen = ref(false);
 const isChartModalOpen = ref(false);
 const isTableModalOpen = ref(false);
 const isTextModalOpen = ref(false);
+const isButtonModalOpen = ref(false);
+const isFilterBoxModalOpen = ref(false);
 
 const hasValidGridPosition = computed(() => {
   return (
@@ -108,6 +118,14 @@ function openTextModal() {
 
 }
 
+function openButtonModal() {
+  isButtonModalOpen.value = true;
+}
+
+function openFilterBoxModal() {
+  isFilterBoxModalOpen.value = true;
+}
+
 function closeConfigModal() {
   isConfigModalOpen.value = false;
 }
@@ -122,6 +140,14 @@ function closeTableModal() {
 
 function closeTextModal() {
   isTextModalOpen.value = false;
+}
+
+function closeButtonModal() {
+  isButtonModalOpen.value = false;
+}
+
+function closeFilterBoxModal() {
+  isFilterBoxModalOpen.value = false;
 }
 
 function saveGridPosition(position) {

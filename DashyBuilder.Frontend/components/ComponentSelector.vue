@@ -109,7 +109,7 @@ const components = ref([
 ]);
 
 const chartTypes = ref(['Scatter', 'Line', 'Bar', 'Pie', 'Bubble']);
-const filterTypes = ref(['Date Range', 'Category', 'Numeric Range']);
+const filterTypes = ref(['Date Range', 'Numeric Range']);
 
 const componentName = ref('');
 const selectedComponent = ref('');
