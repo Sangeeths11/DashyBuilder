@@ -5,7 +5,7 @@
         <button @click="closeModal" class="text-3xl leading-none hover:text-gray-600">&times;</button>
       </span>
       <h2 class="text-2xl font-bold mb-4 text-center">Filter Configuration</h2>
-      
+
       <!-- Numeric Range Filter -->
       <div v-if="widget.filterTypes.includes('Numeric Range')" class="space-y-6">
         <h4 class="text-lg font-semibold text-gray-700 mb-3">Numeric Range Filter</h4>
@@ -14,7 +14,7 @@
           <option v-for="col in numericColumns" :key="col.name" :value="col.name">{{ col.name }}</option>
         </select>
         <label class="block text-sm font-medium text-gray-700 mt-4 mb-2">Step</label>
-        <input type="number" v-model="filterConfig.numericRange.step" class="mt-1 block w-full pl-3 pr-10 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" step="any" value="0">
+        <input type="number" v-model="filterConfig.numericRange.step" class="mt-1 block w-full pl-3 pr-10 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" step="any">
       </div>
 
       <!-- Date Range Filter -->
