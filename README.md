@@ -1,6 +1,6 @@
 # DashyBuilder
 
-A customizable dashboard tool that enables users to design and manage dynamic dashboards. Built with Vue3, Nuxt, and Supabase, it offers intuitive layout options and exports to Plotly Python code.
+A customizable dashboard tool that enables users to design and manage dynamic dashboards with AI. Built with Vue3, Nuxt, and Supabase, it offers intuitive layout options and exports to Plotly Python code.
 
 ![grafik](https://github.com/user-attachments/assets/f09152a3-f557-4019-9c93-9322760a1797)
 
