@@ -43,7 +43,50 @@ export const useConfigCompStore = defineStore('configComp', () => {
     }
   };
 
+  const createChart = async (chartConfig, widgetId) => {
+    try {
+      const { data: chartConfigData, error: chartConfigError } = await client
+        .from('chartConfig')
+        .insert([
+          {
+            xAxis: chartConfig.x,
+            yAxis: chartConfig.y,
+            size: chartConfig.size,
+            color: chartConfig.color,
+            labels: chartConfig.labels,
+            values: chartConfig.values,
+          }
+        ])
+        .select();
+
+      if (chartConfigError) {
+        errorMessages.value.push('Error creating chart config: ' + chartConfigError.message);
+        console.error('Error creating chart config:', chartConfigError);
+        return;
+      }
+
+      const chartConfigDataId = chartConfigData[0].id;
+      const { data: widgetUpdateData, error: widgetUpdateError } = await client
+        .from('widgets')
+        .update({
+          chartConfig_id: chartConfigDataId
+        })
+        .eq('id', widgetId);
+
+      if (widgetUpdateError) {
+        errorMessages.value.push('Error updating widget: ' + widgetUpdateError.message);
+        console.error('Error updating widget:', widgetUpdateError);
+        return;
+      }
+      console.log('Widget successfully updated:', widgetUpdateData);
+    } catch (err) {
+      errorMessages.value.push('An unexpected error occurred: ' + err.message);
+      console.error('Unexpected error:', err);
+    }
+  };
+
   return {
-    createWidgetTable
+    createWidgetTable,
+    createChart,
   };
 });

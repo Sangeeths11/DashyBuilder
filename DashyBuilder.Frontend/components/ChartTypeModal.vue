@@ -136,8 +136,6 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue';
-
 const props = defineProps({
   isOpen: Boolean,
   widget: Object,
@@ -195,8 +193,25 @@ function setInitialChartConfig(config) {
   };
 }
 
-function saveConfig() {
-  emit('save', chartConfig.value);
+async function saveConfig() {
+  const configCompStore = useConfigCompStore();
+
+  // Umbenennen, um den Konflikt zu vermeiden
+  const newChartConfig = {
+    x: chartConfig.value.x,
+    y: chartConfig.value.y,
+    size: chartConfig.value.size,
+    color: chartConfig.value.color,
+    labels: chartConfig.value.labels,
+    values: chartConfig.value.values
+  };
+
+  const widgetId = props.widget.id;
+
+  // Speichere die Konfiguration über den Store
+  await configCompStore.createChart(newChartConfig, widgetId);
+
+  // Schließe das Modal
   closeModal();
 }
 
@@ -204,6 +219,7 @@ function closeModal() {
   emit('close');
 }
 </script>
+
 
 <style scoped>
 </style>
