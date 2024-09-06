@@ -23,15 +23,18 @@
   const props = defineProps({
     isOpen: Boolean,
     initialText: String,
+    widget: Object,
   });
+
+  const widgetStore = useConfigCompStore();
   
   const emit = defineEmits(['close', 'save']);
   
   const textContent = ref(props.initialText || 'Please give me some text!');
   
-  function saveConfig() {
-    emit('save', textContent.value);
-    closeModal();
+  async function saveConfig() {
+    await widgetStore.createWidgetTable(textContent.value,props.widget.id);
+    emit('close');
   }
   
   function closeModal() {
