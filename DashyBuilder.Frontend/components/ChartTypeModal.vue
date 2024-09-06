@@ -136,12 +136,15 @@
 </template>
 
 <script setup>
+import { ref, onMounted, watch } from 'vue';
+
 const props = defineProps({
   isOpen: Boolean,
   widget: Object,
-  datasetColumns: Array,
+  uploadedDatasetId: String,
 });
 
+const datasetColumns = ref([]);
 const emit = defineEmits(['close', 'save']);
 
 const chartConfig = ref({
@@ -152,6 +155,28 @@ const chartConfig = ref({
   labels: '',
   values: '',
 });
+
+onMounted(async () => {
+  if (props.uploadedDatasetId) {
+    await fetchColumns(props.uploadedDatasetId);
+  }
+});
+
+watch(() => props.uploadedDatasetId, async (newDatasetId) => {
+  if (newDatasetId) {
+    await fetchColumns(newDatasetId);
+  }
+});
+
+async function fetchColumns(datasetId) {
+  try {
+    const response = await fetch(`http://localhost:5000/data/column/${datasetId}`);
+    const data = await response.json();
+    datasetColumns.value = data.column_info.map(col => col.name); // Assuming you want just the column names
+  } catch (error) {
+    console.error('Error loading columns:', error);
+  }
+}
 
 watch(() => props.widget, (newWidget) => {
   if (newWidget) {
