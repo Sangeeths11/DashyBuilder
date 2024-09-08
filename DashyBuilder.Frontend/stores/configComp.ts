@@ -85,8 +85,43 @@ export const useConfigCompStore = defineStore('configComp', () => {
     }
   };
 
+  const fetchWidgetText = async (widgetId) => {
+    const { data, error } = await client
+      .from('widgets')
+      .select('text:textConfig_id (text), textConfig_id')
+      .eq('id', widgetId);
+
+    if (error) {
+      errorMessages.value.push('Error fetching widget text: ' + error.message);
+      console.error('Error fetching widget text:', error);
+      return null;
+    }
+    return data[0];
+  }
+
+  const updateWidgetTable = async (textConfig_id, textContent) => {
+    try {
+      const { data, error } = await client
+        .from('textConfig')
+        .update({ text: textContent })
+        .eq('id', textConfig_id);
+
+      if (error) {
+        errorMessages.value.push('Error updating text config: ' + error.message);
+        console.error('Error updating text config:', error);
+        return;
+      }
+      console.log('Text config successfully updated:', data);
+    } catch (err) {
+      errorMessages.value.push('An unexpected error occurred: ' + err.message);
+      console.error('Unexpected error:', err);
+    }
+  }
+
   return {
     createWidgetTable,
     createChart,
+    fetchWidgetText,
+    updateWidgetTable,
   };
 });
