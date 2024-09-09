@@ -159,6 +159,7 @@ const chartConfig = ref({
 async function loadChartConfig() {
   if (props.widget && props.widget.id) {
     const savedChartConfig = await configCompStore.fetchChartConfig(props.widget.id);
+    chartConfigID.value = savedChartConfig.chartConfig_id;
     console.log(savedChartConfig);
     
     if (savedChartConfig) {
