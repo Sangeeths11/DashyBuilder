@@ -45,8 +45,10 @@ const props = defineProps({
 
 const emit = defineEmits(['close', 'save']);
 
+const configCompStore = useConfigCompStore();
 const datasetColumns = ref([]);
 const localSelectedColumns = ref([]);
+const tableConfigId = ref(null);
 
 async function loadDatasetColumns() {
   try {
@@ -58,8 +60,18 @@ async function loadDatasetColumns() {
     } else {
       console.error('Unexpected response structure:', data);
     }
-
-    localSelectedColumns.value = props.widget.selectedColumns || [];
+    const savedColumns = await configCompStore.fetchTableConfig(props.widget.id);
+    tableConfigId.value = savedColumns.tableConfig_id;
+    if (savedColumns && savedColumns.columns && typeof savedColumns.columns.columns === 'string') {
+      try {
+        localSelectedColumns.value = JSON.parse(savedColumns.columns.columns) || [];
+      } catch (parseError) {
+        console.error('Error parsing saved columns:', parseError);
+        localSelectedColumns.value = [];
+      }
+    } else {
+      localSelectedColumns.value = savedColumns.columns.columns || [];
+    }
   } catch (error) {
     console.error('Error loading dataset columns:', error);
   }
@@ -78,9 +90,12 @@ watch(
   }
 );
 
-function saveConfig() {
-  const updatedWidget = { ...props.widget, selectedColumns: localSelectedColumns.value };
-  emit('save', updatedWidget);
+async function saveConfig() {
+  if(tableConfigId.value){
+    await configCompStore.updateTable(tableConfigId.value,localSelectedColumns.value);
+  }else{
+    await configCompStore.createTable(props.widget.id,localSelectedColumns.value);
+  }
   closeModal();
 }
 

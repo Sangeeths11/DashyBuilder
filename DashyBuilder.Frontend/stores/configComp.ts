@@ -158,12 +158,83 @@ export const useConfigCompStore = defineStore('configComp', () => {
     }
   }
 
+  const createTable = async (widgetId, columns) => {
+    try {
+      const { data: tableConfigData, error: tableConfigError } = await client
+        .from('tableConfig')
+        .insert([
+          { columns: columns }
+        ])
+        .select();
+
+      if (tableConfigError) {
+        errorMessages.value.push('Error creating table config: ' + tableConfigError.message);
+        console.error('Error creating table config:', tableConfigError);
+        return;
+      }
+
+      const tableConfigId = tableConfigData[0].id;
+      const { data: widgetUpdateData, error: widgetUpdateError } = await client
+        .from('widgets')
+        .update({
+          tableConfig_id: tableConfigId
+        })
+        .eq('id', widgetId);
+
+      if (widgetUpdateError) {
+        errorMessages.value.push('Error updating widget: ' + widgetUpdateError.message);
+        console.error('Error updating widget:', widgetUpdateError);
+        return;
+      }
+      console.log('Widget successfully updated:', widgetUpdateData);
+    } catch (err) {
+      errorMessages.value.push('An unexpected error occurred: ' + err.message);
+      console.error('Unexpected error:', err);
+    }
+  }
+
+  const fetchTableConfig = async (widgetId) => {
+    const { data, error } = await client
+      .from('widgets')
+      .select('columns:tableConfig_id (columns), tableConfig_id')
+      .eq('id', widgetId);
+
+    if (error) {
+      errorMessages.value.push('Error fetching widget text: ' + error.message);
+      console.error('Error fetching widget text:', error);
+      return null;
+    }
+    return data[0];
+  }
+
+  const updateTable = async (tableConfig_id, columns) => {
+    try {
+      const { data, error } = await client
+        .from('tableConfig')
+        .update({ columns: columns })
+        .eq('id', tableConfig_id);
+
+      if (error) {
+        errorMessages.value.push('Error updating table config: ' + error.message);
+        console.error('Error updating table config:', error);
+        return;
+      }
+      console.log('Table config successfully updated:', data);
+    } catch (err) {
+      errorMessages.value.push('An unexpected error occurred: ' + err.message);
+      console.error('Unexpected error:', err);
+    }
+  }
+
   return {
     createWidgetTable,
     createChart,
+    createTable,
     fetchWidgetText,
     updateWidgetTable,
     fetchChartConfig,
     updateChart,
+    fetchTableConfig,
+    updateTable,
   };
 });
