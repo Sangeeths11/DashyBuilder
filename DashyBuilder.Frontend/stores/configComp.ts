@@ -113,6 +113,32 @@ export const useConfigCompStore = defineStore('configComp', () => {
     return data[0];
   }
 
+  const updateChart = async (chartConfig_id, chartConfig) => {
+    try {
+      const { data, error } = await client
+        .from('chartConfig')
+        .update({
+          xAxis: chartConfig.x,
+          yAxis: chartConfig.y,
+          size: chartConfig.size,
+          color: chartConfig.color,
+          labels: chartConfig.labels,
+          values: chartConfig.values,
+        })
+        .eq('id', chartConfig_id);
+
+      if (error) {
+        errorMessages.value.push('Error updating chart config: ' + error.message);
+        console.error('Error updating chart config:', error);
+        return;
+      }
+      console.log('Chart config successfully updated:', data);
+    } catch (err) {
+      errorMessages.value.push('An unexpected error occurred: ' + err.message);
+      console.error('Unexpected error:', err);
+    }
+  }
+
   const updateWidgetTable = async (textConfig_id, textContent) => {
     try {
       const { data, error } = await client
@@ -138,5 +164,6 @@ export const useConfigCompStore = defineStore('configComp', () => {
     fetchWidgetText,
     updateWidgetTable,
     fetchChartConfig,
+    updateChart,
   };
 });

@@ -145,6 +145,7 @@ const props = defineProps({
 const datasetColumns = ref([]);
 const emit = defineEmits(['close', 'save']);
 const configCompStore = useConfigCompStore();
+const chartConfigID = ref(null);
 
 const chartConfig = ref({
   x: '',
@@ -214,9 +215,11 @@ async function saveConfig() {
 
   const widgetId = props.widget.id;
 
-  // Speichere die Konfiguration über den Store
-  await configCompStore.createChart(newChartConfig, widgetId);
-
+  if (chartConfigID.value) {
+    await configCompStore.updateChart(chartConfigID.value, newChartConfig);
+  } else {
+    await configCompStore.createChart(newChartConfig, widgetId);
+  }
   // Schließe das Modal
   closeModal();
 }
