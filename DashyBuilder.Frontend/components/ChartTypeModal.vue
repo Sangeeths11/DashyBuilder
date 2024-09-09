@@ -144,6 +144,7 @@ const props = defineProps({
 
 const datasetColumns = ref([]);
 const emit = defineEmits(['close', 'save']);
+const configCompStore = useConfigCompStore();
 
 const chartConfig = ref({
   x: '',
@@ -154,7 +155,30 @@ const chartConfig = ref({
   values: '',
 });
 
+async function loadChartConfig() {
+  if (props.widget && props.widget.id) {
+    const savedChartConfig = await configCompStore.fetchChartConfig(props.widget.id);
+    console.log(savedChartConfig);
+    
+    if (savedChartConfig) {
+      chartConfig.value = {
+        x: (savedChartConfig.xAxis && savedChartConfig.xAxis.xAxis) || '',
+        y: (savedChartConfig.yAxis && savedChartConfig.yAxis.yAxis) || '',
+        size: (savedChartConfig.size && savedChartConfig.size.size) || '',
+        color: (savedChartConfig.color && savedChartConfig.color.color) || '',
+        labels: (savedChartConfig.labels && savedChartConfig.labels.labels) || '',
+        values: (savedChartConfig.values && savedChartConfig.values.values) || ''
+      };
+    }
+  }
+}
+
+
 onMounted(async () => {
+  console.log(props.isOpen);
+  if(props.isOpen) {
+    await loadChartConfig(props.widget.id);
+  }
   if (props.uploadedDatasetId) {
     await fetchColumns(props.uploadedDatasetId);
   }
@@ -176,26 +200,8 @@ async function fetchColumns(datasetId) {
   }
 }
 
-watch(() => props.widget, (newWidget) => {
-  if (newWidget) {
-    setInitialChartConfig(newWidget.chartConfig);
-  }
-});
-
-function setInitialChartConfig(config) {
-  chartConfig.value = {
-    x: config?.x || '',
-    y: config?.y || '',
-    size: config?.size || '',
-    color: config?.color || '',
-    labels: config?.labels || '',
-    values: config?.values || '',
-  };
-}
 
 async function saveConfig() {
-  const configCompStore = useConfigCompStore();
-
   // Umbenennen, um den Konflikt zu vermeiden
   const newChartConfig = {
     x: chartConfig.value.x,

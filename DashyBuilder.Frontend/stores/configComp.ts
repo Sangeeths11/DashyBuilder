@@ -99,6 +99,20 @@ export const useConfigCompStore = defineStore('configComp', () => {
     return data[0];
   }
 
+  const fetchChartConfig = async (widgetId) => {
+    const { data, error } = await client
+      .from('widgets')
+      .select('xAxis:chartConfig_id (xAxis), yAxis:chartConfig_id (yAxis), size:chartConfig_id (size), color:chartConfig_id (color),labels:chartConfig_id (labels),values:chartConfig_id (values),chartConfig_id')
+      .eq('id', widgetId);
+
+    if (error) {
+      errorMessages.value.push('Error fetching widget text: ' + error.message);
+      console.error('Error fetching widget text:', error);
+      return null;
+    }
+    return data[0];
+  }
+
   const updateWidgetTable = async (textConfig_id, textContent) => {
     try {
       const { data, error } = await client
@@ -123,5 +137,6 @@ export const useConfigCompStore = defineStore('configComp', () => {
     createChart,
     fetchWidgetText,
     updateWidgetTable,
+    fetchChartConfig,
   };
 });
