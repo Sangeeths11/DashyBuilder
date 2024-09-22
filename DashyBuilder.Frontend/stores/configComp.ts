@@ -303,6 +303,81 @@ export const useConfigCompStore = defineStore('configComp', () => {
     }
   }
 
+  const createButton = async (widgetId, buttonConfig) => {
+    try {
+      const { data: buttonConfigData, error: buttonConfigError } = await client
+        .from('buttonConfig')
+        .insert([
+          { buttonText: buttonConfig.buttonText,
+            buttonColor: buttonConfig.buttonColor,
+            buttonSize: buttonConfig.buttonSize,
+           }
+        ])
+        .select();
+
+      if (buttonConfigError) {
+        errorMessages.value.push('Error creating button config: ' + buttonConfigError.message);
+        console.error('Error creating button config:', buttonConfigError);
+        return;
+      }
+
+      const buttonConfigId = buttonConfigData[0].id;
+      const { data: widgetUpdateData, error: widgetUpdateError } = await client
+        .from('widgets')
+        .update({
+          buttonConfig_id: buttonConfigId
+        })
+        .eq('id', widgetId);
+
+      if (widgetUpdateError) {
+        errorMessages.value.push('Error updating widget: ' + widgetUpdateError.message);
+        console.error('Error updating widget:', widgetUpdateError);
+        return;
+      }
+      console.log('Widget successfully updated:', widgetUpdateData);
+    } catch (err) {
+      errorMessages.value.push('An unexpected error occurred: ' + err.message);
+      console.error('Unexpected error:', err);
+    }
+  }
+
+  const fetchButtonConfig = async (widgetId) => {
+    const { data, error } = await client
+      .from('widgets')
+      .select('buttonText:buttonConfig_id (buttonText),buttonColor:buttonConfig_id (buttonColor),buttonSize:buttonConfig_id (buttonSize), buttonConfig_id')
+      .eq('id', widgetId);
+
+    if (error) {
+      errorMessages.value.push('Error fetching widget text: ' + error.message);
+      console.error('Error fetching widget text:', error);
+      return null;
+    }
+    return data[0];
+  }
+
+  const updateButton = async (buttonConfig_id, buttonConfig) => {
+    try {
+      const { data, error } = await client
+        .from('buttonConfig')
+        .update({
+          buttonText: buttonConfig.text,
+          buttonColor: buttonConfig.color,
+          buttonSize: buttonConfig.size,
+        })
+        .eq('id', buttonConfig_id);
+
+      if (error) {
+        errorMessages.value.push('Error updating button config: ' + error.message);
+        console.error('Error updating button config:', error);
+        return;
+      }
+      console.log('Button config successfully updated:', data);
+    } catch (err) {
+      errorMessages.value.push('An unexpected error occurred: ' + err.message);
+      console.error('Unexpected error:', err);
+    }
+  }
+
   return {
     createWidgetTable,
     createChart,
@@ -316,5 +391,8 @@ export const useConfigCompStore = defineStore('configComp', () => {
     createFilter,
     fetchFilterConfig,
     updateFilter,
+    createButton,
+    fetchButtonConfig,
+    updateButton,
   };
 });
