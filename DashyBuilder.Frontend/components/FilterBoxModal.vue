@@ -7,23 +7,23 @@
       <h2 class="text-2xl font-bold mb-4 text-center">Filter Configuration</h2>
 
       <!-- Numeric Range Filter -->
-      <div v-if="widget.filterTypes.includes('Numeric Range')" class="space-y-6">
+      <div class="space-y-6" v-if="widget.filterTypes.includes('Numeric Range')">
         <h4 class="text-lg font-semibold text-gray-700 mb-3">Numeric Range Filter</h4>
         <label class="block text-sm font-medium text-gray-700 mb-2">Select Column</label>
-        <select v-model="filterConfig.numericRange.column" class="mt-1 block w-full pl-3 pr-10 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+        <select v-model="filterConfig.column" class="mt-1 block w-full pl-3 pr-10 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
           <option v-for="col in numericColumns" :key="col.name" :value="col.name">{{ col.name }}</option>
         </select>
         <label class="block text-sm font-medium text-gray-700 mt-4 mb-2">Step</label>
-        <input type="number" v-model="filterConfig.numericRange.step" class="mt-1 block w-full pl-3 pr-10 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" step="any">
+        <input type="number" v-model="filterConfig.step" class="mt-1 block w-full pl-3 pr-10 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" step="any">
       </div>
 
       <!-- Date Range Filter -->
-      <div v-if="widget.filterTypes.includes('Date Range')" class="space-y-6 mt-6">
+      <div class="space-y-6 mt-6" v-if="widget.filterTypes.includes('Date Range')">
         <h4 class="text-lg font-semibold text-gray-700 mb-3">Date Range Filter</h4>
         <label class="block text-sm font-medium text-gray-700 mb-2">Start Date:</label>
-        <input type="date" v-model="filterConfig.dateRange.startDate" class="mt-1 block w-full pl-3 pr-10 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm mb-4">
+        <input type="date" v-model="filterConfig.startDate" class="mt-1 block w-full pl-3 pr-10 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm mb-4">
         <label class="block text-sm font-medium text-gray-700 mb-2">End Date:</label>
-        <input type="date" v-model="filterConfig.dateRange.endDate" class="mt-1 block w-full pl-3 pr-10 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+        <input type="date" v-model="filterConfig.endDate" class="mt-1 block w-full pl-3 pr-10 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
       </div>
 
       <!-- Save Button -->
@@ -37,6 +37,8 @@
 </template>
 
 <script setup>
+import { ref, onMounted, watch } from 'vue';
+
 const props = defineProps({
   isOpen: Boolean,
   widget: Object,
@@ -45,24 +47,18 @@ const props = defineProps({
 
 const emit = defineEmits(['close', 'save']);
 
-const numericColumns = ref([]); 
-
+const numericColumns = ref([]);
 const filterConfig = ref({
-  numericRange: {
-    column: '',
-    min: 0,
-    max: 100,
-    value: [0, 100],
-    step: 0
-  },
-  dateRange: {
-    column: '',
-    startDate: '',
-    endDate: ''
-  }
+  column: '',
+  step: 0,
+  startDate: '',
+  endDate: '',
 });
 
-async function loadColumns() {
+const filterConfigId = ref(null);
+const configCompStore = useConfigCompStore();
+
+async function loadColumnsAndFilterConfig() {
   try {
     const response = await fetch(`http://localhost:5000/data/column/${props.uploadedDatasetId}`);
     const data = await response.json();
@@ -72,16 +68,28 @@ async function loadColumns() {
     } else {
       console.error('Unexpected response structure:', data);
     }
+
+    const savedFilterConfig = await configCompStore.fetchFilterConfig(props.widget.id);
+    console.log('Saved filter config:', savedFilterConfig);
+    if (savedFilterConfig) {
+     
+      filterConfigId.value = savedFilterConfig.filterConfig_id;
+
+      
+      filterConfig.value = {
+        column: savedFilterConfig.column.column || '',
+        step: savedFilterConfig.step.step || 0,
+        startDate: savedFilterConfig.startDate.startDate || '',
+        endDate: savedFilterConfig.endDate.endDate || '',
+      };
+    }
   } catch (error) {
-    console.error('Error loading dataset columns:', error);
+    console.error('Error loading dataset columns or filter config:', error);
   }
 }
 
 onMounted(() => {
-  loadColumns();
-  if (props.widget.filterConfig) {
-    filterConfig.value = { ...props.widget.filterConfig };
-  }
+  loadColumnsAndFilterConfig();
 });
 
 watch(() => props.widget, (newWidget) => {
@@ -90,13 +98,18 @@ watch(() => props.widget, (newWidget) => {
   }
 });
 
-function saveConfig() {
-  const updatedWidget = { 
-    ...props.widget, 
-    filterConfig: filterConfig.value
-  };
-  emit('save', updatedWidget);
-  closeModal();
+
+async function saveConfig() {
+  try {
+    if (filterConfigId.value) {
+      await configCompStore.updateFilter(filterConfigId.value, filterConfig.value);
+    } else {
+      await configCompStore.createFilter(props.widget.id, filterConfig.value);
+    }
+    closeModal();
+  } catch (error) {
+    console.error('Error saving filter config:', error);
+  }
 }
 
 function closeModal() {

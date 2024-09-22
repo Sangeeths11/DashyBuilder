@@ -226,6 +226,83 @@ export const useConfigCompStore = defineStore('configComp', () => {
     }
   }
 
+  const createFilter = async (widgetId, filterConfig) => {
+    try {
+      const { data: filterConfigData, error: filterConfigError } = await client
+        .from('filterConfig')
+        .insert([
+          { column: filterConfig.column,
+            step: filterConfig.step,
+            startDate: filterConfig.startDate,
+            endDate: filterConfig.endDate,
+           }
+        ])
+        .select();
+
+      if (filterConfigError) {
+        errorMessages.value.push('Error creating filter config: ' + filterConfigError.message);
+        console.error('Error creating filter config:', filterConfigError);
+        return;
+      }
+
+      const filterConfigId = filterConfigData[0].id;
+      const { data: widgetUpdateData, error: widgetUpdateError } = await client
+        .from('widgets')
+        .update({
+          filterConfig_id: filterConfigId
+        })
+        .eq('id', widgetId);
+
+      if (widgetUpdateError) {
+        errorMessages.value.push('Error updating widget: ' + widgetUpdateError.message);
+        console.error('Error updating widget:', widgetUpdateError);
+        return;
+      }
+      console.log('Widget successfully updated:', widgetUpdateData);
+    } catch (err) {
+      errorMessages.value.push('An unexpected error occurred: ' + err.message);
+      console.error('Unexpected error:', err);
+    }
+  }
+
+  const fetchFilterConfig = async (widgetId) => {
+    const { data, error } = await client
+      .from('widgets')
+      .select('column:filterConfig_id (column),step:filterConfig_id (step),startDate:filterConfig_id (startDate),endDate:filterConfig_id (endDate), filterConfig_id')
+      .eq('id', widgetId);
+
+    if (error) {
+      errorMessages.value.push('Error fetching widget text: ' + error.message);
+      console.error('Error fetching widget text:', error);
+      return null;
+    }
+    return data[0];
+  }
+
+  const updateFilter = async (filterConfig_id, filterConfig) => {
+    try {
+      const { data, error } = await client
+        .from('filterConfig')
+        .update({
+          column: filterConfig.column,
+          step: filterConfig.step,
+          startDate: filterConfig.startDate,
+          endDate: filterConfig.endDate,
+        })
+        .eq('id', filterConfig_id);
+
+      if (error) {
+        errorMessages.value.push('Error updating filter config: ' + error.message);
+        console.error('Error updating filter config:', error);
+        return;
+      }
+      console.log('Filter config successfully updated:', data);
+    } catch (err) {
+      errorMessages.value.push('An unexpected error occurred: ' + err.message);
+      console.error('Unexpected error:', err);
+    }
+  }
+
   return {
     createWidgetTable,
     createChart,
@@ -236,5 +313,8 @@ export const useConfigCompStore = defineStore('configComp', () => {
     updateChart,
     fetchTableConfig,
     updateTable,
+    createFilter,
+    fetchFilterConfig,
+    updateFilter,
   };
 });
