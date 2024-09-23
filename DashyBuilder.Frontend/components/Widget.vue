@@ -22,38 +22,105 @@
       Keine Position zugewiesen
     </p>
     <div class="absolute top-2 right-2 flex space-x-2">
-      <button @click="openConfigModal">
+      <button @click="deleteGridPosition" title="Grid-Position löschen">
+        <Icon name="carbon:delete" class="text-danger hover:text-dark-danger"/>
+      </button>
+      <button @click="openConfigModal" title="Konfiguration bearbeiten">
         <Icon name="ic:outline-settings" class="text-primary hover:text-dark-primary"/>
       </button>
-      <button @click="emitDelete">
+      <button @click="emitDelete" title="Widget löschen">
         <Icon name="carbon:close-outline" class="text-danger hover:text-dark-danger"/>
       </button>
     </div>
     <div class="absolute top-2 left-2 flex space-x-2">
-      <button @click="openChartModal" v-if="hasValidGridPosition && widget.type==='Chart'">
+      <button
+        @click="openChartModal"
+        v-if="hasValidGridPosition && widget.type==='Chart'"
+        title="Chart bearbeiten"
+      >
         <Icon name="carbon:chart-line" class="text-primary hover:text-dark-primary"/>
       </button>
-      <button @click="openTableModal" v-if="hasValidGridPosition && widget.type==='Table'">
+      <button
+        @click="openTableModal"
+        v-if="hasValidGridPosition && widget.type==='Table'"
+        title="Tabelle bearbeiten"
+      >
         <Icon name="carbon:table" class="text-primary hover:text-dark-primary"/>
       </button>
-      <button @click="openTextModal" v-if="hasValidGridPosition && widget.type==='Text Block'">
+      <button
+        @click="openTextModal"
+        v-if="hasValidGridPosition && widget.type==='Text Block'"
+        title="Textblock bearbeiten"
+      >
         <Icon name="solar:text-bold" class="text-primary hover:text-dark-primary"/>
       </button>
-      <button @click="openButtonModal" v-if="hasValidGridPosition && widget.type==='Button'">
+      <button
+        @click="openButtonModal"
+        v-if="hasValidGridPosition && widget.type==='Button'"
+        title="Button bearbeiten"
+      >
         <Icon name="dashicons:button" class="text-primary hover:text-dark-primary"/>
       </button>
-      <button @click="openFilterBoxModal" v-if="hasValidGridPosition && widget.type==='Filter Box'">
+      <button
+        @click="openFilterBoxModal"
+        v-if="hasValidGridPosition && widget.type==='Filter Box'"
+        title="Filterbox bearbeiten"
+      >
         <Icon name="mdi:filter-outline" class="text-primary hover:text-dark-primary"/>
       </button>
     </div>
-    <ConfigModal v-if="isConfigModalOpen" :widget="widget" :isOpen="isConfigModalOpen" :gridSize="gridSize" @close="closeConfigModal" @save="saveGridPosition" />
-    <ChartTypeModal v-if="isChartModalOpen" :widget="widget" :uploadedDatasetId="uploadedDatasetId" :isOpen="isChartModalOpen" @close="closeChartModal" @save="saveChartType" />
-    <TableModal v-if="isTableModalOpen" :widget="widget" :uploadedDatasetId="uploadedDatasetId" :isOpen="isTableModalOpen" @close="closeTableModal" @save="saveChartType" />
-    <TextModal v-if="isTextModalOpen" :widget="widget" :uploadedDatasetId="uploadedDatasetId" :isOpen="isTextModalOpen" @close="closeTextModal" @save="saveChartType" />
-    <ButtonModal v-if="isButtonModalOpen" :widget="widget" :uploadedDatasetId="uploadedDatasetId" :isOpen="isButtonModalOpen" @close="closeButtonModal" @save="saveChartType" />
-    <FilterBoxModal v-if="isFilterBoxModalOpen" :widget="widget" :uploadedDatasetId="uploadedDatasetId" :isOpen="isFilterBoxModalOpen" @close="closeFilterBoxModal" @save="saveChartType" />
+    <!-- Modals bleiben unverändert -->
+    <ConfigModal
+      v-if="isConfigModalOpen"
+      :widget="widget"
+      :isOpen="isConfigModalOpen"
+      :gridSize="gridSize"
+      @close="closeConfigModal"
+      @save="saveGridPosition"
+    />
+    <ChartTypeModal
+      v-if="isChartModalOpen"
+      :widget="widget"
+      :uploadedDatasetId="uploadedDatasetId"
+      :isOpen="isChartModalOpen"
+      @close="closeChartModal"
+      @save="saveChartType"
+    />
+    <TableModal
+      v-if="isTableModalOpen"
+      :widget="widget"
+      :uploadedDatasetId="uploadedDatasetId"
+      :isOpen="isTableModalOpen"
+      @close="closeTableModal"
+      @save="saveChartType"
+    />
+    <TextModal
+      v-if="isTextModalOpen"
+      :widget="widget"
+      :uploadedDatasetId="uploadedDatasetId"
+      :isOpen="isTextModalOpen"
+      @close="closeTextModal"
+      @save="saveChartType"
+    />
+    <ButtonModal
+      v-if="isButtonModalOpen"
+      :widget="widget"
+      :uploadedDatasetId="uploadedDatasetId"
+      :isOpen="isButtonModalOpen"
+      @close="closeButtonModal"
+      @save="saveChartType"
+    />
+    <FilterBoxModal
+      v-if="isFilterBoxModalOpen"
+      :widget="widget"
+      :uploadedDatasetId="uploadedDatasetId"
+      :isOpen="isFilterBoxModalOpen"
+      @close="closeFilterBoxModal"
+      @save="saveChartType"
+    />
   </div>
 </template>
+
 
 <script setup>
 import UploadDataset from './UploadDataset.vue';
@@ -81,6 +148,10 @@ const hasValidGridPosition = computed(() => {
     props.widget.gridPosition.gridPosition !== "[]"
   );
 });
+
+const deleteGridPosition = () => {
+  emit('update-widget', { id: props.widget.id, gridPosition: null });
+};
 
 const computedFilterTypes = computed(() => {
   if (Array.isArray(props.widget.filterTypes)) {
