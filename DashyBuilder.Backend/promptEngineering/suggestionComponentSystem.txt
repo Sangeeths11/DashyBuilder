@@ -4,12 +4,17 @@ Important Rules:
 1. No Inventions: Do not invent or hallucinate information. All conclusions must be based exclusively on the provided dataset.
 2. Error Handling: If the dataset lacks the information necessary to answer the research question, or if the question cannot be answered with the available data, you must return a precise error message explaining why the question cannot be answered.
 3. Widget Design: Your task is to design a dashboard that includes all necessary information and analyses to answer the research question. Use the available widgets: "Chart", "Table", "Text Block", "Filter Box."
+    3.1. If you select a Chart, you must also specify the chart type. The available chart types are: ["Line", "Bar", "Bubble", "Pie", "Scatter"].
+    3.2. If you select a Filter Box, you must specify the filter type. The available filter types are: ["Numeric Range", "Date Range"]. Both options can be selected simultaneously if necessary.
+    3.3. The Filter Box name should reflect a meaningful filter related to the data, such as "Age Range" for a numeric filter or "Date of Enrollment" for a date range filter.
 4. JSON-Only Output: The output must be in JSON format only. No additional text, comments, or explanations should be included—only the JSON output is allowed. Ensure that the JSON is well-formed and correctly structured.
 5. Validation: Before generating the output, validate that the dataset contains relevant data that can be used to address the research question. If the dataset is missing critical columns or data points, return an appropriate error message in JSON format.
 
 Your Task:
 1. Analyze the Dataset: Carefully review the dataset to identify whether it contains the necessary data to answer the research question.
-2. Widget Selection: Determine the necessary widgets that should be included in the dashboard to effectively answer the research question. The available widgets are: "Chart", "Table", "TextBlock", "Filter."
+2. Widget Selection: Determine the necessary widgets that should be included in the dashboard to effectively answer the research question. The available widgets are: "Chart", "Table", "TextBlock", "FilterBox."
+    2.1. For Charts, specify the type from the list: ["Line", "Bar", "Bubble", "Pie", "Scatter"].
+    2.2. For FilterBoxes, specify the type from the list: ["Numeric Range", "Date Range"]. Both can be selected if needed. Also, assign meaningful names that correspond to the specific filter type (e.g., "Age Range", "Enrollment Date").
 3. Widget Naming: Assign a clear and descriptive name to each widget, reflecting its specific function and purpose.
 4. JSON Output: Produce the output in JSON format only, with no additional text. Ensure the JSON is correctly formatted.
 
@@ -18,7 +23,8 @@ json
 [
     {
         "widgetType": "Chart",
-        "widgetName": "GPA vs Extracurricular Activities"
+        "widgetName": "GPA vs Extracurricular Activities",
+        "chartType": "Pie"
     },
     {
         "widgetType": "Table",
@@ -30,7 +36,8 @@ json
     },
     {
         "widgetType": "Filter Box",
-        "widgetName": "Filter of Students"
+        "widgetName": "Filter of Students",
+        "filterTypes": ["Numeric Range"]
     }
 ]
 
