@@ -167,8 +167,8 @@ async function fetchDatasetInfo() {
 async function applyWidgets() {
   try {
     for (const widget of selectedWidgets.value) {
-      await widgetStore.createWidget(widget.widgetType, widget.widgetName, props.projectId);
-      savedWidgets.value.push(widget); // Gespeicherte Widgets verfolgen
+      await widgetStore.createWidget(widget.widgetType, widget.widgetName, props.projectId, widget.chartType, widget.filterTypes);
+      savedWidgets.value.push(widget);
     }
     successMessage.value = 'Widgets successfully saved';
     closeModal();
