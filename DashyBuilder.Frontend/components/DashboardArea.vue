@@ -50,8 +50,26 @@
           Code Viewer
         </div>
       </div>
+      <div class="relative group">
+        <button
+          @click="evaluateDashboard"
+          class="bg-red-600 hover:bg-red-800 text-white font-bold p-2 rounded-full flex items-center justify-center shadow-lg transition duration-300 ease-in-out"
+        >
+          <Icon name="mdi:chart-box-outline" color="white" class="text-2xl" />
+        </button>
+        <div
+          class="absolute bottom-full mb-2 hidden group-hover:block bg-gray-700 text-white text-xs rounded py-1 px-2"
+        >
+          Evaluate Dashboard
+        </div>
+      </div>
     </div>
     <HostingModal :show="showHostingModal" :url="hostedUrl" @close="showHostingModal = false" />
+    <EvaluationModal
+      :show="showEvaluationModal"
+      @close="showEvaluationModal = false"
+      :evaluationResults="evaluationResults"
+    />
     <AISuggestionModal :show="showAISuggestion" @close="showAISuggestion = false" :uploadedDatasetId="uploadedDatasetId" :researchQuestion="researchQuestion" :projectId="projectId" />
     <div v-if="loadingDashboard" class="fixed inset-0 bg-gray-100 bg-opacity-75 flex items-center justify-center">
       <div class="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-64 w-64"></div>
@@ -97,6 +115,8 @@ const loadingDashboard = ref(false);
 const researchQuestion = ref('');
 const projectStore = useProjectStore();
 const showCodeViewer = ref(false);
+const showEvaluationModal = ref(false);
+const evaluationResults = ref([]);
 
 researchQuestion.value = await projectStore.fetchProjectResearchQuestionById(props.projectId);
 
@@ -105,6 +125,68 @@ const showHostingModal = ref(false);
 const showAISuggestion = ref(false);
 const emit = defineEmits(['delete-widget', 'update-widget']);
 const widgetStore = useWidgetStore();
+
+
+async function evaluateDashboard() {
+  try {
+    const file_path = await projectStore.getFileName(props.projectId);
+    if (file_path === null) {
+      errorMessage.value = "Please upload a dataset before seeing the code.";
+      showCodeViewer.value = false;
+      setTimeout(() => {
+        errorMessage.value = '';
+      }, 3000);
+      return;
+    }
+    
+    const codeResponse = await fetch('http://localhost:5000/exportCode', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        widgets: widgetStore.widgets,
+        grid_size: props.gridSize,
+        file_path: file_path,
+        save: false,
+      })
+    });
+
+    if (!codeResponse.ok) throw new Error('Failed to fetch dashboard code.');
+
+    const dashboardCode = await codeResponse.text();
+
+    // Send the dashboard code to the backend for evaluation
+    const evalResponse = await fetch('http://localhost:5000/evaluate_dashboard', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        dashboard_code: dashboardCode
+      })
+    });
+
+    if (!evalResponse.ok) throw new Error('Failed to evaluate dashboard.');
+
+    const result = await evalResponse.json();
+
+    if (result.error) {
+      errorMessage.value = result.error;
+      setTimeout(() => {
+        errorMessage.value = '';
+      }, 3000);
+    } else {
+      evaluationResults.value = result.feedback;
+      showEvaluationModal.value = true;
+    }
+  } catch (error) {
+    errorMessage.value = error.message;
+    setTimeout(() => {
+      errorMessage.value = '';
+    }, 3000);
+  }
+}
 
 async function fetchDashboardCode() {
   try {

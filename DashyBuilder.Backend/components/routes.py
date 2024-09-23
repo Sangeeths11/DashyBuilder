@@ -6,6 +6,7 @@ import subprocess
 from ydata_profiling import ProfileReport
 from components.dashboard import generate_plotly_code
 from components.uploader import FileUploader
+from components.dashAnalyzer import analyze_code
 import components.hosting as hosting
 from openai import OpenAI
 import zipfile
@@ -250,3 +251,17 @@ def register_routes(app):
 
         except Exception as e:
             return jsonify({"error": str(e)}), 500
+
+    @app.route('/evaluate_dashboard', methods=['POST'])
+    def evaluate_dashboard():
+        data = request.get_json()
+        dashboard_code = data.get('dashboard_code')
+
+        if not dashboard_code:
+            return jsonify({'error': 'No dashboard code provided.'}), 400
+
+        try:
+            feedback = analyze_code(dashboard_code)
+            return jsonify({'feedback': feedback})
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
