@@ -1,35 +1,50 @@
 <template>
   <div class="fixed inset-0 bg-gray-500 bg-opacity-90 flex items-center justify-center z-50">
-    <div class="bg-white p-6 rounded shadow-lg w-[700px] h-[700px] relative flex flex-col"> 
-      <!-- Feste Größe des Modals -->
+    <div class="bg-white p-6 rounded shadow-lg w-[700px] h-[700px] relative flex flex-col">
+      <!-- Fixed size of the modal -->
       <button @click="close" class="absolute top-3 right-3 text-gray-600 hover:text-gray-900">
         &times;
       </button>
-      <ErrorMessageBox :message="errorMessage"/>
+      <ErrorMessageBox :message="errorMessage" />
       <h3 class="text-lg font-bold mb-4 text-center">Configure Widget Position</h3>
-      <p class="text-sm text-gray-600 mb-4 text-center">Please select the position for the widget: 
+      <p class="text-sm text-gray-600 mb-4 text-center">
+        Please select the position for the widget:
         <strong class="text-sm text-gray-600 mb-2">
           {{ widget.name }} ({{ widget.type }})
         </strong>
       </p>
-      
-      <div :style="gridStyle" class="grid-container flex-grow" @mousedown="startSelection" @mousemove="throttledMoveSelection" @mouseup="endSelection" @mouseleave="endSelection">
-        <div v-for="cell in totalCells" :key="cell"
-            :class="[
-              'cell', 
-              isSelected(cell) ? 'selected' : '',
-              isOriginal(cell) ? 'original' : '',
-              isDisabled(cell) ? 'disabled' : '',
-              isReserved(cell) ? 'reserved' : ''
-            ]"
-            :style="getCellStyle(cell)"
-            @mouseenter="updateTooltipText(cell)" 
-            @mouseleave="hoverCell(null)">
+
+      <div
+        :style="gridStyle"
+        class="grid-container flex-grow"
+        @mousedown="startSelection"
+        @mousemove="throttledMoveSelection"
+        @mouseup="endSelection"
+        @mouseleave="endSelection"
+      >
+        <div
+          v-for="cell in totalCells"
+          :key="cell"
+          :data-index="cell"
+          :class="[
+            'cell',
+            isSelected(cell) ? 'selected' : '',
+            isOriginal(cell) ? 'original' : '',
+            isDisabled(cell) ? 'disabled' : '',
+            isReserved(cell) ? 'reserved' : '',
+          ]"
+          :style="getCellStyle(cell)"
+          @mouseenter="updateTooltipText(cell)"
+          @mouseleave="hoverCell(null)"
+        >
           <span v-if="hoveredCell === cell" class="tooltip">{{ tooltipText }}</span>
         </div>
       </div>
-      <div class="mt-4 flex justify-center"> <!-- Button zentriert -->
-        <button @click="saveConfig" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Save</button>
+      <div class="mt-4 flex justify-center">
+        <!-- Centered button -->
+        <button @click="saveConfig" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+          Save
+        </button>
       </div>
     </div>
   </div>
@@ -42,96 +57,83 @@ import { throttle } from 'lodash';
 const props = defineProps({
   widget: Object,
   gridSize: String,
-  projectId: Number
+  projectId: Number,
 });
 
-const { fetchReservedPositions } = useWidgetStore();
+const widgetStore = useWidgetStore();
+const { fetchReservedPositions, getWidgetByGridPosition } = widgetStore;
+
 const reservedPositions = ref([]);
 const errorMessage = ref('');
-const hoveredCell = ref(null); // Ref für die hover-Zelle
-const tooltipText = ref(''); // Ref für den Tooltip-Text
-const reservedGroups = ref({}); // Initial leer
-const widgetStore = useWidgetStore();
+const hoveredCell = ref(null);
+const tooltipText = ref('');
+const reservedGroups = ref({});
 
-let gridPositionData;
+const originalCells = ref([]);
+
 try {
   if (props.widget.gridPosition && typeof props.widget.gridPosition.gridPosition === 'string') {
-    gridPositionData = props.widget.gridPosition.gridPosition.split(',').map(Number).filter(num => !isNaN(num));
+    originalCells.value = props.widget.gridPosition.gridPosition
+      .split(',')
+      .map(Number)
+      .filter((num) => !isNaN(num));
   } else {
-    gridPositionData = [];
+    originalCells.value = [];
   }
 } catch (e) {
   errorMessage.value = 'Invalid gridPosition data.';
   setTimeout(() => {
     errorMessage.value = '';
   }, 3000);
-  gridPositionData = [];
+  originalCells.value = [];
 }
 
-const selectedCells = ref([]);
-const originalCells = ref([...gridPositionData]);
+const selectedCells = ref([...originalCells.value]);
 
 onMounted(async () => {
-  reservedPositions.value = await fetchReservedPositions(props.widget.project_id);
-  reservedPositions.value = reservedPositions.value.filter(pos => !originalCells.value.includes(pos));
-
-  // Teile die reservedPositions in kleine Chargen auf
-  const batchSize = 25; // Beispielsweise 50 Zellen pro Batch
-  for (let i = 0; i < reservedPositions.value.length; i += batchSize) {
-    const batch = reservedPositions.value.slice(i, i + batchSize);
-    const batchGroups = await groupReservedPositions(batch);
-    reservedGroups.value = { ...reservedGroups.value, ...batchGroups };
-  }
+  const positions = await fetchReservedPositions(props.widget.project_id);
+  reservedPositions.value = positions.filter((pos) => !originalCells.value.includes(pos));
+  reservedGroups.value = await groupReservedPositions(reservedPositions.value);
 });
 
 const emit = defineEmits(['close', 'save']);
 
-// Dynamische Berechnung von Spalten und Reihen
 const [cols, rows] = props.gridSize.split('x').map(Number);
 
 const totalCells = computed(() => rows * cols);
 
 const cellSize = computed(() => {
-  const maxModalSize = 450; // Basisgröße des verfügbaren Platzes im Modal (abzüglich Paddings)
+  const maxModalSize = 450;
   const maxGridDimension = Math.max(cols, rows);
   return Math.floor(maxModalSize / maxGridDimension);
 });
 
 function isReserved(cell) {
-  // Durchlaufe alle Gruppen von reservierten Positionen
-  for (const group of Object.values(reservedGroups.value)) {
-    if (group.cells.includes(cell)) {
-      return true;
-    }
-  }
-  return false;
+  return Object.values(reservedGroups.value).some((group) => group.cells.includes(cell));
 }
 
 function getCellStyle(cell) {
   for (const group of Object.values(reservedGroups.value)) {
     if (group.cells.includes(cell)) {
-      const borderColor = group.color;
       return {
-        border: `2px solid ${borderColor}`
+        border: `2px solid ${group.color}`,
       };
     }
   }
   return {};
 }
 
-const gridStyle = computed(() => {
-  return {
-    display: 'grid',
-    gridTemplateColumns: `repeat(${cols}, ${cellSize.value}px)`,
-    gridTemplateRows: `repeat(${rows}, ${cellSize.value}px)`,
-    gap: '4px', // Kleinerer Abstand zwischen den Zellen, um mehr Platz zu nutzen
-    justifyContent: 'center',
-    alignContent: 'center',
-  };
-});
+const gridStyle = computed(() => ({
+  display: 'grid',
+  gridTemplateColumns: `repeat(${cols}, ${cellSize.value}px)`,
+  gridTemplateRows: `repeat(${rows}, ${cellSize.value}px)`,
+  gap: '4px',
+  justifyContent: 'center',
+  alignContent: 'center',
+}));
 
-let isSelecting = ref(false);
-let startCell = ref(null);
+const isSelecting = ref(false);
+const startCell = ref(null);
 
 function startSelection(event) {
   const cell = getCellFromEvent(event);
@@ -143,11 +145,10 @@ function startSelection(event) {
 }
 
 function moveSelection(event) {
-  if (isSelecting.value && startCell.value) {
-    const endCell = getCellFromEvent(event);
-    if (endCell && !isDisabled(endCell)) {
-      selectRange(startCell.value, endCell);
-    }
+  if (!isSelecting.value) return;
+  const cell = getCellFromEvent(event);
+  if (cell && !isDisabled(cell)) {
+    selectRange(startCell.value, cell);
   }
 }
 
@@ -161,31 +162,34 @@ function endSelection() {
 function getCellFromEvent(event) {
   const cellElement = event.target.closest('.cell');
   if (cellElement) {
-    const index = [...cellElement.parentElement.children].indexOf(cellElement);
-    return index + 1;
+    return Number(cellElement.dataset.index);
   }
   return null;
 }
 
 function selectRange(start, end) {
-  const min = Math.min(start, end);
-  const max = Math.max(start, end);
-  const startRow = Math.floor((min - 1) / cols);
-  const startCol = (min - 1) % cols;
-  const endRow = Math.floor((max - 1) / cols);
-  const endCol = (max - 1) % cols;
+  const startRow = Math.floor((start - 1) / cols);
+  const startCol = (start - 1) % cols;
+  const endRow = Math.floor((end - 1) / cols);
+  const endCol = (end - 1) % cols;
 
-  selectedCells.value = [];
-  originalCells.value = [];
+  const minRow = Math.min(startRow, endRow);
+  const maxRow = Math.max(startRow, endRow);
+  const minCol = Math.min(startCol, endCol);
+  const maxCol = Math.max(startCol, endCol);
 
-  for (let row = startRow; row <= endRow; row++) {
-    for (let col = startCol; col <= endCol; col++) {
+  const newSelectedCells = [];
+
+  for (let row = minRow; row <= maxRow; row++) {
+    for (let col = minCol; col <= maxCol; col++) {
       const cell = row * cols + col + 1;
       if (!isDisabled(cell)) {
-        selectedCells.value.push(cell);
+        newSelectedCells.push(cell);
       }
     }
   }
+
+  selectedCells.value = newSelectedCells;
 }
 
 function isOriginal(cell) {
@@ -201,39 +205,43 @@ function isDisabled(cell) {
 }
 
 function hoverCell(cell) {
-  hoveredCell.value = cell; // Setzt die aktuelle hover-Zelle
+  hoveredCell.value = cell;
 }
 
 async function updateTooltipText(cell) {
-  hoverCell(cell); // Updates the hovered cell
+  hoverCell(cell);
   if (isOriginal(cell)) {
     tooltipText.value = `Original Widget Position: ${cell}`;
   } else if (isDisabled(cell)) {
-    const widgetTooltip = await widgetStore.getWidgetByGridPosition(cell, props.widget.project_id);
-    if (widgetTooltip) {
-      tooltipText.value = `Reserved Cell: ${cell} (${widgetTooltip.name})`;
-    } else {
-      tooltipText.value = `Reserved Cell: ${cell} (Unknown Widget)`;
-    }
+    const widgetTooltip = await getCachedWidgetByGridPosition(cell, props.widget.project_id);
+    tooltipText.value = widgetTooltip
+      ? `Reserved Cell: ${cell} (${widgetTooltip.name})`
+      : `Reserved Cell: ${cell} (Unknown Widget)`;
   } else {
     hoverCell(null);
   }
 }
 
 function validateGridPattern(selectedCells, gridSize) {
-  selectedCells = selectedCells.filter(cell => cell !== 0);
-
+  selectedCells = selectedCells.filter((cell) => cell !== 0);
   const [cols, rows] = gridSize.split('x').map(Number);
-  const grid = new Array(rows).fill(null).map(() => new Array(cols).fill(false));
+  const grid = Array.from({ length: rows }, () => Array(cols).fill(false));
 
-  selectedCells.forEach(cell => {
+  selectedCells.forEach((cell) => {
     const row = Math.floor((cell - 1) / cols);
     const col = (cell - 1) % cols;
     grid[row][col] = true;
   });
 
   function dfs(row, col, visited) {
-    if (row < 0 || row >= rows || col < 0 || col >= cols || !grid[row][col] || visited.has(`${row},${col}`)) {
+    if (
+      row < 0 ||
+      row >= rows ||
+      col < 0 ||
+      col >= cols ||
+      !grid[row][col] ||
+      visited.has(`${row},${col}`)
+    ) {
       return;
     }
     visited.add(`${row},${col}`);
@@ -260,8 +268,8 @@ function validateGridPattern(selectedCells, gridSize) {
     return false;
   }
 
-  const selectedRows = selectedCells.map(cell => Math.floor((cell - 1) / cols));
-  const selectedCols = selectedCells.map(cell => (cell - 1) % cols);
+  const selectedRows = selectedCells.map((cell) => Math.floor((cell - 1) / cols));
+  const selectedCols = selectedCells.map((cell) => (cell - 1) % cols);
   const minRow = Math.min(...selectedRows);
   const maxRow = Math.max(...selectedRows);
   const minCol = Math.min(...selectedCols);
@@ -284,7 +292,6 @@ function saveConfig() {
   }
   if (validateGridPattern(selectedCells.value, props.gridSize)) {
     reservedPositions.value.push(...selectedCells.value);
-
     emit('save', selectedCells.value.join(','));
     emit('close');
   } else {
@@ -295,9 +302,7 @@ function saveConfig() {
   }
 }
 
-const borderColors = [
-  'blue', 'purple', 'orange', 'teal', 'pink', 'brown', 'cyan', 'magenta'
-];
+const borderColors = ['blue', 'purple', 'orange', 'teal', 'pink', 'brown', 'cyan', 'magenta'];
 
 const widgetCache = new Map();
 
@@ -306,27 +311,27 @@ async function getCachedWidgetByGridPosition(cell, projectId) {
   if (widgetCache.has(cacheKey)) {
     return widgetCache.get(cacheKey);
   }
-  
-  const widget = await widgetStore.getWidgetByGridPosition(cell, projectId);
+
+  const widget = await getWidgetByGridPosition(cell, projectId);
   widgetCache.set(cacheKey, widget);
   return widget;
 }
 
-async function groupReservedPositions() {
+async function groupReservedPositions(positions) {
   const groups = {};
   let colorIndex = 0;
 
-  const widgetPromises = reservedPositions.value.map(cell => getCachedWidgetByGridPosition(cell, props.widget.project_id));
-  const widgets = await Promise.all(widgetPromises); // Warte auf alle Promises gleichzeitig
+  const widgetPromises = positions.map((cell) => getCachedWidgetByGridPosition(cell, props.widget.project_id));
+  const widgets = await Promise.all(widgetPromises);
 
   widgets.forEach((widget, index) => {
-    const cell = reservedPositions.value[index];
+    const cell = positions[index];
     if (widget) {
-      const widgetId = widget.name + widget.type; // Eine eindeutige ID auf Basis von Namen und Typ
+      const widgetId = widget.name + widget.type;
       if (!groups[widgetId]) {
         groups[widgetId] = {
           cells: [],
-          color: borderColors[colorIndex % borderColors.length] // Farbe aus der Palette zuweisen
+          color: borderColors[colorIndex % borderColors.length],
         };
         colorIndex++;
       }
