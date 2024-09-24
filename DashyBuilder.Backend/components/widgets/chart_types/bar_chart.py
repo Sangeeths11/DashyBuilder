@@ -1,6 +1,6 @@
-def generate_bar_chart_code(title):
+def generate_bar_chart_code(title, chartconfig):
     return f"""
-    fig = px.bar(df, x='species', y='sepal_length').update_layout(
+    fig = px.bar(df, x='{chartconfig['xAxis']}', y='{chartconfig['yAxis']}').update_layout(
         title={{'text': '{title}', 'y':0.95, 'x':0.01, 'xanchor': 'left', 'yanchor': 'top'}},
         template='plotly_dark',
         plot_bgcolor='rgba(0, 0, 0, 0)',

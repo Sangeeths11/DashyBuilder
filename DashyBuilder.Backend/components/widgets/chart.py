@@ -13,7 +13,7 @@ class ChartWidget(Widget):
     def __init__(self, widget_info, cols, datapath):
         super().__init__(widget_info, cols, datapath)
         self.chart_type = widget_info.get('chartType', 'Pie')
-        print(f"ChartWidget: {self.chart_type}")
+        self.chartconfig = widget_info.get('chartConfig', {})
         
     def generate_code(self):
         self.title = self.name
@@ -42,14 +42,14 @@ def draw{self.chart_type}_{self.name}():
 
     def _generate_chart_code(self):
         if self.chart_type == 'Bar':
-            return generate_bar_chart_code(self.title)
+            return generate_bar_chart_code(self.title, self.chartconfig)
         elif self.chart_type == 'Line':
-            return generate_line_chart_code(self.title)
+            return generate_line_chart_code(self.title, self.chartconfig)
         elif self.chart_type == 'Scatter':
-            return generate_scatter_chart_code(self.title)
+            return generate_scatter_chart_code(self.title, self.chartconfig)
         elif self.chart_type == 'Bubble':
-            return generate_bubble_chart_code(self.title)
+            return generate_bubble_chart_code(self.title, self.chartconfig)
         elif self.chart_type == 'Pie':
-            return generate_pie_chart_code(self.title)
+            return generate_pie_chart_code(self.title, self.chartconfig)
         else:
             return generate_default_chart_code(self.title)

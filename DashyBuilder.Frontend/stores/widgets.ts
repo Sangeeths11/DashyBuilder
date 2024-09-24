@@ -21,6 +21,22 @@ export const useWidgetStore = defineStore('widgetStore', () => {
     }
   };
 
+  const fetchWidgetsByProjectIdExport = async (projectId) => {
+    const { data, error } = await client
+      .from('widgets')
+      .select('*, chartConfig(*)') // Hier fügen Sie die verknüpfte Tabelle hinzu
+      .eq('project_id', projectId);
+  
+    if (error) {
+      errorMessages.value.push('Fehler beim Laden der Widgets: ' + error.message);
+      console.error('Fehler beim Laden der Widgets:', error);
+      return [];
+    } else {
+      console.log('Fetched widgets Data:', data);
+      return data || [];
+    }
+  }
+
   const createWidget = async (type, name, projectId, chartType, filterTypes) => {
     const { data, error } = await client
       .from('widgets')
@@ -140,6 +156,7 @@ export const useWidgetStore = defineStore('widgetStore', () => {
     deleteWidget,
     updateWidget,
     fetchReservedPositions,
-    getWidgetByGridPosition, 
+    getWidgetByGridPosition,
+    fetchWidgetsByProjectIdExport, 
   };
 });

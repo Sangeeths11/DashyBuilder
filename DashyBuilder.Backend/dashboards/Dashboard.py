@@ -6,14 +6,14 @@ import pandas as pd
 import warnings
 
 warnings.filterwarnings('ignore', category=FutureWarning)
-df = px.data.iris()
+df = pd.read_csv('C:\\Users\\csang\\.vscode\\DashyBuilder\\DashyBuilder.Backend\\dashboards\\Iris.xls')
 app = Dash(__name__, external_stylesheets=[dbc.themes.SLATE])
 
 
-def drawBar_sad():
+def drawPie_pie():
     
-    fig = px.bar(df, x='species', y='sepal_length').update_layout(
-        title={'text': 'sad', 'y':0.95, 'x':0.01, 'xanchor': 'left', 'yanchor': 'top'},
+    fig = px.pie(df, names='Species', values='SepalLengthCm').update_layout(
+        title={'text': 'pie', 'y':0.95, 'x':0.01, 'xanchor': 'left', 'yanchor': 'top'},
         template='plotly_dark',
         plot_bgcolor='rgba(0, 0, 0, 0)',
         paper_bgcolor='rgba(0, 0, 0, 0)',
@@ -24,7 +24,7 @@ def drawBar_sad():
         dbc.Card(
             dbc.CardBody([
                 dcc.Graph(
-                    id='sad_Bar_graph',
+                    id='pie_Pie_graph',
                     figure=fig,
                     config={'displayModeBar': False},
                     style={'height': '100%', 'width': '100%'},
@@ -35,53 +35,76 @@ def drawBar_sad():
     ], style={'height': '100%', 'padding': '2px'})
 
 
-def drawTextBlock_asd(text='asd'):
+def drawBar_BestSellingCoffee():
+    
+    fig = px.bar(df, x='SepalLengthCm', y='Species').update_layout(
+        title={'text': 'Best Selling Coffee', 'y':0.95, 'x':0.01, 'xanchor': 'left', 'yanchor': 'top'},
+        template='plotly_dark',
+        plot_bgcolor='rgba(0, 0, 0, 0)',
+        paper_bgcolor='rgba(0, 0, 0, 0)',
+        margin=dict(l=20, r=20, t=40, b=20)
+    )
+    
     return html.Div([
         dbc.Card(
             dbc.CardBody([
-                html.H4(text, style={'textAlign': 'center', 'color': 'white', 'height': '100%', 'display': 'flex', 'alignItems': 'center', 'justifyContent': 'center'})
+                dcc.Graph(
+                    id='BestSellingCoffee_Bar_graph',
+                    figure=fig,
+                    config={'displayModeBar': False},
+                    style={'height': '100%', 'width': '100%'},
+                    responsive=True
+                )
             ]), style={'height': '100%'}
         )
     ], style={'height': '100%', 'padding': '2px'})
 
 
-def drawFilterBox_asd():
+def drawBubble_bubble():
+    
+    fig = px.scatter(df, x='PetalLengthCm', y='PetalWidthCm', size='SepalLengthCm', color='Species').update_layout(
+        title={'text': 'bubble', 'y':0.95, 'x':0.01, 'xanchor': 'left', 'yanchor': 'top'},
+        template='plotly_dark',
+        plot_bgcolor='rgba(0, 0, 0, 0)',
+        paper_bgcolor='rgba(0, 0, 0, 0)',
+        margin=dict(l=20, r=20, t=40, b=20)
+    )
+    
     return html.Div([
         dbc.Card(
             dbc.CardBody([
-                html.Label('asd:', style={'color': 'white'}),
-                html.Div([
-
-    html.Div([
-        dcc.DatePickerRange(
-            id='asd_date_picker',
-            start_date='2023-09-24',
-            end_date='2024-09-23',
-            display_format='YYYY-MM-DD',
-            style={
-                'backgroundColor': '#32383e',
-                'color': '#ffffff',
-                'border': '1px solid #4a4a4a',
-                'borderRadius': '5px',
-                'width': '100%'
-            }
+                dcc.Graph(
+                    id='bubble_Bubble_graph',
+                    figure=fig,
+                    config={'displayModeBar': False},
+                    style={'height': '100%', 'width': '100%'},
+                    responsive=True
+                )
+            ]), style={'height': '100%'}
         )
-    ], style={'marginBottom': '20px'})
-    ,
+    ], style={'height': '100%', 'padding': '2px'})
 
-    html.Div([
-        dcc.RangeSlider(
-            id='asd_numeric_slider',
-            min=df['sepal_length'].min(),
-            max=df['sepal_length'].max(),
-            step=0.1,
-            marks={i: str(i) for i in range(int(df['sepal_length'].min()), int(df['sepal_length'].max())+1)},
-            value=[df['sepal_length'].min(), df['sepal_length'].max()],
-            tooltip={'always_visible': True, 'placement': 'bottom'}
-        )
-    ], style={'marginBottom': '20px', 'backgroundColor': '#32383e', 'borderRadius': '10px', 'boxShadow': '0 4px 8px rgba(0, 0, 0, 0.2)'})
+
+def drawScatter_asd():
     
-])
+    fig = px.scatter(df, x='SepalLengthCm', y='SepalWidthCm', color='Species').update_layout(
+        title={'text': 'asd', 'y':0.95, 'x':0.01, 'xanchor': 'left', 'yanchor': 'top'},
+        template='plotly_dark',
+        plot_bgcolor='rgba(0, 0, 0, 0)',
+        paper_bgcolor='rgba(0, 0, 0, 0)',
+        margin=dict(l=20, r=20, t=40, b=20)
+    )
+    
+    return html.Div([
+        dbc.Card(
+            dbc.CardBody([
+                dcc.Graph(
+                    id='asd_Scatter_graph',
+                    figure=fig,
+                    config={'displayModeBar': False},
+                    style={'height': '100%', 'width': '100%'},
+                    responsive=True
+                )
             ]), style={'height': '100%'}
         )
     ], style={'height': '100%', 'padding': '2px'})
@@ -90,14 +113,15 @@ app.layout = html.Div([
     dbc.Container([
         html.Div(style={
             'display': 'grid',
-           'gridTemplateColumns': 'repeat(8, 1fr)',
-           'gridTemplateRows': 'repeat(8, 1fr)',
+           'gridTemplateColumns': 'repeat(6, 1fr)',
+           'gridTemplateRows': 'repeat(6, 1fr)',
             'gap': '10px',
             'height': '99vh'
         }, children=[
-            html.Div(drawBar_sad(), style={'gridColumn': '1 / span 8', 'gridRow': '6 / span 2', 'padding': '0px'}),
-            html.Div(drawTextBlock_asd(), style={'gridColumn': '1 / span 8', 'gridRow': '1 / span 1', 'padding': '0px'}),
-            html.Div(drawFilterBox_asd(), style={'gridColumn': '7 / span 2', 'gridRow': '3 / span 2', 'padding': '0px'}),
+            html.Div(drawPie_pie(), style={'gridColumn': '4 / span 3', 'gridRow': '1 / span 2', 'padding': '0px'}),
+            html.Div(drawBar_BestSellingCoffee(), style={'gridColumn': '1 / span 6', 'gridRow': '5 / span 2', 'padding': '0px'}),
+            html.Div(drawBubble_bubble(), style={'gridColumn': '1 / span 6', 'gridRow': '3 / span 2', 'padding': '0px'}),
+            html.Div(drawScatter_asd(), style={'gridColumn': '1 / span 3', 'gridRow': '1 / span 2', 'padding': '0px'}),
         ])
     ], fluid=True, style={'height': '100vh', 'padding': '0', 'margin': '0', 'width': '100vw', 'overflow': 'hidden'})
 ])
