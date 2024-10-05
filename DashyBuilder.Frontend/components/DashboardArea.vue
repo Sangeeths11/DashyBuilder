@@ -138,14 +138,15 @@ async function evaluateDashboard() {
       }, 3000);
       return;
     }
-    
+
+    const widgetsExport = await widgetStore.fetchWidgetsByProjectIdExport(props.projectId);
     const codeResponse = await fetch('http://localhost:5000/exportCode', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        widgets: widgetStore.widgets,
+        widgets: widgetsExport,
         grid_size: props.gridSize,
         file_path: file_path,
         save: false,
