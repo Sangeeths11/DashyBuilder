@@ -60,32 +60,7 @@ def drawBar_BestSellingCoffee():
     ], style={'height': '100%', 'padding': '2px'})
 
 
-def drawBubble_bubble():
-    
-    fig = px.scatter(df, x='PetalLengthCm', y='PetalWidthCm', size='SepalLengthCm', color='Species').update_layout(
-        title={'text': 'bubble', 'y':0.95, 'x':0.01, 'xanchor': 'left', 'yanchor': 'top'},
-        template='plotly_dark',
-        plot_bgcolor='rgba(0, 0, 0, 0)',
-        paper_bgcolor='rgba(0, 0, 0, 0)',
-        margin=dict(l=20, r=20, t=40, b=20)
-    )
-    
-    return html.Div([
-        dbc.Card(
-            dbc.CardBody([
-                dcc.Graph(
-                    id='bubble_Bubble_graph',
-                    figure=fig,
-                    config={'displayModeBar': False},
-                    style={'height': '100%', 'width': '100%'},
-                    responsive=True
-                )
-            ]), style={'height': '100%'}
-        )
-    ], style={'height': '100%', 'padding': '2px'})
-
-
-columns = ["SepalLengthCm","SepalWidthCm"]
+columns = []
 def drawTable_sad():
     fig = go.Figure(data=[go.Table(
         header=dict(values=list(columns),
@@ -124,6 +99,41 @@ def drawTable_sad():
         )
     ], style={'height': '100%', 'padding': '2px'})
 
+
+def drawBubble_bubble():
+    
+    fig = px.scatter(df, x='PetalLengthCm', y='PetalWidthCm', size='SepalLengthCm', color='Species').update_layout(
+        title={'text': 'bubble', 'y':0.95, 'x':0.01, 'xanchor': 'left', 'yanchor': 'top'},
+        template='plotly_dark',
+        plot_bgcolor='rgba(0, 0, 0, 0)',
+        paper_bgcolor='rgba(0, 0, 0, 0)',
+        margin=dict(l=20, r=20, t=40, b=20)
+    )
+    
+    return html.Div([
+        dbc.Card(
+            dbc.CardBody([
+                dcc.Graph(
+                    id='bubble_Bubble_graph',
+                    figure=fig,
+                    config={'displayModeBar': False},
+                    style={'height': '100%', 'width': '100%'},
+                    responsive=True
+                )
+            ]), style={'height': '100%'}
+        )
+    ], style={'height': '100%', 'padding': '2px'})
+
+
+def drawTextBlock_TextBlock(text='Mein Dashboard'):
+    return html.Div([
+        dbc.Card(
+            dbc.CardBody([
+                html.H4(text, style={'textAlign': 'center', 'color': 'white', 'height': '100%', 'display': 'flex', 'alignItems': 'center', 'justifyContent': 'center'})
+            ]), style={'height': '100%'}
+        )
+    ], style={'height': '100%', 'padding': '2px'})
+
 app.layout = html.Div([
     dbc.Container([
         html.Div(style={
@@ -135,8 +145,9 @@ app.layout = html.Div([
         }, children=[
             html.Div(drawPie_pie(), style={'gridColumn': '4 / span 3', 'gridRow': '1 / span 2', 'padding': '0px'}),
             html.Div(drawBar_BestSellingCoffee(), style={'gridColumn': '1 / span 6', 'gridRow': '5 / span 2', 'padding': '0px'}),
-            html.Div(drawBubble_bubble(), style={'gridColumn': '1 / span 6', 'gridRow': '3 / span 2', 'padding': '0px'}),
             html.Div(drawTable_sad(), style={'gridColumn': '1 / span 3', 'gridRow': '1 / span 2', 'padding': '0px'}),
+            html.Div(drawBubble_bubble(), style={'gridColumn': '1 / span 3', 'gridRow': '3 / span 2', 'padding': '0px'}),
+            html.Div(drawTextBlock_TextBlock(), style={'gridColumn': '4 / span 3', 'gridRow': '3 / span 2', 'padding': '0px'}),
         ])
     ], fluid=True, style={'height': '100vh', 'padding': '0', 'margin': '0', 'width': '100vw', 'overflow': 'hidden'})
 ])
