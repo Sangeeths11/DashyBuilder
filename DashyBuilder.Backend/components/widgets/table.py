@@ -1,19 +1,26 @@
 from components.widgets.base import Widget
 
 class TableWidget(Widget):
+    def __init__(self, widget_info, cols, datapath):
+        super().__init__(widget_info, cols, datapath)
+        self.title = widget_info.get('title', 'Table')
+        self.tableconfig = widget_info.get('tableConfig', {})
+        print(f"TableConfig: {self.tableconfig}")
+
     def generate_code(self):
         self.title = self.name
         self.name = self.name.replace(" ", "")
         return f"""
+columns = {self.tableconfig.get('columns', [])}
 def drawTable_{self.name}():
     fig = go.Figure(data=[go.Table(
-        header=dict(values=list(df.columns),
+        header=dict(values=list(columns),
                     fill_color='#2e3338',
                     font=dict(color='white', size=14, family='Arial'),
                     align='center',
                     height=30),
                     
-        cells=dict(values=[df[col] for col in df.columns],
+        cells=dict(values=[df[col] for col in columns],
                    fill_color=[['#3b4147', '#434a51']*len(df)],
                    align='center',
                    font=dict(color='white', size=12, family='Arial'),

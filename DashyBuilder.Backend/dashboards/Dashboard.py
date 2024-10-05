@@ -85,27 +85,42 @@ def drawBubble_bubble():
     ], style={'height': '100%', 'padding': '2px'})
 
 
-def drawScatter_asd():
-    
-    fig = px.scatter(df, x='SepalLengthCm', y='SepalWidthCm', color='Species').update_layout(
-        title={'text': 'asd', 'y':0.95, 'x':0.01, 'xanchor': 'left', 'yanchor': 'top'},
+columns = ["SepalLengthCm","SepalWidthCm"]
+def drawTable_sad():
+    fig = go.Figure(data=[go.Table(
+        header=dict(values=list(columns),
+                    fill_color='#2e3338',
+                    font=dict(color='white', size=14, family='Arial'),
+                    align='center',
+                    height=30),
+                    
+        cells=dict(values=[df[col] for col in columns],
+                   fill_color=[['#3b4147', '#434a51']*len(df)],
+                   align='center',
+                   font=dict(color='white', size=12, family='Arial'),
+                   height=25)
+    )])
+
+    fig.update_layout(
+        title={'text': 'sad', 'y':0.95, 'x':0.5, 'xanchor': 'center', 'yanchor': 'top'},
         template='plotly_dark',
         plot_bgcolor='rgba(0, 0, 0, 0)',
         paper_bgcolor='rgba(0, 0, 0, 0)',
-        margin=dict(l=20, r=20, t=40, b=20)
+        margin=dict(l=20, r=20, t=40, b=20),
+        height=300
     )
-    
+
     return html.Div([
         dbc.Card(
             dbc.CardBody([
                 dcc.Graph(
-                    id='asd_Scatter_graph',
+                    id='sad_graph',
                     figure=fig,
                     config={'displayModeBar': False},
                     style={'height': '100%', 'width': '100%'},
                     responsive=True
                 )
-            ]), style={'height': '100%'}
+            ]), style={'height': '100%', 'boxShadow': '0 4px 8px 0 rgba(0, 0, 0, 0.2)', 'borderRadius': '10px', 'backgroundColor': '#32383e'}
         )
     ], style={'height': '100%', 'padding': '2px'})
 
@@ -121,7 +136,7 @@ app.layout = html.Div([
             html.Div(drawPie_pie(), style={'gridColumn': '4 / span 3', 'gridRow': '1 / span 2', 'padding': '0px'}),
             html.Div(drawBar_BestSellingCoffee(), style={'gridColumn': '1 / span 6', 'gridRow': '5 / span 2', 'padding': '0px'}),
             html.Div(drawBubble_bubble(), style={'gridColumn': '1 / span 6', 'gridRow': '3 / span 2', 'padding': '0px'}),
-            html.Div(drawScatter_asd(), style={'gridColumn': '1 / span 3', 'gridRow': '1 / span 2', 'padding': '0px'}),
+            html.Div(drawTable_sad(), style={'gridColumn': '1 / span 3', 'gridRow': '1 / span 2', 'padding': '0px'}),
         ])
     ], fluid=True, style={'height': '100vh', 'padding': '0', 'margin': '0', 'width': '100vw', 'overflow': 'hidden'})
 ])

@@ -24,7 +24,7 @@ export const useWidgetStore = defineStore('widgetStore', () => {
   const fetchWidgetsByProjectIdExport = async (projectId) => {
     const { data, error } = await client
       .from('widgets')
-      .select('*, chartConfig(*)') // Hier fügen Sie die verknüpfte Tabelle hinzu
+      .select('*, chartConfig(*), tableConfig(*)')
       .eq('project_id', projectId);
   
     if (error) {
