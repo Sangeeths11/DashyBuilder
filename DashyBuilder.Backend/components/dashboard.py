@@ -30,9 +30,9 @@ def generate_plotly_code(widgets, grid_size, datapath):
         "import warnings",
         "",
         "warnings.filterwarnings('ignore', category=FutureWarning)",
-        # ToDO: For Bachelor's Thesis
-        # f"df = pd.read_csv('{datapath}.csv')",
-        "df = px.data.iris()",
+        
+        f"df = pd.read_csv('{datapath}.csv')",
+        # "df = px.data.iris()",
         "app = Dash(__name__, external_stylesheets=[dbc.themes.SLATE])",
         ""
     ]
