@@ -11,7 +11,6 @@ class FilterBoxWidget(Widget):
         super().__init__(widget_info, cols, datapath)
         self.filter_types = widget_info.get('filterTypes', [])
         self.filterconfig = widget_info.get('filterConfig', {})
-        print(f"FilterConfig: {self.filterconfig}")
 
     def generate_code(self):
         self.title = self.name

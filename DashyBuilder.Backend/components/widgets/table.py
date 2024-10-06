@@ -5,7 +5,6 @@ class TableWidget(Widget):
         super().__init__(widget_info, cols, datapath)
         self.title = widget_info.get('title', 'Table')
         self.tableconfig = widget_info.get('tableConfig', {})
-        print(f"TableConfig: {self.tableconfig}")
 
     def generate_code(self):
         self.title = self.name
