@@ -10,6 +10,8 @@ class FilterBoxWidget(Widget):
     def __init__(self, widget_info, cols, datapath):
         super().__init__(widget_info, cols, datapath)
         self.filter_types = widget_info.get('filterTypes', [])
+        self.filterconfig = widget_info.get('filterConfig', {})
+        print(f"FilterConfig: {self.filterconfig}")
 
     def generate_code(self):
         self.title = self.name
@@ -33,13 +35,13 @@ def drawFilterBox_{self.name}():
         components = []
         
         if "Date Range" in self.filter_types:
-            components.append(generate_date_range_filter_code(self.name))
+            components.append(generate_date_range_filter_code(self.name,self.filterconfig))
 
         if "Category" in self.filter_types:
             components.append(generate_category_filter_code(self.name))
 
         if "Numeric Range" in self.filter_types:
-            components.append(generate_numeric_range_filter_code(self.name))
+            components.append(generate_numeric_range_filter_code(self.name,self.filterconfig))
 
         return "html.Div([\n" + ",\n".join(components) + "\n])"
 

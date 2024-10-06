@@ -104,6 +104,8 @@ async function saveConfig() {
     if (filterConfigId.value) {
       await configCompStore.updateFilter(filterConfigId.value, filterConfig.value);
     } else {
+      console.log('Creating new filter config');
+      console.log(filterConfig.value);
       await configCompStore.createFilter(props.widget.id, filterConfig.value);
     }
     closeModal();

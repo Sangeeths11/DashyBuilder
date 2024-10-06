@@ -228,6 +228,11 @@ export const useConfigCompStore = defineStore('configComp', () => {
 
   const createFilter = async (widgetId, filterConfig) => {
     try {
+      var currentDate = new Date();
+      if (filterConfig.startDate === "" || filterConfig.endDate === "") {
+        filterConfig.startDate = currentDate;
+        filterConfig.endDate = currentDate;
+      }
       const { data: filterConfigData, error: filterConfigError } = await client
         .from('filterConfig')
         .insert([
