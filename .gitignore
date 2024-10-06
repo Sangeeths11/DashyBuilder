@@ -27,3 +27,5 @@ uploads
 __pycache__
 DashyBuilder.Backend/components/__pycache__/routes.cpython-310.pyc
 DashyBuilder.Backend/promptEngineering/suggestionComponentPromptNew.txt
+
+/Paperwork
