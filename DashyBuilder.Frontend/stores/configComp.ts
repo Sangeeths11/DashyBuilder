@@ -360,9 +360,9 @@ export const useConfigCompStore = defineStore('configComp', () => {
       const { data, error } = await client
         .from('buttonConfig')
         .update({
-          buttonText: buttonConfig.text,
-          buttonColor: buttonConfig.color,
-          buttonSize: buttonConfig.size,
+          buttonText: buttonConfig.buttonText,
+          buttonColor: buttonConfig.buttonColor,
+          buttonSize: buttonConfig.buttonSize,
         })
         .eq('id', buttonConfig_id);
 

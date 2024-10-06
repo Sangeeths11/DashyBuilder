@@ -8,11 +8,11 @@
       <div class="space-y-6">
         <div>
           <label class="block text-sm font-medium text-gray-700">Button Text</label>
-          <input type="text" v-model="localButtonConfig.text" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+          <input type="text" v-model="localButtonConfig.buttonText" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700">Button Color</label>
-          <select v-model="localButtonConfig.color" class="mt-1 block w-full pl-3 pr-10 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+          <select v-model="localButtonConfig.buttonColor" class="mt-1 block w-full pl-3 pr-10 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
             <option value="primary">Primary</option>
             <option value="secondary">Secondary</option>
             <option value="success">Success</option>
@@ -25,7 +25,7 @@
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700">Button Size</label>
-          <select v-model="localButtonConfig.size" class="mt-1 block w-full pl-3 pr-10 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+          <select v-model="localButtonConfig.buttonSize" class="mt-1 block w-full pl-3 pr-10 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
             <option value="sm">Small</option>
             <option value="md">Medium</option>
             <option value="lg">Large</option>
@@ -53,9 +53,9 @@ const emit = defineEmits(['close', 'save']);
 const configCompStore = useConfigCompStore();
 
 const localButtonConfig = ref({
-  text: '',
-  color: 'primary',
-  size: 'md',
+  buttonText: '',
+  buttonColor: 'primary',
+  buttonSize: 'md',
 });
 const buttonConfigId = ref(null);
 
@@ -66,9 +66,9 @@ async function loadButtonConfig() {
       buttonConfigId.value = savedButtonConfig.buttonConfig_id;
       console.log(savedButtonConfig);
       localButtonConfig.value = {
-        text: savedButtonConfig.buttonText.buttonText || '',
-        color: savedButtonConfig.buttonColor.buttonColor || 'primary',
-        size: savedButtonConfig.buttonSize.buttonSize || 'md',
+        buttonText: savedButtonConfig.buttonText.buttonText || '',
+        buttonColor: savedButtonConfig.buttonColor.buttonColor || 'primary',
+        buttonSize: savedButtonConfig.buttonSize.buttonSize || 'md',
       };
     }
   }
@@ -82,6 +82,8 @@ watch(() => props.isOpen, async (newVal) => {
 
 async function saveConfig() {
   if (buttonConfigId.value) {
+    console.log('Creating new button config');
+    console.log(localButtonConfig.value);
     await configCompStore.updateButton(buttonConfigId.value, localButtonConfig.value);
   } else {
     await configCompStore.createButton(props.widget.id, localButtonConfig.value);

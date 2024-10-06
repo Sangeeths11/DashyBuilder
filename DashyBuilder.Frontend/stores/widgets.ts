@@ -24,7 +24,7 @@ export const useWidgetStore = defineStore('widgetStore', () => {
   const fetchWidgetsByProjectIdExport = async (projectId) => {
     const { data, error } = await client
       .from('widgets')
-      .select('*, chartConfig(*), tableConfig(*), textConfig(*)')
+      .select('*, chartConfig(*), tableConfig(*), textConfig(*), buttonConfig(*)')
       .eq('project_id', projectId);
   
     if (error) {
