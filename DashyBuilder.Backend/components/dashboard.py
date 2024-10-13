@@ -87,22 +87,48 @@ def generate_plotly_code(widgets, grid_size, datapath):
     ]
 
     callbackComponents = []
-    callbackComponents.append(
-        "@app.callback("
-        "\n    Output('asd_graph', 'figure'),"
-        "\n    Input('asd_numeric_slider', 'value')"
-        "\n)"
-        "\ndef update_bar_chart(sepal_length_range):"
-        "\n    filtered_df = df[(df['sepal_length'] >= sepal_length_range[0]) & (df['sepal_length'] <= sepal_length_range[1])]"
-        "\n    fig = px.bar(filtered_df, x='species', y='sepal_length').update_layout("
-        "\n        title={'text': 'Sepal Length per Species', 'y':0.95, 'x':0.01, 'xanchor': 'left', 'yanchor': 'top'},"
-        "\n        template='plotly_dark',"
-        "\n        plot_bgcolor='rgba(0, 0, 0, 0)',"
-        "\n        paper_bgcolor='rgba(0, 0, 0, 0)',"
-        "\n        margin=dict(l=20, r=20, t=40, b=20)"
-        "\n    )"
-        "\n    return fig"
-    )
+    for widget in widgets:
+        widget_type = widget['type']
+        if widget_type == 'Filter Box':
+            widget_class = widget_classes.get('Filter Box')
+            filter_types = widget.get('filterTypes', [])
+            name = widget.get('name', f'Widget{widget.get("id", "")}')
+            name = name.replace(" ", "")
+            if "Numeric Range" in filter_types:
+                callbackComponents.append(
+                    "@app.callback("
+                    "\n    Output('asd_graph', 'figure'),"
+                    f"\n    Input('{name}_numeric_slider', 'value')"
+                    "\n)"
+                    "\ndef update_bar_chart(sepal_length_range):"
+                    "\n    filtered_df = df[(df['sepal_length'] >= sepal_length_range[0]) & (df['sepal_length'] <= sepal_length_range[1])]"
+                    "\n    fig = px.bar(filtered_df, x='species', y='sepal_length').update_layout("
+                    "\n        title={'text': 'Sepal Length per Species', 'y':0.95, 'x':0.01, 'xanchor': 'left', 'yanchor': 'top'},"
+                    "\n        template='plotly_dark',"
+                    "\n        plot_bgcolor='rgba(0, 0, 0, 0)',"
+                    "\n        paper_bgcolor='rgba(0, 0, 0, 0)',"
+                    "\n        margin=dict(l=20, r=20, t=40, b=20)"
+                    "\n    )"
+                    "\n    return fig"
+                )
+            if "Date Range" in filter_types:
+                callbackComponents.append(
+                    "@app.callback("
+                    "\n    Output('asd_graph', 'figure'),"
+                    f"\n    Input('{name}_date_picker', 'start_date'),"
+                    f"\n    Input('{name}_date_picker', 'end_date')"
+                    "\n)"
+                    "\ndef update_bar_chart(start_date, end_date):"
+                    "\n    filtered_df = df[(df['date'] >= start_date) & (df['date'] <= end_date)]"
+                    "\n    fig = px.bar(filtered_df, x='species', y='sepal_length').update_layout("
+                    "\n        title={'text': 'Sepal Length per Species', 'y':0.95, 'x':0.01, 'xanchor': 'left', 'yanchor': 'top'},"
+                    "\n        template='plotly_dark',"
+                    "\n        plot_bgcolor='rgba(0, 0, 0, 0)',"
+                    "\n        paper_bgcolor='rgba(0, 0, 0, 0)',"
+                    "\n        margin=dict(l=20, r=20, t=40, b=20)"
+                    "\n    )"
+                    "\n    return fig"
+                )
 
     callback_definitions = [
         "\n".join(callbackComponents)
