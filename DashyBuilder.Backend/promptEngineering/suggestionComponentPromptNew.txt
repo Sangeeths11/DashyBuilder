@@ -1,4 +1,4 @@
-Research Question: Test
+Research Question: Give me an Example Reserach Template
 
 Dataset Information:
 - Column Names: ['date', 'datetime', 'cash_type', 'card', 'money', 'coffee_name']

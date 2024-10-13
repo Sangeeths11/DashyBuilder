@@ -9,6 +9,7 @@ from components.uploader import FileUploader
 from components.dashAnalyzer import analyze_code
 import components.hosting as hosting
 from openai import OpenAI
+from groq import Groq
 import zipfile
 import os
 
@@ -205,7 +206,6 @@ def register_routes(app):
         if not data:
             return jsonify({"error": "No data provided"}), 400
         
-        # Extract necessary information
         column_names = data.get('column_info')
         preview_data = data.get('preview_data')
         research_question = data.get('research_question')
@@ -213,15 +213,12 @@ def register_routes(app):
         if not column_names or not preview_data or not research_question:
             return jsonify({"error": "Missing required data to process the request"}), 400
 
-        # Load the prompt template
         with open('promptEngineering\\suggestionComponentUser.txt', 'r') as file:
             prompt_template = file.read()
 
-        # Convert column names and preview data into the expected format
         column_names_str = str([col['name'] for col in column_names])
         preview_data_str = str(preview_data)
 
-        # Replace placeholders in the template with actual data
         prompt = prompt_template.replace("[QUESTION]", research_question)
         prompt = prompt.replace("Column Names: []", f"Column Names: {column_names_str}")
         prompt = prompt.replace("Sample Data: []", f"Sample Data: {preview_data_str}")
@@ -229,11 +226,9 @@ def register_routes(app):
         with open('promptEngineering\\suggestionComponentSystem.txt', 'r') as file:
             prompt_system = file.read()
 
-        #write the new prompt to a file as a backup
         with open('promptEngineering\\suggestionComponentPromptNew.txt', 'w', encoding='utf-8') as file:
             file.write(prompt)
 
-        # OpenAI API call
         try:
             client = OpenAI(api_key=os.environ.get('OPENAI_API_KEY'))
             response  = client.chat.completions.create(
@@ -247,6 +242,65 @@ def register_routes(app):
                 response_format= {"type": "json_object"},
             )
             result = response.choices[0].message.content
+            return jsonify({"result": result})
+
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+    
+    @app.route('/ai/groqai-process', methods=['POST'])
+    def process_groqcloud():
+        data = request.json
+        if not data:
+            return jsonify({"error": "No data provided"}), 400
+        
+        column_names = data.get('column_info')
+        preview_data = data.get('preview_data')
+        research_question = data.get('research_question')
+        
+        if not column_names or not preview_data or not research_question:
+            return jsonify({"error": "Missing required data to process the request"}), 400
+
+        with open('promptEngineering/suggestionComponentUser.txt', 'r') as file:
+            prompt_template = file.read()
+
+        column_names_str = str([col['name'] for col in column_names])
+        preview_data_str = str(preview_data)
+
+        prompt = prompt_template.replace("[QUESTION]", research_question)
+        prompt = prompt.replace("Column Names: []", f"Column Names: {column_names_str}")
+        prompt = prompt.replace("Sample Data: []", f"Sample Data: {preview_data_str}")
+
+        with open('promptEngineering/suggestionComponentSystem.txt', 'r') as file:
+            prompt_system = file.read()
+
+        with open('promptEngineering/suggestionComponentPromptNew.txt', 'w', encoding='utf-8') as file:
+            file.write(prompt)
+        
+        try:
+            groq = Groq(api_key=os.environ.get('GROQ_API_KEY'))
+
+            completion = groq.chat.completions.create(
+                model="llama3-8b-8192",
+                messages=[
+                    {
+                        "role": "system",
+                        "content": prompt_system
+                    },
+                    {
+                        "role": "user",
+                        "content": prompt
+                    }
+                ],
+                temperature=1,
+                max_tokens=1024,
+                top_p=1,
+                stream=False,
+                response_format={"type": "json_object"},
+                stop=None,
+            )
+
+            result = completion.choices[0].message.content
+            print(result)
             return jsonify({"result": result})
 
         except Exception as e:

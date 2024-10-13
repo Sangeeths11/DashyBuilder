@@ -116,7 +116,7 @@ watch(() => props.show, async (newValue) => {
 async function callOpenAI() {
     loading.value = true; // Ladezustand starten
     try {
-      const response = await fetch('http://localhost:5000/ai/openai-process', {
+      const response = await fetch('http://localhost:5000/ai/groqai-process', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
