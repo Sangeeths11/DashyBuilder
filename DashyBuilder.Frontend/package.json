@@ -14,6 +14,7 @@
     "@pinia/nuxt": "^0.5.2",
     "@vueuse/core": "^10.11.0",
     "gridstack": "^10.3.1",
+    "monaco-editor": "^0.52.0",
     "nuxt": "^3.12.4",
     "nuxt-monaco-editor": "^1.2.9",
     "pinia": "^2.2.0",
