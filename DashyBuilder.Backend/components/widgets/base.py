@@ -1,12 +1,12 @@
 import pandas as pd
-
+import os
 
 class Widget:
     def __init__(self, widget_info, cols, datapath):
         self.name = widget_info.get('name', f'Widget{widget_info.get("id", "")}')
         self.grid_position = widget_info['gridPosition']['gridPosition']
 
-        df = pd.read_csv(f'uploads\\{datapath}.csv')
+        df = pd.read_csv(os.path.join('uploads', f'{datapath}.csv'))
         self.df = df
         self.min_row, self.min_col, self.row_span, self.col_span = self.parse_grid_positions(self.grid_position, cols)
 

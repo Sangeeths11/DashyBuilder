@@ -4,9 +4,10 @@ import plotly.express as px
 import plotly.graph_objects as go
 import pandas as pd
 import warnings
+import os
 
 warnings.filterwarnings('ignore', category=FutureWarning)
-df = pd.read_csv('C:\\Users\\csang\\.vscode\\DashyBuilder\\DashyBuilder.Backend\\dashboards\\Iris.xls')
+df = pd.read_csv(os.path.join('dashboards', 'Iris.xls'))
 app = Dash(__name__, external_stylesheets=[dbc.themes.SLATE])
 
 

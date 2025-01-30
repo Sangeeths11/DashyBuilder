@@ -69,7 +69,7 @@ const uploadChunk = async (chunk, chunkNumber, totalChunks, filename) => {
   formData.append('totalChunks', totalChunks);
   formData.append('filename', filename);
 
-  const response = await fetch('http://localhost:5000/upload_chunk', {
+  const response = await fetch('http://127.0.0.1:5000/upload_chunk', {
     method: 'POST',
     body: formData
   });
@@ -96,7 +96,7 @@ const uploadDataset = async () => {
       await uploadChunk(chunk, i, totalChunks, filename);
     }
 
-    const finalizeResponse = await fetch('http://localhost:5000/finalize_upload', {
+    const finalizeResponse = await fetch('http://127.0.0.1:5000/finalize_upload', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ filename })

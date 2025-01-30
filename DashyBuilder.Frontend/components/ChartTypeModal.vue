@@ -194,7 +194,7 @@ watch(() => props.uploadedDatasetId, async (newDatasetId) => {
 
 async function fetchColumns(datasetId) {
   try {
-    const response = await fetch(`http://localhost:5000/data/column/${datasetId}`);
+    const response = await fetch(`http://127.0.0.1:5000/data/column/${datasetId}`);
     const data = await response.json();
     datasetColumns.value = data.column_info.map(col => col.name); // Assuming you want just the column names
   } catch (error) {

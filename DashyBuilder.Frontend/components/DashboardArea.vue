@@ -15,6 +15,7 @@
       />
     </div>
     <div class="absolute top-4 right-4 flex space-x-4">
+      <!--
       <div class="relative group">
         <button v-if="uploadedDatasetId" @click="showAISuggestion = true" class="bg-purple-600 hover:bg-purple-800 text-white font-bold p-2 rounded-full flex items-center justify-center shadow-lg transition duration-300 ease-in-out">
           <Icon name="mdi:robot" color="white" class="text-2xl" />
@@ -23,6 +24,7 @@
           AI Suggestions
         </div>
       </div>
+      -->
 
       <div class="relative group">
         <button @click="downloadPythonFile" class="bg-blue-600 hover:bg-blue-800 text-white font-bold p-2 rounded-full flex items-center justify-center shadow-lg transition duration-300 ease-in-out">
@@ -33,6 +35,7 @@
         </div>
       </div>
 
+      <!--
       <div class="relative group">
         <button @click="hostDashboard" class="bg-green-600 hover:bg-green-800 text-white font-bold p-2 rounded-full flex items-center justify-center shadow-lg transition duration-300 ease-in-out">
           <Icon name="mdi:cloud-upload" color="white" class="text-2xl" />
@@ -41,6 +44,7 @@
           Host Dashboard
         </div>
       </div>
+      -->
 
       <div class="relative group">
         <button @click="toggleCodeViewer" class="bg-gray-600 hover:bg-gray-800 text-white font-bold p-2 rounded-full flex items-center justify-center shadow-lg transition duration-300 ease-in-out">
@@ -50,6 +54,7 @@
           Code Viewer
         </div>
       </div>
+      <!--
       <div class="relative group">
         <button
           @click="evaluateDashboard"
@@ -63,6 +68,7 @@
           Evaluate Dashboard
         </div>
       </div>
+      -->
     </div>
     <HostingModal :show="showHostingModal" :url="hostedUrl" @close="showHostingModal = false" />
     <EvaluationModal
@@ -140,7 +146,7 @@ async function evaluateDashboard() {
     }
 
     const widgetsExport = await widgetStore.fetchWidgetsByProjectIdExport(props.projectId);
-    const codeResponse = await fetch('http://localhost:5000/exportCode', {
+    const codeResponse = await fetch('http://127.0.0.1:5000/exportCode', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -158,7 +164,7 @@ async function evaluateDashboard() {
     const dashboardCode = await codeResponse.text();
 
     // Send the dashboard code to the backend for evaluation
-    const evalResponse = await fetch('http://localhost:5000/evaluate_dashboard', {
+    const evalResponse = await fetch('http://127.0.0.1:5000/evaluate_dashboard', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -202,7 +208,7 @@ async function fetchDashboardCode() {
     }
     
     const widgetsExport = await widgetStore.fetchWidgetsByProjectIdExport(props.projectId);
-    const response = await fetch('http://localhost:5000/exportCode', {
+    const response = await fetch('http://127.0.0.1:5000/exportCode', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -249,7 +255,7 @@ async function hostDashboard() {
   loadingDashboard.value = true;
 
   try {
-    const response = await fetch('http://localhost:5000/export', {
+    const response = await fetch('http://127.0.0.1:5000/export', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -269,7 +275,7 @@ async function hostDashboard() {
     }, 3000);
   } finally {
     try {
-      const response = await fetch('http://localhost:5000/upload_to_pythonanywhere', {
+      const response = await fetch('http://127.0.0.1:5000/upload_to_pythonanywhere', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -318,7 +324,7 @@ async function downloadPythonFile() {
     }
 
     const widgetsExport = await widgetStore.fetchWidgetsByProjectIdExport(props.projectId);
-    const response = await fetch('http://localhost:5000/export', {
+    const response = await fetch('http://127.0.0.1:5000/export', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

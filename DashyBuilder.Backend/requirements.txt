@@ -7,3 +7,4 @@ pandas
 ydata-profiling
 python-dotenv
 openai
+groq

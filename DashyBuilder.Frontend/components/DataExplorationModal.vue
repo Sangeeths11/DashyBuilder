@@ -77,7 +77,7 @@ watch(() => props.datasetId, async (newDatasetId) => {
   if (newDatasetId) {
     dataInfo.value = null;  // Setze das Dateninfo-Objekt zurück
     try {
-      const response = await fetch(`http://localhost:5000/data/${newDatasetId}`);
+      const response = await fetch(`http://127.0.0.1:5000/data/${newDatasetId}`);
       if (response.ok) {
         const result = await response.json();
         dataInfo.value = result;
@@ -93,7 +93,7 @@ watch(() => props.datasetId, async (newDatasetId) => {
 });
 
 const viewProfile = () => {
-  window.open(`http://localhost:5000/profile/${props.datasetId}`, '_blank');
+  window.open(`http://127.0.0.1:5000/profile/${props.datasetId}`, '_blank');
 };
 </script>
 

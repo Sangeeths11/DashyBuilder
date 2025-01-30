@@ -35,9 +35,10 @@ def register_routes(app):
         zip_buffer = io.BytesIO()
         with zipfile.ZipFile(zip_buffer, 'w') as zipf:
             zipf.writestr('Dashboard.py', dashboard_content.getvalue())
-            print(f'uploads\\{datapath}.csv')
-            if os.path.exists(f'uploads\\{datapath}.csv'):
-                zipf.write(f'uploads\\{datapath}.csv', arcname=f'{datapath}.csv')
+            csv_path = os.path.join('uploads', f'{datapath}.csv')
+            print(csv_path)
+            if os.path.exists(csv_path):
+                zipf.write(csv_path, arcname=f'{datapath}.csv')
             else:
                 return jsonify({'error': 'CSV file not found'}), 404
 

@@ -116,7 +116,7 @@ watch(() => props.show, async (newValue) => {
 async function callOpenAI() {
     loading.value = true; // Ladezustand starten
     try {
-      const response = await fetch('http://localhost:5000/ai/groqai-process', {
+      const response = await fetch('http://127.0.0.1:5000/ai/groqai-process', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -148,7 +148,7 @@ async function fetchDatasetInfo() {
   errorMessage.value = null;
 
   try {
-    const response = await fetch(`http://localhost:5000/ai/${props.uploadedDatasetId}`);
+    const response = await fetch(`http://127.0.0.1:5000/ai/${props.uploadedDatasetId}`);
     if (!response.ok) {
       throw new Error('Failed to fetch dataset info');
     }

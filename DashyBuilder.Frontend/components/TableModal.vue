@@ -52,7 +52,7 @@ const tableConfigId = ref(null);
 
 async function loadDatasetColumns() {
   try {
-    const response = await fetch(`http://localhost:5000/data/column/${props.uploadedDatasetId}`);
+    const response = await fetch(`http://127.0.0.1:5000/data/column/${props.uploadedDatasetId}`);
     const data = await response.json();
     
     if (data && data.column_info) {
