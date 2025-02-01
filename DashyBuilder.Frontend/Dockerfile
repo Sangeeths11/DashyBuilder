@@ -1,33 +1,34 @@
 # syntax = docker/dockerfile:1
 
-ARG NODE_VERSION=18.14.2
-
-FROM node:${NODE_VERSION}-slim as base
+FROM node:18.14.2-slim AS base
 
 ARG PORT=3000
-
+ENV PORT=$PORT
 ENV NODE_ENV=production
 
-WORKDIR /src
+WORKDIR /app
 
-# Build
-FROM base as build
+# Dependencies Installation
+FROM base AS dependencies
+COPY package.json yarn.lock ./
+RUN yarn install --frozen-lockfile --production=false
 
-COPY --link package.json package-lock.json .
-RUN npm install --production=false
+# Build Stage
+FROM dependencies AS build
+COPY . .
+RUN yarn build
+RUN yarn install --production --ignore-scripts --prefer-offline
 
-COPY --link . .
+# Production Image
+FROM base AS production
 
-RUN npm run build
-RUN npm prune
+# Kopiere notwendige Dateien
+COPY --from=build /app/.output /app/.output
+COPY --from=build /app/node_modules /app/node_modules
+COPY .env /app/.env
 
-# Run
-FROM base
+# Exponiere den Port
+EXPOSE $PORT
 
-ENV PORT=$PORT
-
-COPY --from=build /src/.output /src/.output
-# Optional, only needed if you rely on unbundled dependencies
-# COPY --from=build /src/node_modules /src/node_modules
-
+# Starte die Anwendung
 CMD [ "node", ".output/server/index.mjs" ]
