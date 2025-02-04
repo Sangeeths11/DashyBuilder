@@ -20,6 +20,8 @@ yarn install
 bun install
 ```
 
+Make sure to copy env file `.env.example` and enter supabase credentials
+
 ## Development Server
 
 Start the development server on `http://localhost:3000`:
