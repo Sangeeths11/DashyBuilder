@@ -4,11 +4,11 @@
     <SucessMessageBox :message="successMessage" />
     <ErrorMessageBox :message="errorMessage" />
     <div class="flex flex-wrap mb-5">
-      <div class="w-full lg:w-1/2 px-2 flex">
+      <div class="w-full lg:w-1/2 px-2 grid">
         <UploadDataset @uploaded="handleDatasetUploaded" @loading="loadingData = $event" class="mb-5 flex-grow"
           :projectId="projectId" />
       </div>
-      <div class="w-full lg:w-1/2 px-2 flex flex-col">
+      <div class="w-full lg:w-1/2 px-2 grid flex-col">
         <DashboardStyleSelector @selected-style="handleMockupStyle" />
         <UploadMockup @uploaded="handleMockupUploaded" @loading="loadingMockup = $event" class="mb-5 flex-grow"
           :projectId="projectId" v-if="showUploadMockup" />
