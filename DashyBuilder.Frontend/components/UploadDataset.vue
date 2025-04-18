@@ -4,23 +4,25 @@
     <ErrorMessageBox :message="errorMessage"/>
     <div class="bg-white shadow-lg rounded-lg p-4 h-full flex flex-col relative">
       <h2 class="font-bold text-lg mb-4">Upload Dataset</h2>
-      <div class="flex flex-col items-center space-y-4 flex-grow w-full">
-        <label for="file-upload" class="w-full flex flex-col items-center px-4 py-16 bg-gray-100 text-blue rounded-lg shadow-lg tracking-wide uppercase border border-blue cursor-pointer hover:bg-blue-500 hover:text-white transition duration-300 ease-in-out">
-          <svg class="w-12 h-12" fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+      <div class="flex flex-col items-center flex-grow w-full">
+        <label for="file-upload" class="w-full flex flex-col items-center justify-center px-4 py-20 bg-gray-100 text-blue rounded-lg shadow-lg tracking-wide uppercase border border-gray-200 cursor-pointer hover:bg-blue-500 hover:text-white transition duration-300 ease-in-out mb-6">
+          <svg class="w-16 h-16" fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
             <path d="M16.88 5.5a2 2 0 01.12 0h1a2 2 0 011.72 1.05 2 2 0 01.28.96v7a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h1.1a2 2 0 01.12 0H5a.5.5 0 000 1h10a.5.5 0 000-1h-.12zM9 8a.5.5 0 000 1h2a.5.5 0 000-1H9z"/>
           </svg>
-          <span class="mt-2 text-base leading-normal">Select a file</span>
-          <span class="text-xs leading-normal">File must be in CSV format</span>
+          <span class="mt-3 text-lg font-semibold leading-normal">SELECT A FILE</span>
+          <span class="text-sm leading-normal mt-1">File must be in CSV format</span>
           <input id="file-upload" type="file" class="hidden" @change="handleFileUpload"/>
         </label>
-        <button
-          @click="uploadDataset"
-          :disabled="!selectedFile || isLoading"
-          class="w-full bg-blue-500 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded mt-4 flex items-center justify-center transition duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed h-12" style="margin-top: 1.8em;">
-          <Icon name="mdi:upload" color="white" class="mr-1 text-3xl"/>
-          <span v-if="isLoading">Uploading...</span>
-          <span v-else>Upload Dataset</span>
-        </button>
+        <div class="w-full mt-auto">
+          <button
+            @click="uploadDataset"
+            :disabled="!selectedFile || isLoading"
+            class="w-full bg-blue-500 hover:bg-blue-800 text-white font-bold py-3 px-4 rounded flex items-center justify-center transition duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed h-14">
+            <Icon name="mdi:upload" color="white" class="mr-2 text-3xl"/>
+            <span v-if="isLoading">Uploading...</span>
+            <span v-else>Upload Dataset</span>
+          </button>
+        </div>
       </div>
 
       <!-- Fancy Data Exploration Button -->

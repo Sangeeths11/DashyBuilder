@@ -3,19 +3,21 @@
     <h1 class="text-3xl font-bold mb-6">{{ name }}</h1>
     <SucessMessageBox :message="successMessage" />
     <ErrorMessageBox :message="errorMessage" />
-    <div class="flex flex-wrap mb-5">
-      <div class="w-full lg:w-1/2 px-2 grid">
-        <UploadDataset @uploaded="handleDatasetUploaded" @loading="loadingData = $event" class="mb-5 flex-grow"
+    <div class="flex flex-wrap mb-8">
+      <div class="w-full lg:w-1/2 px-2 flex">
+        <UploadDataset @uploaded="handleDatasetUploaded" @loading="loadingData = $event" class="flex-grow"
           :projectId="projectId" />
       </div>
-      <div class="w-full lg:w-1/2 px-2 grid flex-col">
-        <DashboardStyleSelector @selected-style="handleMockupStyle" />
-        <UploadMockup @uploaded="handleMockupUploaded" @loading="loadingMockup = $event" class="mb-5 flex-grow"
-          :projectId="projectId" v-if="showUploadMockup" />
-        <CameraMockup @uploaded="handleMockupUploaded" @loading="loadingMockup = $event" class="mb-5 flex-grow"
-          :projectId="projectId" v-if="showCameraMockup" />
-        <ComponentSelector @add-widget="handleAddWidget" @errorMessage="errorMessageModal" class="w-full"
-          v-if="!showUploadMockup && !showCameraMockup" />
+      <div class="w-full lg:w-1/2 px-2 flex flex-col">
+        <DashboardStyleSelector @selected-style="handleMockupStyle" class="mb-4" />
+        <div class="flex-grow">
+          <UploadMockup @uploaded="handleMockupUploaded" @loading="loadingMockup = $event" 
+            :projectId="projectId" v-if="showUploadMockup" />
+          <CameraMockup @uploaded="handleMockupUploaded" @loading="loadingMockup = $event" 
+            :projectId="projectId" v-if="showCameraMockup" />
+          <ComponentSelector @add-widget="handleAddWidget" @errorMessage="errorMessageModal"
+            v-if="!showUploadMockup && !showCameraMockup" />
+        </div>
       </div>
     </div>
     <DashboardArea :widgets="widgetStore.widgets" :gridSize="gridSize" :uploadedDatasetId="uploadedDatasetId"

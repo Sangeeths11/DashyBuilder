@@ -4,37 +4,37 @@
     <ErrorMessageBox :message="errorMessage" />
     <div class="bg-white shadow-lg rounded-lg p-4 h-full flex flex-col relative">
       <h2 class="font-bold text-lg mb-4">Capture Mockup</h2>
-      <div class="flex flex-col items-center space-y-4 flex-grow w-full">
-        <div class="camera-container w-full bg-gray-100 rounded-lg overflow-hidden">
+      <div class="flex flex-col items-center flex-grow w-full">
+        <div class="camera-container w-full bg-gray-100 rounded-lg overflow-hidden border border-gray-200 mb-6">
           <video ref="videoElement" 
-            class="w-full h-full max-h-72 object-cover" 
+            class="w-full h-full min-h-[250px] max-h-80 object-cover" 
             autoplay 
             playsinline
             v-show="!capturedImage"></video>
           <canvas ref="canvasElement" class="hidden"></canvas>
-          <img v-if="capturedImage" :src="capturedImage" class="w-full h-full max-h-72 object-cover" />
+          <img v-if="capturedImage" :src="capturedImage" class="w-full h-full min-h-[250px] max-h-80 object-cover" />
         </div>
         
-        <div class="flex space-x-4 w-full justify-center">
+        <div class="flex space-x-4 w-full justify-center mt-auto">
           <button v-if="!capturedImage"
             @click="captureImage"
-            class="bg-blue-500 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded flex items-center justify-center transition duration-300 ease-in-out">
-            <Icon name="mdi:camera" color="white" class="mr-1 text-2xl" />
-            <span>Capture</span>
+            class="w-full bg-blue-500 hover:bg-blue-800 text-white font-bold py-3 px-4 rounded flex items-center justify-center transition duration-300 ease-in-out h-14">
+            <Icon name="mdi:camera" color="white" class="mr-2 text-3xl" />
+            <span>Capture Photo</span>
           </button>
           <button v-if="capturedImage"
             @click="resetCamera"
-            class="bg-gray-500 hover:bg-gray-800 text-white font-bold py-2 px-4 rounded flex items-center justify-center transition duration-300 ease-in-out">
-            <Icon name="mdi:refresh" color="white" class="mr-1 text-2xl" />
-            <span>Retake</span>
+            class="w-full bg-gray-500 hover:bg-gray-800 text-white font-bold py-3 px-4 rounded flex items-center justify-center transition duration-300 ease-in-out h-14">
+            <Icon name="mdi:refresh" color="white" class="mr-2 text-3xl" />
+            <span>Retake Photo</span>
           </button>
           <button v-if="capturedImage"
             @click="uploadImage" 
             :disabled="isLoading"
-            class="bg-blue-500 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded flex items-center justify-center transition duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed">
-            <Icon name="mdi:upload" color="white" class="mr-1 text-2xl" />
+            class="w-full bg-blue-500 hover:bg-blue-800 text-white font-bold py-3 px-4 rounded flex items-center justify-center transition duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed h-14">
+            <Icon name="mdi:upload" color="white" class="mr-2 text-3xl" />
             <span v-if="isLoading">Uploading...</span>
-            <span v-else>Upload</span>
+            <span v-else>Upload Photo</span>
           </button>
         </div>
 
@@ -220,8 +220,11 @@ const uploadImage = async () => {
 <style scoped>
 .camera-container {
   position: relative;
-  min-height: 200px;
+  min-height: 250px;
   border: 2px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 button:disabled {
