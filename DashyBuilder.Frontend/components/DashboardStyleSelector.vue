@@ -23,6 +23,7 @@ const emit = defineEmits(['selected-style']);
 const mockupStyles = ref([
   { id: 'components', name: 'Put own dashboard with components together' },
   { id: 'mockup', name: 'Upload dashboard mockup' },
+  { id: 'camera', name: 'Capture mockup from camera' },
 ]);
 const selectedMockupStyle = ref('components');
 

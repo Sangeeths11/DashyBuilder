@@ -12,8 +12,10 @@
         <DashboardStyleSelector @selected-style="handleMockupStyle" />
         <UploadMockup @uploaded="handleMockupUploaded" @loading="loadingMockup = $event" class="mb-5 flex-grow"
           :projectId="projectId" v-if="showUploadMockup" />
+        <CameraMockup @uploaded="handleMockupUploaded" @loading="loadingMockup = $event" class="mb-5 flex-grow"
+          :projectId="projectId" v-if="showCameraMockup" />
         <ComponentSelector @add-widget="handleAddWidget" @errorMessage="errorMessageModal" class="w-full"
-          v-if="!showUploadMockup" />
+          v-if="!showUploadMockup && !showCameraMockup" />
       </div>
     </div>
     <DashboardArea :widgets="widgetStore.widgets" :gridSize="gridSize" :uploadedDatasetId="uploadedDatasetId"
@@ -41,6 +43,7 @@ const uploadedMockupId = ref(null);
 const loadingData = ref(false);
 const loadingMockup = ref(false);
 const showUploadMockup = ref(false);
+const showCameraMockup = ref(false);
 
 watch(projectId, async (newId, oldId) => {
   if (newId !== oldId) {
@@ -131,11 +134,16 @@ const handleMockupUploaded = async (datasetId) => {
   }
 };
 
-const handleMockupStyle = async (showUploadMockupId) => {
-  if (showUploadMockupId === 'mockup') {
+const handleMockupStyle = async (style) => {
+  if (style === 'mockup') {
     showUploadMockup.value = true;
+    showCameraMockup.value = false;
+  } else if (style === 'camera') {
+    showUploadMockup.value = false;
+    showCameraMockup.value = true;
   } else {
     showUploadMockup.value = false;
+    showCameraMockup.value = false;
   }
 }
 
